@@ -46,7 +46,7 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 void ABaseCharacter::OnDeath()
 {
-	UE_LOG(LogBaseCharacter, Display, TEXT("Player %s is dead"), *GetName());
+	// UE_LOG(LogBaseCharacter, Display, TEXT("Player %s is dead"), *GetName());
 
 	GetCharacterMovement()->DisableMovement();
 
@@ -73,5 +73,9 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (GetActorTransform().GetLocation().Z <= KillHeight && !HealthComponent->IsDead()) TakeDamage(100.0f, FDamageEvent(), GetController(), this);
+	// If under kill height
+	if (GetActorTransform().GetLocation().Z <= KillHeight && !HealthComponent->IsDead())
+	{
+		TakeDamage(HealthComponent->MaxHealth, FDamageEvent(), GetController(), this);
+	}
 }
