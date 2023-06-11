@@ -52,7 +52,7 @@ void ASFPlatform::SpawnNext(UPrimitiveComponent* HitComponent, AActor* OtherActo
 	// Get the location and rotation of the new platform
 	FVector SpawnLocation = GetActorLocation();
 	// UE_LOG(LogPlatform, Display, TEXT("%f %f"), PlatformMesh->Bounds.BoxExtent.X, PlatformMesh->Bounds.BoxExtent.Y);
-	SpawnLocation.X += PlatformMesh->Bounds.BoxExtent.X * 2 + FMath::RandRange(150.0f, 450.0f);
+	SpawnLocation.X += PlatformMesh->Bounds.BoxExtent.X * 2 + FMath::RandRange(150.0f, 600.0f);
 	SpawnLocation.Y += FMath::RandRange(-PlatformMesh->Bounds.BoxExtent.Y * 2, PlatformMesh->Bounds.BoxExtent.Y * 2);
 	SpawnLocation.Z += SpawnHeight;
 	FRotator SpawnRotation = GetActorRotation();// (GetActorLocation() - SpawnLocation).ToOrientationRotator();
