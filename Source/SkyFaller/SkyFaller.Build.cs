@@ -8,14 +8,22 @@ public class SkyFaller : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+		PublicDependencyModuleNames.AddRange(new string[] 
+		{ 
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore" 
+		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
 		PublicIncludePaths.AddRange(new string[]
 		{
 			"SkyFaller/Public/Player",
-			"SkyFaller/Public/Components"
+			"SkyFaller/Public/Player/Weapon",
+			"SkyFaller/Public/Components",
+			"SkyFaller/Public/Objects"
 		});
 
 		// Uncomment if you are using Slate UI

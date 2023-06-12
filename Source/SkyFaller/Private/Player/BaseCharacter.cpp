@@ -2,6 +2,7 @@
 
 
 #include "Player/BaseCharacter.h"
+#include "Player/Weapon/SFBaseWeapon.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/SFHealthComponent.h"
@@ -32,6 +33,8 @@ void ABaseCharacter::BeginPlay()
 	check(HealthComponent);
 
 	HealthComponent->OnDeath.AddUObject(this, &ABaseCharacter::OnDeath);
+
+	SpawnWeapon();
 }
 
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -73,6 +76,18 @@ void ABaseCharacter::OnDeath()
 		Controller->ChangeState(NAME_Spectating);
 	}
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+}
+
+void ABaseCharacter::SpawnWeapon()
+{
+	const auto World = GetWorld();
+	if (!World) return;
+
+	auto Weapon = World->SpawnActor<ASFBaseWeapon>(WeaponClass);
+	if (!Weapon) return;
+
+	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
+	Weapon->AttachToComponent(GetMesh(), AttachmentRules, "WeaponSocket");
 }
 
 void ABaseCharacter::MoveForward(float Amount)
