@@ -2,26 +2,33 @@
 
 
 #include "Player/Weapon/SFBowWeapon.h"
+#include "Player/Weapon/SFArrow.h"
+#include "..\..\..\Public\Player\Weapon\SFBowWeapon.h"
 
-// Sets default values
-ASFBowWeapon::ASFBowWeapon()
+DEFINE_LOG_CATEGORY_STATIC(LogBow, All, All)
+
+void ASFBowWeapon::StartFire()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	MakeShot();
 }
 
-// Called when the game starts or when spawned
-void ASFBowWeapon::BeginPlay()
+void ASFBowWeapon::MakeShot()
 {
-	Super::BeginPlay();
-	
+	if (!GetWorld()) return;
+	FVector TraceStart, TraceEnd;
+	if (!GetTraceData(TraceStart, TraceEnd)) return;
+
+	FHitResult HitResult;
+	MakeHit(HitResult, TraceStart, TraceEnd);
+
+	const FVector EndPoint = HitResult.bBlockingHit ? HitResult.ImpactPoint : TraceEnd;
+	const FVector Direction = (EndPoint - GetMuzzleWorldLocation()).GetSafeNormal();
+
+	const FTransform SpawnTransform(FRotator::ZeroRotator, GetMuzzleWorldLocation());
+	ASFArrow* Arrow = GetWorld()->SpawnActorDeferred<ASFArrow>(ProjectileClass, SpawnTransform);
+	if (!Arrow) return;
+
+	Arrow->SetShotDirection(Direction);
+	Arrow->SetOwner(GetOwner());
+	Arrow->FinishSpawning(SpawnTransform);
 }
-
-// Called every frame
-void ASFBowWeapon::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-

@@ -8,6 +8,7 @@
 #include "Components/SFHealthComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SFWeaponComponent.h"
 #include "..\..\Public\Player\BaseCharacter.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBaseCharacter, All, All)
@@ -24,6 +25,8 @@ ABaseCharacter::ABaseCharacter()
 	CameraComponent->SetupAttachment(SpringArmComponent);
 
 	HealthComponent = CreateDefaultSubobject<USFHealthComponent>("HealthComponent");
+
+	WeaponComponent = CreateDefaultSubobject<USFWeaponComponent>("WeaponComponent");
 }
 
 void ABaseCharacter::BeginPlay()
@@ -33,19 +36,22 @@ void ABaseCharacter::BeginPlay()
 	check(HealthComponent);
 
 	HealthComponent->OnDeath.AddUObject(this, &ABaseCharacter::OnDeath);
-
-	SpawnWeapon();
 }
 
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	// Moving
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABaseCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABaseCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("LookUp", this, &ABaseCharacter::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookAround", this, &ABaseCharacter::AddControllerYawInput);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABaseCharacter::Jump);
+
+	// Shooting
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, WeaponComponent, &USFWeaponComponent::StartFire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, WeaponComponent, &USFWeaponComponent::StopFire);
 }
 
 bool ABaseCharacter::IsMoving() const
@@ -76,18 +82,9 @@ void ABaseCharacter::OnDeath()
 		Controller->ChangeState(NAME_Spectating);
 	}
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-}
 
-void ABaseCharacter::SpawnWeapon()
-{
-	const auto World = GetWorld();
-	if (!World) return;
-
-	auto Weapon = World->SpawnActor<ASFBaseWeapon>(WeaponClass);
-	if (!Weapon) return;
-
-	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
-	Weapon->AttachToComponent(GetMesh(), AttachmentRules, "WeaponSocket");
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetSimulatePhysics(true);
 }
 
 void ABaseCharacter::MoveForward(float Amount)

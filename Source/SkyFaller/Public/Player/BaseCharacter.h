@@ -10,6 +10,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class USFHealthComponent;
 class ASFBaseWeapon;
+class USFWeaponComponent;
 
 UCLASS()
 class SKYFALLER_API ABaseCharacter : public ACharacter
@@ -36,8 +37,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USFHealthComponent* HealthComponent;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	TSubclassOf<ASFBaseWeapon> WeaponClass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	USFWeaponComponent* WeaponComponent;
 
 	virtual void BeginPlay() override;
 
@@ -56,5 +57,4 @@ public:
 
 private:
 	void OnDeath();
-	void SpawnWeapon();
 };
