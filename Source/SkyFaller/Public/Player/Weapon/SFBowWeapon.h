@@ -3,24 +3,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "Player/Weapon/SFBaseWeapon.h"
 #include "SFBowWeapon.generated.h"
 
+class ASFArrow;
+
 UCLASS()
-class SKYFALLER_API ASFBowWeapon : public AActor
+class SKYFALLER_API ASFBowWeapon : public ASFBaseWeapon
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	ASFBowWeapon();
+
+public:
+	virtual void StartFire() override;
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	TSubclassOf<ASFArrow> ProjectileClass;
 
+	virtual void MakeShot() override;
 };
