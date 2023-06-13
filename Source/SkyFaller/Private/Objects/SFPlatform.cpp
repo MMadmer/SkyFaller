@@ -6,28 +6,27 @@
 #include "GameFramework/Character.h"
 #include "Player/BaseCharacter.h"
 #include "Kismet/GameplayStatics.h"
+#include "Objects/SF_FloatFog.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogPlatform, All, All)
 
-// Sets default values
 ASFPlatform::ASFPlatform()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	PlatformMesh = CreateDefaultSubobject<UStaticMeshComponent>("PlatformMesh");
 	SetRootComponent(PlatformMesh);
 }
 
-// Called when the game starts or when spawned
 void ASFPlatform::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	PlatformMesh->OnComponentHit.AddDynamic(this, &ASFPlatform::SpawnNext);
+
+	FogConnecting();
 }
 
-// Called every frame
 void ASFPlatform::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -85,4 +84,28 @@ void ASFPlatform::Mover(float DeltaTime)
 	AddActorLocalOffset(GetActorRightVector() * CurrentOffset, false);
 	Offset += CurrentOffset;
 	// UE_LOG(LogPlatform, Display, TEXT("%f    %f"), Offset, Threshold);
+}
+
+void ASFPlatform::FogConnecting()
+{
+	if (!GetWorld()) return;
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASF_FloatFog::StaticClass(), FoundActors);
+
+	ASF_FloatFog* FogInst = nullptr;
+
+	for (AActor* Actor : FoundActors)
+	{
+		ASF_FloatFog* FoundFog = Cast<ASF_FloatFog>(Actor);
+		if (FoundFog)
+		{
+			FogInst = FoundFog;
+			break;
+		}
+	}
+	if (FogInst)
+	{
+		// UE_LOG(LogPlatform, Display, TEXT("Added"));
+		PlatformMesh->OnComponentHit.AddDynamic(FogInst, &ASF_FloatFog::Mover);
+	}
 }

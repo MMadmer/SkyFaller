@@ -16,6 +16,9 @@ class SKYFALLER_API ASF_FloatFog : public AActor
 public:	
 	ASF_FloatFog();
 
+	UFUNCTION()
+	void Mover(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
@@ -23,10 +26,6 @@ protected:
 
 	virtual void BeginPlay() override;
 
-public:	
-	virtual void Tick(float DeltaTime) override;
-
 private:
 	FVector GetPlayerLocation() const;
-	void Mover();
 };

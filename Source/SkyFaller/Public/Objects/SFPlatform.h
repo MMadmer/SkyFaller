@@ -59,4 +59,6 @@ private:
 	void Spawner(float DeltaTime);
 	void Mover(float DeltaTime);
 
+	void FogConnecting();
+
 };
