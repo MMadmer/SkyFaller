@@ -29,7 +29,6 @@ void USFWeaponComponent::BeginPlay()
 	Super::BeginPlay();
 
 	SpawnWeapon();
-	CurrentWeapon = WeaponClass.GetDefaultObject();
 }
 
 void USFWeaponComponent::SpawnWeapon()
@@ -42,8 +41,19 @@ void USFWeaponComponent::SpawnWeapon()
 	auto Weapon = World->SpawnActor<ASFBaseWeapon>(WeaponClass);
 	if (!Weapon) return;
 
+	// All checks done. Set weapon to current
+	Weapon->SetOwner(Player);
+	CurrentWeapon = Weapon;
+
+	AttachWeaponToSocket(CurrentWeapon, Player->GetMesh(), WeaponEquipSocketName);
+}
+
+void USFWeaponComponent::AttachWeaponToSocket(ASFBaseWeapon* Weapon, USceneComponent* SceneComponent, const FName& SocketName)
+{
+	if (!Weapon || !SceneComponent) return;
+
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
-	Weapon->AttachToComponent(Player->GetMesh(), AttachmentRules, WeaponEquipSocketName);
+	Weapon->AttachToComponent(SceneComponent, AttachmentRules, SocketName);
 }
 
 bool USFWeaponComponent::CanFire()

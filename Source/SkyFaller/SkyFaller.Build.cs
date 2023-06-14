@@ -23,7 +23,8 @@ public class SkyFaller : ModuleRules
 			"SkyFaller/Public/Player",
 			"SkyFaller/Public/Player/Weapon",
 			"SkyFaller/Public/Components",
-			"SkyFaller/Public/Objects"
+			"SkyFaller/Public/Objects",
+			"SkyFaller/Public"
 		});
 
 		// Uncomment if you are using Slate UI

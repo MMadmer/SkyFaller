@@ -35,5 +35,6 @@ private:
 	ASFBaseWeapon* CurrentWeapon = nullptr;
 
 	void SpawnWeapon();
+	void AttachWeaponToSocket(ASFBaseWeapon* Weapon, USceneComponent* SceneComponent, const FName& SocketName);
 	bool CanFire();
 };

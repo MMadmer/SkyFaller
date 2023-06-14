@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "SFArrow.generated.h"
 
-class USphereComponent;
+class UStaticMeshComponent;
 class UProjectileMovementComponent;
 
 UCLASS()
@@ -21,8 +21,8 @@ public:
 
 protected:
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
-	USphereComponent* CollisionComponent;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	UStaticMeshComponent* ArrowMesh;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 	UProjectileMovementComponent* MovementComponent;
