@@ -17,8 +17,6 @@ class SKYFALLER_API ASFArrow : public AActor
 public:	
 	ASFArrow();
 
-	virtual void Tick(float DeltaTime) override;
-
 	void SetShotDirection(const FVector& Direction) { ShotDirection = Direction; }
 
 protected:
