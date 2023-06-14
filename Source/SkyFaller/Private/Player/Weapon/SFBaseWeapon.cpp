@@ -69,6 +69,11 @@ FVector ASFBaseWeapon::GetMuzzleWorldLocation() const
 	return WeaponMesh->GetSocketLocation(MuzzleSocketName);
 }
 
+FRotator ASFBaseWeapon::GetMuzzleWorldRotation() const
+{
+	return WeaponMesh->GetSocketRotation(MuzzleSocketName);
+}
+
 void ASFBaseWeapon::MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd)
 {
 	if (!GetWorld()) return;

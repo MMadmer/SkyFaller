@@ -15,6 +15,7 @@ class SKYFALLER_API ASFBowWeapon : public ASFBaseWeapon
 
 public:
 	virtual void StartFire() override;
+	virtual void StopFire() override;
 
 protected:
 
@@ -22,4 +23,12 @@ protected:
 	TSubclassOf<ASFArrow> ProjectileClass;
 
 	virtual void MakeShot() override;
+
+private:
+	FName BoneBowstring = "DummyMiddle";
+	bool bCharged = false;
+
+	bool CanFire() const;
+	void Charging();
+	void BowstringOffset(float Offset);
 };

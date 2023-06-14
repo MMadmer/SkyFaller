@@ -21,7 +21,7 @@ void USFWeaponComponent::StartFire()
 
 void USFWeaponComponent::StopFire()
 {
-
+	CurrentWeapon->StopFire();
 }
 
 void USFWeaponComponent::BeginPlay()

@@ -13,7 +13,7 @@ public class SkyFaller : ModuleRules
 			"Core", 
 			"CoreUObject", 
 			"Engine", 
-			"InputCore" 
+			"InputCore"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
