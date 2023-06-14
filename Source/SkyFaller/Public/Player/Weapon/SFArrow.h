@@ -35,5 +35,6 @@ private:
 	void ConnectToActor(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	FVector ShotDirection;
+	bool bAttached = false;
 
 };
