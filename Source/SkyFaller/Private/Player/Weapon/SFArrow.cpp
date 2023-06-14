@@ -22,13 +22,6 @@ ASFArrow::ASFArrow()
 	MovementComponent->ProjectileGravityScale = 1.0f;
 }
 
-void ASFArrow::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-
-}
-
 void ASFArrow::BeginPlay()
 {
 	Super::BeginPlay();
@@ -42,5 +35,6 @@ void ASFArrow::BeginPlay()
 
 void ASFArrow::ConnectToActor(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	// Attach
 	AttachToActor(OtherActor, FAttachmentTransformRules::KeepWorldTransform);
 }
