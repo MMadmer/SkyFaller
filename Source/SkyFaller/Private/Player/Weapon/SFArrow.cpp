@@ -35,6 +35,9 @@ void ASFArrow::BeginPlay()
 
 void ASFArrow::ConnectToActor(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (bAttached) return;
+	bAttached = true;
+
 	// Attach
 	AttachToActor(OtherActor, FAttachmentTransformRules::KeepWorldTransform);
 }
