@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "SFArrow.generated.h"
 
-class UStaticMeshComponent;
+class USkeletalMeshComponent;
 class UProjectileMovementComponent;
 
 UCLASS()
@@ -17,19 +17,25 @@ class SKYFALLER_API ASFArrow : public AActor
 public:	
 	ASFArrow();
 
+	virtual void Tick(float DeltaTime) override;
+
 	void SetShotDirection(const FVector& Direction) { ShotDirection = Direction; }
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-	UStaticMeshComponent* ArrowMesh;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	USkeletalMeshComponent* ArrowMesh;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
+	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	UProjectileMovementComponent* MovementComponent;
 
 	virtual void BeginPlay() override;
 
 private:
+
+	UFUNCTION()
+	void ConnectToActor(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 	FVector ShotDirection;
 
 };
