@@ -7,6 +7,8 @@
 #include "Animation/AnimInstanceProxy.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimSingleNodeInstance.h"
+#include "Sound/SoundCue.h"
+#include "Components/AudioComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBow, All, All)
 
@@ -25,6 +27,7 @@ void ASFBowWeapon::StopFire()
 
 void ASFBowWeapon::MakeShot()
 {
+	// Get shot direction
 	if (!GetWorld()) return;
 	FVector TraceStart, TraceEnd;
 	if (!GetTraceData(TraceStart, TraceEnd)) return;
@@ -47,6 +50,13 @@ void ASFBowWeapon::MakeShot()
 	Arrow->SetShotDirection(Direction);
 	Arrow->SetOwner(GetOwner());
 	Arrow->FinishSpawning(SpawnTransform);
+
+	// Shot sound
+	UAudioComponent* AudioComponent = NewObject<UAudioComponent>(this);
+	if (!(AudioComponent && ShotSound)) return;
+	AudioComponent->SetSound(ShotSound);
+	AudioComponent->Play();
+	
 }
 
 bool ASFBowWeapon::CanFire() const
