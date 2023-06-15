@@ -5,6 +5,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "CoreTypes.h"
+#include "GameFramework/Character.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogArrow, All, All)
 
@@ -37,6 +38,8 @@ void ASFArrow::BeginPlay()
 	ArrowMesh->IgnoreActorWhenMoving(GetOwner(), true);
 	SetLifeSpan(30.0f);
 
+	ArrowMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+
 	ArrowMesh->OnComponentHit.AddDynamic(this, &ASFArrow::ConnectToActor);
 }
 
@@ -47,10 +50,10 @@ void ASFArrow::ConnectToActor(UPrimitiveComponent* HitComponent, AActor* OtherAc
 
 	// Penetration imitation
 	PercentagePenetration = 1 - PercentagePenetration;
-	float ArrowLenght = FMath::Abs((GetComponentsBoundingBox().GetExtent() * 2.0f).Size());
+	float ArrowLenght = (GetComponentsBoundingBox().GetExtent() * 2.0f).Size();
 	float PenetrationOffset = ArrowLenght * PercentagePenetration;
 	float PercentageOffset = PenetrationOffset / MovementComponent->Velocity.Size();
-	UE_LOG(LogArrow, Display, TEXT("Percentage offset: %f"), ArrowLenght);
+	// UE_LOG(LogArrow, Display, TEXT("Percentage offset: %f"), ArrowLenght);
 	SetActorLocation(GetActorLocation() - MovementComponent->Velocity * PercentageOffset);
 
 	// Attach
