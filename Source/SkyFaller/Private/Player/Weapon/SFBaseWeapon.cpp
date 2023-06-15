@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/Controller.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Sound/SoundCue.h"
 
 ASFBaseWeapon::ASFBaseWeapon()
 {

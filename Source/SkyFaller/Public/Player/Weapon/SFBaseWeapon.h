@@ -7,6 +7,7 @@
 #include "SFBaseWeapon.generated.h"
 
 class USkeletalMeshComponent;
+class USoundCue;
 
 UCLASS()
 class SKYFALLER_API ASFBaseWeapon : public AActor
@@ -23,6 +24,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USkeletalMeshComponent* WeaponMesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue* ShotSound;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	FName MuzzleSocketName = "MuzzleSocket";

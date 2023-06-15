@@ -17,6 +17,8 @@ class SKYFALLER_API ASFArrow : public AActor
 public:	
 	ASFArrow();
 
+	virtual void Tick(float DeltaTime) override;
+
 	void SetShotDirection(const FVector& Direction) { ShotDirection = Direction; }
 
 protected:
@@ -27,6 +29,10 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	UProjectileMovementComponent* MovementComponent;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement", meta = (ClampMin = "0", ClampMax = "1"))
+	float PercentagePenetration = 0.19643f;
+
+
 	virtual void BeginPlay() override;
 
 private:
@@ -36,5 +42,8 @@ private:
 
 	FVector ShotDirection;
 	bool bAttached = false;
+	float ArrowLenght = 112.0f;
+
+	void PhysicsFalling();
 
 };
