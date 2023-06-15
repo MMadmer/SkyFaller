@@ -45,11 +45,12 @@ void ASFArrow::ConnectToActor(UPrimitiveComponent* HitComponent, AActor* OtherAc
 	if (bAttached) return;
 	bAttached = true;
 
-	// Penetration amitation
+	// Penetration imitation
 	PercentagePenetration = 1 - PercentagePenetration;
+	float ArrowLenght = FMath::Abs((GetComponentsBoundingBox().GetExtent() * 2.0f).Size());
 	float PenetrationOffset = ArrowLenght * PercentagePenetration;
 	float PercentageOffset = PenetrationOffset / MovementComponent->Velocity.Size();
-	// UE_LOG(LogArrow, Display, TEXT("Percentage offset: %f"), PercentageOffset);
+	UE_LOG(LogArrow, Display, TEXT("Percentage offset: %f"), ArrowLenght);
 	SetActorLocation(GetActorLocation() - MovementComponent->Velocity * PercentageOffset);
 
 	// Attach

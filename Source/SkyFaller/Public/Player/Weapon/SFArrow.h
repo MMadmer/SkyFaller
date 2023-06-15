@@ -42,7 +42,6 @@ private:
 
 	FVector ShotDirection;
 	bool bAttached = false;
-	float ArrowLenght = 112.0f;
 
 	void PhysicsFalling();
 
