@@ -8,6 +8,7 @@
 
 class USkeletalMeshComponent;
 class UProjectileMovementComponent;
+class USoundCue;
 
 UCLASS()
 class SKYFALLER_API ASFArrow : public AActor
@@ -32,13 +33,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement", meta = (ClampMin = "0", ClampMax = "1"))
 	float PercentagePenetration = 0.19643f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue* HitSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound", meta = (ClampMin = "0"))
+	float HitSoundRadius = 1000.0f;
 
 	virtual void BeginPlay() override;
 
 private:
 
 	UFUNCTION()
-	void ConnectToActor(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	FVector ShotDirection;
 	bool bAttached = false;

@@ -6,6 +6,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "CoreTypes.h"
 #include "GameFramework/Character.h"
+#include "Sound/SoundCue.h"
+#include "Components/AudioComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogArrow, All, All)
 
@@ -40,10 +42,10 @@ void ASFArrow::BeginPlay()
 
 	ArrowMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 
-	ArrowMesh->OnComponentHit.AddDynamic(this, &ASFArrow::ConnectToActor);
+	ArrowMesh->OnComponentHit.AddDynamic(this, &ASFArrow::OnHit);
 }
 
-void ASFArrow::ConnectToActor(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ASFArrow::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (bAttached) return;
 	bAttached = true;
@@ -58,6 +60,23 @@ void ASFArrow::ConnectToActor(UPrimitiveComponent* HitComponent, AActor* OtherAc
 
 	// Attach
 	AttachToActor(OtherActor, FAttachmentTransformRules::KeepWorldTransform);
+
+	// Hit sound
+	UAudioComponent* AudioComponent = NewObject<UAudioComponent>(this);
+	USoundAttenuation* AttenuationSettings = NewObject<USoundAttenuation>(this);
+	if (!(AudioComponent && HitSound && AttenuationSettings)) return;
+
+	// Set sound radius
+	AttenuationSettings->Attenuation.bAttenuate = true;
+	AttenuationSettings->Attenuation.AttenuationShape = EAttenuationShape::Sphere;
+	AttenuationSettings->Attenuation.AttenuationShapeExtents = FVector(HitSoundRadius) ;
+
+	// Play sound
+	AudioComponent->SetSound(HitSound);
+	AudioComponent->bAllowSpatialization = true;
+	AudioComponent->AttenuationSettings = AttenuationSettings;
+	AudioComponent->SetWorldLocation(Hit.ImpactPoint);
+	AudioComponent->Play();
 }
 
 void ASFArrow::PhysicsFalling()
