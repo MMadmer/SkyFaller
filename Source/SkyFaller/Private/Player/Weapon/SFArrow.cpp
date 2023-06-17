@@ -74,6 +74,7 @@ void ASFArrow::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPri
 	// Play sound
 	AudioComponent->SetSound(HitSound);
 	AudioComponent->bAllowSpatialization = true;
+	AudioComponent->bAutoDestroy = true;
 	AudioComponent->AttenuationSettings = AttenuationSettings;
 	AudioComponent->SetWorldLocation(Hit.ImpactPoint);
 	AudioComponent->Play();

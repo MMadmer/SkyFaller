@@ -7,6 +7,7 @@
 #include "SFPlatform.generated.h"
 
 class UStaticMeshComponent;
+class ABaseCharacter;
 
 UCLASS()
 class SKYFALLER_API ASFPlatform : public AActor
@@ -51,8 +52,10 @@ private:
 	float ParentZ = 0.0f;
 
 	UFUNCTION()
-	void SpawnNext(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
+	void SpawnNext(UWorld* World, ABaseCharacter* Player);
+	void ScoringPoints(UWorld* World, ABaseCharacter* Player);
 	void Spawner(float DeltaTime);
 	void Mover(float DeltaTime);
 

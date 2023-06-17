@@ -7,6 +7,7 @@
 #include "Player/BaseCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Objects/SF_FloatFog.h"
+#include "Components/SFProgressComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogPlatform, All, All)
 
@@ -22,7 +23,7 @@ void ASFPlatform::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PlatformMesh->OnComponentHit.AddDynamic(this, &ASFPlatform::SpawnNext);
+	PlatformMesh->OnComponentHit.AddDynamic(this, &ASFPlatform::OnHit);
 
 	FogConnecting();
 }
@@ -34,7 +35,7 @@ void ASFPlatform::Tick(float DeltaTime)
 	Spawned ? Spawner(DeltaTime) : Mover(DeltaTime);
 }
 
-void ASFPlatform::SpawnNext(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ASFPlatform::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	const auto World = GetWorld();
 	if (!World || bTouched) return;
@@ -42,9 +43,14 @@ void ASFPlatform::SpawnNext(UPrimitiveComponent* HitComponent, AActor* OtherActo
 	const auto Player = Cast<ABaseCharacter>(OtherActor);
 	if (!Player) return;
 
-	// Spawn new platform
 	bTouched = true;
 
+	ScoringPoints(World, Player);
+	SpawnNext(World, Player);
+}
+
+void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
+{
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
@@ -64,6 +70,14 @@ void ASFPlatform::SpawnNext(UPrimitiveComponent* HitComponent, AActor* OtherActo
 	NewPlatform->Speed = FMath::RandBool() ? NewPlatform->Speed : -NewPlatform->Speed;
 	NewPlatform->Threshold = FMath::RandRange(NewPlatform->Threshold - ThresholdOffset, NewPlatform->Threshold);
 	// UE_LOG(LogPlatform, Display, TEXT("%f %f"), NewPlatform->PlatformMesh->Bounds.BoxExtent.X, NewPlatform->PlatformMesh->Bounds.BoxExtent.Y);
+}
+
+void ASFPlatform::ScoringPoints(UWorld* World, ABaseCharacter* Player)
+{
+	USFProgressComponent* ProgressComponent = Cast<USFProgressComponent>(Player->GetComponentByClass(USFProgressComponent::StaticClass()));
+	if (!ProgressComponent) return;
+
+	ProgressComponent->AddScore(5);
 }
 
 void ASFPlatform::Spawner(float DeltaTime)

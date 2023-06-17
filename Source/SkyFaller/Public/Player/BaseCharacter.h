@@ -11,6 +11,7 @@ class UCameraComponent;
 class USFHealthComponent;
 class ASFBaseWeapon;
 class USFWeaponComponent;
+class USFProgressComponent;
 
 UCLASS()
 class SKYFALLER_API ABaseCharacter : public ACharacter
@@ -39,6 +40,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USFWeaponComponent* WeaponComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	USFProgressComponent* ProgressComponent;
 
 	virtual void BeginPlay() override;
 
