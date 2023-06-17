@@ -9,6 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SFWeaponComponent.h"
+#include "Components/SFProgressComponent.h"
 #include "..\..\Public\Player\BaseCharacter.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBaseCharacter, All, All)
@@ -27,6 +28,8 @@ ABaseCharacter::ABaseCharacter()
 	HealthComponent = CreateDefaultSubobject<USFHealthComponent>("HealthComponent");
 
 	WeaponComponent = CreateDefaultSubobject<USFWeaponComponent>("WeaponComponent");
+
+	ProgressComponent = CreateDefaultSubobject<USFProgressComponent>("ProgressComponent");
 }
 
 void ABaseCharacter::BeginPlay()
