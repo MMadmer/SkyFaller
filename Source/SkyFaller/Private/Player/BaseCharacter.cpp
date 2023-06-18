@@ -10,6 +10,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SFWeaponComponent.h"
 #include "Components/SFProgressComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "..\..\Public\Player\BaseCharacter.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBaseCharacter, All, All)
@@ -19,7 +20,7 @@ ABaseCharacter::ABaseCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
-	SpringArmComponent->SetupAttachment(GetRootComponent());
+	SpringArmComponent->SetupAttachment(GetMesh());
 	SpringArmComponent->bUsePawnControlRotation = true;
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
@@ -75,6 +76,9 @@ float ABaseCharacter::GetMovementDirection() const
 void ABaseCharacter::OnDeath()
 {
 	// UE_LOG(LogBaseCharacter, Display, TEXT("Player %s is dead"), *GetName());
+
+	/*USkeletalMeshComponent* SkeletalMeshComponent = GetMesh();
+	if (SkeletalMeshComponent) SkeletalMeshComponent->SetSkeletalMesh(DeathMesh);*/
 
 	GetCharacterMovement()->DisableMovement();
 

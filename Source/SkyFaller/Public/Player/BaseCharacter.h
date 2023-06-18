@@ -12,6 +12,8 @@ class USFHealthComponent;
 class ASFBaseWeapon;
 class USFWeaponComponent;
 class USFProgressComponent;
+class USkeletalMesh;
+class UAnimationAsset;
 
 UCLASS()
 class SKYFALLER_API ABaseCharacter : public ACharacter
@@ -43,6 +45,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USFProgressComponent* ProgressComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	USkeletalMesh* DeathMesh;
 
 	virtual void BeginPlay() override;
 
