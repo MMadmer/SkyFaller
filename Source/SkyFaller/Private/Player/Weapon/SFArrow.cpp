@@ -9,6 +9,8 @@
 #include "Sound/SoundCue.h"
 #include "Components/AudioComponent.h"
 #include "Objects/SFTarget.h"
+#include "NiagaraSystem.h"
+#include "NiagaraComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogArrow, All, All)
 
@@ -79,6 +81,20 @@ void ASFArrow::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPri
 	AudioComponent->AttenuationSettings = AttenuationSettings;
 	AudioComponent->SetWorldLocation(Hit.ImpactPoint);
 	AudioComponent->Play();
+
+	// Delete niagara FX
+	UNiagaraComponent* NiagaraComponent = FindComponentByClass<UNiagaraComponent>();
+	if (!NiagaraComponent || !GetWorld()) return;
+
+	// UE_LOG(LogArrow, Display, TEXT("Niagara connected"));
+	GetWorld()->GetTimerManager().SetTimer(
+		TraceTimer,
+		[NiagaraComponent]()
+		{
+			NiagaraComponent->DestroyComponent();
+		},
+		LifeHitTrace,
+		false);
 }
 
 void ASFArrow::PhysicsFalling()
