@@ -8,6 +8,7 @@
 #include "GameFramework/Character.h"
 #include "Sound/SoundCue.h"
 #include "Components/AudioComponent.h"
+#include "Objects/SFTarget.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogArrow, All, All)
 

@@ -8,6 +8,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Objects/SF_FloatFog.h"
 #include "Components/SFProgressComponent.h"
+#include "Objects/SFTarget.h"
+#include "..\..\Public\Objects\SFPlatform.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogPlatform, All, All)
 
@@ -45,7 +47,7 @@ void ASFPlatform::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 
 	bTouched = true;
 
-	ScoringPoints(World, Player);
+	ScoringPoints(Player, RewardPoints);
 	SpawnNext(World, Player);
 }
 
@@ -70,14 +72,17 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	NewPlatform->Speed = FMath::RandBool() ? NewPlatform->Speed : -NewPlatform->Speed;
 	NewPlatform->Threshold = FMath::RandRange(NewPlatform->Threshold - ThresholdOffset, NewPlatform->Threshold);
 	// UE_LOG(LogPlatform, Display, TEXT("%f %f"), NewPlatform->PlatformMesh->Bounds.BoxExtent.X, NewPlatform->PlatformMesh->Bounds.BoxExtent.Y);
+
+	// Target
+	if (FMath::RandBool()) SpawnTarget(World, Player, NewPlatform);
 }
 
-void ASFPlatform::ScoringPoints(UWorld* World, ABaseCharacter* Player)
+void ASFPlatform::ScoringPoints(ABaseCharacter* Player, float Points)
 {
 	USFProgressComponent* ProgressComponent = Cast<USFProgressComponent>(Player->GetComponentByClass(USFProgressComponent::StaticClass()));
 	if (!ProgressComponent) return;
 
-	ProgressComponent->AddScore(5);
+	ProgressComponent->AddScore(Points);
 }
 
 void ASFPlatform::Spawner(float DeltaTime)
@@ -98,6 +103,29 @@ void ASFPlatform::Mover(float DeltaTime)
 	AddActorLocalOffset(GetActorRightVector() * CurrentOffset, false);
 	Offset += CurrentOffset;
 	// UE_LOG(LogPlatform, Display, TEXT("%f    %f"), Offset, Threshold);
+}
+
+void ASFPlatform::SpawnTarget(UWorld* World, ABaseCharacter* Player, ASFPlatform* NewPlatform)
+{
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+
+	// Spawn Coords
+	FVector TargetLocation = NewPlatform->GetActorLocation();
+	TargetLocation.X += NewPlatform->PlatformMesh->Bounds.BoxExtent.X + FMath::RandRange(50.0f, 75.0f);
+	TargetLocation.Y += FMath::RandRange(
+		-NewPlatform->PlatformMesh->Bounds.BoxExtent.Y - FMath::RandRange(50.0f, 75.0f),
+		NewPlatform->PlatformMesh->Bounds.BoxExtent.Y + FMath::RandRange(50.0f, 75.0f)
+	);
+	TargetLocation.Z += FMath::RandRange(150.0f, 700.0f);
+
+	// Rotate to spawned platform
+	FRotator TargetRotation = (NewPlatform->GetActorLocation() - TargetLocation).ToOrientationRotator();
+
+	// Spawn and attach to spawned platform
+	const auto NewTarget = World->SpawnActor<ASFTarget>(TargetClass, TargetLocation, TargetRotation, SpawnParams);
+	if (!NewTarget) return;
+	NewTarget->AttachToActor(NewPlatform, FAttachmentTransformRules::KeepWorldTransform);
 }
 
 void ASFPlatform::FogConnecting()

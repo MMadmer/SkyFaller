@@ -8,6 +8,7 @@
 
 class UStaticMeshComponent;
 class ABaseCharacter;
+class ASFTarget;
 
 UCLASS()
 class SKYFALLER_API ASFPlatform : public AActor
@@ -40,6 +41,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	TSubclassOf<ASFPlatform> PlatformClass;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	TSubclassOf<ASFTarget> TargetClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Points system")
+	float RewardPoints = 5.0f;
+
 	virtual void BeginPlay() override;
 
 public:	
@@ -55,9 +62,10 @@ private:
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	void SpawnNext(UWorld* World, ABaseCharacter* Player);
-	void ScoringPoints(UWorld* World, ABaseCharacter* Player);
+	void ScoringPoints(ABaseCharacter* Player, float Points);
 	void Spawner(float DeltaTime);
 	void Mover(float DeltaTime);
+	void SpawnTarget(UWorld* World, ABaseCharacter* Player, ASFPlatform* NewTarget);
 
 	void FogConnecting();
 
