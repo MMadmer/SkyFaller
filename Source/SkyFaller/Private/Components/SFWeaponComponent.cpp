@@ -4,6 +4,7 @@
 #include "Components/SFWeaponComponent.h"
 #include "Player/Weapon/SFBaseWeapon.h"
 #include "Player/BaseCharacter.h"
+#include "..\..\Public\Components\SFWeaponComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogWeaponComponent, All, All)
 

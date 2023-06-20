@@ -9,17 +9,27 @@
 #include "Animation/AnimSingleNodeInstance.h"
 #include "Sound/SoundCue.h"
 #include "Components/AudioComponent.h"
+#include "Player/BaseCharacter.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBow, All, All)
 
 void ASFBowWeapon::StartFire()
 {
+	const auto Player = GetPlayer();
+	ChachedPlayerBP = Player->GetMesh()->AnimClass; // Caching original(last) player anim BP
+	// Set weapon aiming BP
+	Player->GetMesh()->SetAnimInstanceClass(PlayerAimBP);
+	Player->PlayAnimMontage(PlayerAimAnimMontage);
 	Charging();
 }
 
 void ASFBowWeapon::StopFire()
 {
 	if (!CanFire()) return;
+
+	const auto Player = GetPlayer();
+	Player->GetMesh()->SetAnimInstanceClass(ChachedPlayerBP); // Returning back player cached anim BP
+
 	bCharged = false;
 
 	MakeShot();
