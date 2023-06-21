@@ -10,6 +10,8 @@ class USkeletalMeshComponent;
 class USoundCue;
 class ABaseCharacter;
 
+
+
 UCLASS()
 class SKYFALLER_API ASFBaseWeapon : public AActor
 {

@@ -14,5 +14,8 @@ class SKYFALLER_API USFPlayerWidget : public UUserWidget
 public:
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	int32 GetPlayerScore() const;
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	float GetWeaponCharge() const;
 	
 };

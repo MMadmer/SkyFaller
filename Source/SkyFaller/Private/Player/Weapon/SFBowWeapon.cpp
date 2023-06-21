@@ -24,15 +24,17 @@ void ASFBowWeapon::BeginPlay()
 void ASFBowWeapon::StartFire()
 {
 	const auto Player = GetPlayer();
+	if (Player->GetMovementComponent()->IsFalling()) return; // Don't start if falling
 	ChachedPlayerBP = Player->GetMesh()->AnimClass; // Caching original(last) player anim BP
 	// Set weapon aiming BP to player
 	Player->GetMesh()->SetAnimInstanceClass(PlayerAimBP);
-	float MontageTime = ChargeTime / PlayerAimAnimMontage->SequenceLength * 10;
+	float MontageTime = ChargeTime / PlayerAimAnimMontage->SequenceLength;
 	// UE_LOG(LogBow, Display, TEXT("Speed modifier %f"), MontageTime);
+	// UE_LOG(LogBow, Display, TEXT("Anim length %f"), PlayerAimAnimMontage->SequenceLength);
 	Player->PlayAnimMontage(PlayerAimAnimMontage, MontageTime);
 	// Start weapon charging
 	if (!GetWorld()) return;
-	GetWorld()->GetTimerManager().SetTimer(ChargeTimer, this, &ASFBowWeapon::Charging, 0.1f, true);
+	GetWorld()->GetTimerManager().SetTimer(ChargeTimer, this, &ASFBowWeapon::Charging, ChargeSpeed, true);
 }
 
 void ASFBowWeapon::StopFire()
@@ -60,7 +62,7 @@ void ASFBowWeapon::MakeShot()
 	FHitResult HitResult;
 	MakeHit(HitResult, TraceStart, TraceEnd);
 
-	const FVector EndPoint = TraceEnd; // HitResult.bBlockingHit ? HitResult.ImpactPoint : TraceEnd;
+	const FVector EndPoint = HitResult.bBlockingHit ? HitResult.ImpactPoint : TraceEnd;
 	const FVector Direction = (EndPoint - GetMuzzleWorldLocation()).GetSafeNormal();
 
 	// Set new arrow transform(size, location, rotation)
@@ -91,7 +93,7 @@ bool ASFBowWeapon::CanFire() const
 
 void ASFBowWeapon::Charging()
 {
-	UE_LOG(LogBow, Display, TEXT("Charging: %f %%"), GetCharge());
+	// UE_LOG(LogBow, Display, TEXT("Charging: %f %%"), GetCharge());
 	if (Charge >= ChargeTime)
 	{
 		if (!GetWorld()) return;
@@ -101,11 +103,12 @@ void ASFBowWeapon::Charging()
 	}
 	else
 	{
+		// Stop charging if falling
 		if (GetPlayer()->GetCharacterMovement()->IsFalling())
 		{
 			StopFire();
 		}
-		Charge += 0.1f;
+		Charge += ChargeSpeed;
 	}
 }
 

@@ -4,8 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "SFCoreTypes.h"
 #include "SFWeaponComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStartFire);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStopFire);
 
 class ASFBaseWeapon;
 
@@ -19,6 +22,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	ASFBaseWeapon* GetCurrentWeapon() const;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnStartFire OnStartFire;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnStopFire OnStopFire;
 
 	void StartFire();
 	void StopFire();

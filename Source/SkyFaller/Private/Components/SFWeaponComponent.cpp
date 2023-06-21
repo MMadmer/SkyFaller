@@ -5,6 +5,7 @@
 #include "Player/Weapon/SFBaseWeapon.h"
 #include "Player/BaseCharacter.h"
 #include "..\..\Public\Components\SFWeaponComponent.h"
+#include "SFCoreTypes.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogWeaponComponent, All, All)
 
@@ -22,11 +23,13 @@ void USFWeaponComponent::StartFire()
 {
 	if (!CanFire()) return;
 
+	OnStartFire.Broadcast();
 	CurrentWeapon->StartFire();
 }
 
 void USFWeaponComponent::StopFire()
 {
+	OnStopFire.Broadcast();
 	CurrentWeapon->StopFire();
 }
 

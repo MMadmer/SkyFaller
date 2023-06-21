@@ -16,7 +16,7 @@ class SKYFALLER_API ASFBowWeapon : public ASFBaseWeapon
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Animation")
-	float GetCharge() const { return Charge / ChargeTime * 100.0f; };
+	float GetCharge() const { return Charge / ChargeTime; };
 
 	virtual void StartFire() override;
 	virtual void StopFire() override;
@@ -25,9 +25,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	TSubclassOf<ASFArrow> ProjectileClass;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	UAnimMontage* AimAnimMontage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	UAnimMontage* PlayerAimAnimMontage;
@@ -40,6 +37,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation", meta = (ClampMin = "0"))
 	float ChargeTime = 3.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation", meta = (ClampMin = "0.01"))
+	float ChargeSpeed = 0.1f;
 
 	virtual void MakeShot() override;
 
