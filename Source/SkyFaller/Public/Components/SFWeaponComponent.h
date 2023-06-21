@@ -17,6 +17,9 @@ class SKYFALLER_API USFWeaponComponent : public UActorComponent
 public:	
 	USFWeaponComponent();
 
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	ASFBaseWeapon* GetCurrentWeapon() const;
+
 	void StartFire();
 	void StopFire();
 

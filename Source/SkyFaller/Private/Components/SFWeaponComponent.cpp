@@ -13,6 +13,11 @@ USFWeaponComponent::USFWeaponComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
+ASFBaseWeapon* USFWeaponComponent::GetCurrentWeapon() const
+{
+	return CurrentWeapon;
+}
+
 void USFWeaponComponent::StartFire()
 {
 	if (!CanFire()) return;

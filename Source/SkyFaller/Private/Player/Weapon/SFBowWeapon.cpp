@@ -10,26 +10,41 @@
 #include "Sound/SoundCue.h"
 #include "Components/AudioComponent.h"
 #include "Player/BaseCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBow, All, All)
+
+void ASFBowWeapon::BeginPlay()
+{
+	Super::BeginPlay();
+
+	WeaponMesh->SetAnimInstanceClass(AnimationInst);
+}
 
 void ASFBowWeapon::StartFire()
 {
 	const auto Player = GetPlayer();
 	ChachedPlayerBP = Player->GetMesh()->AnimClass; // Caching original(last) player anim BP
-	// Set weapon aiming BP
+	// Set weapon aiming BP to player
 	Player->GetMesh()->SetAnimInstanceClass(PlayerAimBP);
-	Player->PlayAnimMontage(PlayerAimAnimMontage);
-	Charging();
+	float MontageTime = ChargeTime / PlayerAimAnimMontage->SequenceLength * 10;
+	// UE_LOG(LogBow, Display, TEXT("Speed modifier %f"), MontageTime);
+	Player->PlayAnimMontage(PlayerAimAnimMontage, MontageTime);
+	// Start weapon charging
+	if (!GetWorld()) return;
+	GetWorld()->GetTimerManager().SetTimer(ChargeTimer, this, &ASFBowWeapon::Charging, 0.1f, true);
 }
 
 void ASFBowWeapon::StopFire()
 {
-	if (!CanFire()) return;
+	if (!GetWorld()) return;
+	GetWorld()->GetTimerManager().ClearTimer(ChargeTimer);
 
+	Charge = 0.0f;
 	const auto Player = GetPlayer();
 	Player->GetMesh()->SetAnimInstanceClass(ChachedPlayerBP); // Returning back player cached anim BP
 
+	if (!CanFire()) return;
 	bCharged = false;
 
 	MakeShot();
@@ -76,9 +91,22 @@ bool ASFBowWeapon::CanFire() const
 
 void ASFBowWeapon::Charging()
 {
-	
-
-	bCharged = true;
+	UE_LOG(LogBow, Display, TEXT("Charging: %f %%"), GetCharge());
+	if (Charge >= ChargeTime)
+	{
+		if (!GetWorld()) return;
+		GetWorld()->GetTimerManager().ClearTimer(ChargeTimer);
+		bCharged = true;
+		GetPlayer()->StopAnimMontage(PlayerAimAnimMontage);
+	}
+	else
+	{
+		if (GetPlayer()->GetCharacterMovement()->IsFalling())
+		{
+			StopFire();
+		}
+		Charge += 0.1f;
+	}
 }
 
 void ASFBowWeapon::BowstringOffset(float Offset)

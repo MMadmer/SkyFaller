@@ -15,6 +15,9 @@ class SKYFALLER_API ASFBowWeapon : public ASFBaseWeapon
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "Animation")
+	float GetCharge() const { return Charge / ChargeTime * 100.0f; };
+
 	virtual void StartFire() override;
 	virtual void StopFire() override;
 
@@ -32,15 +35,21 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TSubclassOf<UAnimInstance> PlayerAimBP;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation")
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	TSubclassOf<UAnimInstance> AnimationInst;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation", meta = (ClampMin = "0"))
 	float ChargeTime = 3.0f;
 
 	virtual void MakeShot() override;
+
+	virtual void BeginPlay() override;
 
 private:
 	FName BoneBowstring = "DummyMiddle";
 	bool bCharged = false;
 	FTimerHandle ChargeTimer;
+	float Charge = 0.0f;
 
 	bool CanFire() const;
 	void Charging();

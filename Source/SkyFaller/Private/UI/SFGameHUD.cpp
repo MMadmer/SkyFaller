@@ -7,7 +7,7 @@
 
 void ASFGameHUD::DrawHUD()
 {
-	Super::DrawHUD();
+	//Super::DrawHUD();
 }
 
 void ASFGameHUD::BeginPlay()
