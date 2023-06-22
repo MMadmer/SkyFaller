@@ -16,3 +16,8 @@ void USFProgressComponent::BeginPlay()
 	
 }
 
+void USFProgressComponent::AddScore(int32 Value)
+{ 
+	Score += Value;
+	OnScoreChanged.Broadcast(Value);
+}
