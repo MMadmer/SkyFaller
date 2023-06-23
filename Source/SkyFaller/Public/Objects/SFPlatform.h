@@ -20,6 +20,9 @@ public:
 
 protected:
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Assets")
+	TArray<UStaticMesh*> Meshes;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	float Threshold = 750.0f;
 
@@ -34,6 +37,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	float SpawnSpeed = 2000.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement", meta = (ClampMin = "0"))
+	float Frequency = 10.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement", meta = (ClampMin = "0"))
+	float Amplitude = 100.0f;
 
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* PlatformMesh;
@@ -57,10 +66,12 @@ private:
 	float Offset = 0.0f;
 	bool Spawned = true;
 	float ParentZ = 0.0f;
+	float LocalTime = 0.0f;
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
+	void SetTemplate();
 	void SpawnNext(UWorld* World, ABaseCharacter* Player);
 	void ScoringPoints(ABaseCharacter* Player, float Points);
 	void Spawner(float DeltaTime);

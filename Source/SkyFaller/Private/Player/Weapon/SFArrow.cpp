@@ -11,6 +11,7 @@
 #include "Objects/SFTarget.h"
 #include "NiagaraSystem.h"
 #include "NiagaraComponent.h"
+#include "Player/BaseCharacter.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogArrow, All, All)
 
@@ -38,8 +39,12 @@ void ASFArrow::Tick(float DeltaTime)
 void ASFArrow::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	const auto Player = Cast<ABaseCharacter>(GetOwner());
+	if (!Player) return;
+	
+	MovementComponent->Velocity = ShotDirection * MovementComponent->InitialSpeed + Player->GetVelocity();
 
-	MovementComponent->Velocity = ShotDirection * MovementComponent->InitialSpeed;
 	ArrowMesh->IgnoreActorWhenMoving(GetOwner(), true);
 	SetLifeSpan(30.0f);
 
@@ -91,6 +96,7 @@ void ASFArrow::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPri
 		TraceTimer,
 		[NiagaraComponent]()
 		{
+			if (!NiagaraComponent) return;
 			NiagaraComponent->DestroyComponent();
 		},
 		LifeHitTrace,

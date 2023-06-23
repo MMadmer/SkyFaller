@@ -25,9 +25,13 @@ void ASFPlatform::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SetTemplate();
+
 	PlatformMesh->OnComponentHit.AddDynamic(this, &ASFPlatform::OnHit);
 
 	FogConnecting();
+
+	LocalTime = (float)FMath::RandHelper(10);
 }
 
 void ASFPlatform::Tick(float DeltaTime)
@@ -51,6 +55,17 @@ void ASFPlatform::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 	SpawnNext(World, Player);
 }
 
+void ASFPlatform::SetTemplate()
+{
+	const auto Mesh = Meshes.IsValidIndex(0) ? Meshes[FMath::RandRange(0, Meshes.Num() - 1)] : nullptr;
+	if (!Mesh)
+	{
+		UE_LOG(LogPlatform, Warning, TEXT("No mesh"));
+		return;
+	}
+	PlatformMesh->SetStaticMesh(Mesh);
+}
+
 void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 {
 	FActorSpawnParameters SpawnParams;
@@ -59,7 +74,7 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	// Get the location and rotation of the new platform
 	FVector SpawnLocation = GetActorLocation();
 	// UE_LOG(LogPlatform, Display, TEXT("%f %f"), PlatformMesh->Bounds.BoxExtent.X, PlatformMesh->Bounds.BoxExtent.Y);
-	SpawnLocation.X += PlatformMesh->Bounds.BoxExtent.X * 2 + FMath::RandRange(150.0f, 550.0f);
+	SpawnLocation.X += PlatformMesh->Bounds.BoxExtent.X * 2 + FMath::RandRange(150.0f, 500.0f);
 	SpawnLocation.Y += FMath::RandRange(-PlatformMesh->Bounds.BoxExtent.Y * 2, PlatformMesh->Bounds.BoxExtent.Y * 2);
 	SpawnLocation.Z += SpawnHeight;
 	FRotator SpawnRotation = GetActorRotation();// (GetActorLocation() - SpawnLocation).ToOrientationRotator();
@@ -98,11 +113,23 @@ void ASFPlatform::Spawner(float DeltaTime)
 
 void ASFPlatform::Mover(float DeltaTime)
 {
+	if (!GetWorld()) return;
+
+	// Horizontal moving
 	Speed = (Offset >= Threshold || Offset <= -Threshold) ? -Speed : Speed;
 	float CurrentOffset = Speed * DeltaTime;
-	AddActorLocalOffset(GetActorRightVector() * CurrentOffset, false);
+
+	// Vertical moving
+	float Time = GetWorld()->GetTimeSeconds() + LocalTime;
+	FVector NewLocation = GetActorLocation();
+	NewLocation.Z = ParentZ + Amplitude * FMath::Sin(Frequency * Time);
+
+	// Set new location
+	SetActorLocation(GetActorRightVector() * CurrentOffset + NewLocation);
+	// AddActorLocalOffset(, false);
+
 	Offset += CurrentOffset;
-	// UE_LOG(LogPlatform, Display, TEXT("%f    %f"), Offset, Threshold);
+	// UE_LOG(LogPlatform, Display, TEXT("Z %f"), GetActorLocation().Z);
 }
 
 void ASFPlatform::SpawnTarget(UWorld* World, ABaseCharacter* Player, ASFPlatform* NewPlatform)
@@ -128,6 +155,7 @@ void ASFPlatform::SpawnTarget(UWorld* World, ABaseCharacter* Player, ASFPlatform
 	NewTarget->AttachToActor(NewPlatform, FAttachmentTransformRules::KeepWorldTransform);
 }
 
+// Move fog to player after step on platform
 void ASFPlatform::FogConnecting()
 {
 	if (!GetWorld()) return;
