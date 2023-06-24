@@ -44,6 +44,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement", meta = (ClampMin = "0"))
 	float Amplitude = 100.0f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Player", meta = (ClampMin = "0"))
+	float MaxDist = 650.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Player", meta = (ClampMin = "0"))
+	float MinDist = 200.0f;
+
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* PlatformMesh;
 

@@ -42,6 +42,7 @@ void ASFTarget::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPr
 	if (!ProgressComponent) return;
 
 	ProgressComponent->AddScore(RewardPoints);
+	Arrow->SetActorHiddenInGame(true);
+	Arrow->SetLifeSpan(Arrow->GetLifeHitTrace() + 0.1f);
 	Destroy();
-	Arrow->Destroy();
 }

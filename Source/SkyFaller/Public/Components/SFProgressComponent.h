@@ -13,7 +13,7 @@ class SKYFALLER_API USFProgressComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	FOnScoreChanged OnScoreChanged;
+	FOnScoreChangedSignature OnScoreChanged;
 
 	USFProgressComponent();
 

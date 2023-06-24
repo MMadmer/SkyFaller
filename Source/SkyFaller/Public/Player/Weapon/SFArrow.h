@@ -21,6 +21,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void SetShotDirection(const FVector& Direction) { ShotDirection = Direction; }
+	float GetLifeHitTrace() const { return LifeHitTrace; };
 
 protected:
 

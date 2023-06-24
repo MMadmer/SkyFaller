@@ -74,7 +74,6 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	// Get the location and rotation of the new platform
 	FVector SpawnLocation = GetActorLocation();
 	// UE_LOG(LogPlatform, Display, TEXT("%f %f"), PlatformMesh->Bounds.BoxExtent.X, PlatformMesh->Bounds.BoxExtent.Y);
-	SpawnLocation.X += PlatformMesh->Bounds.BoxExtent.X * 2 + FMath::RandRange(150.0f, 500.0f);
 	SpawnLocation.Y += FMath::RandRange(-PlatformMesh->Bounds.BoxExtent.Y * 2, PlatformMesh->Bounds.BoxExtent.Y * 2);
 	SpawnLocation.Z += SpawnHeight;
 	FRotator SpawnRotation = GetActorRotation();// (GetActorLocation() - SpawnLocation).ToOrientationRotator();
@@ -86,6 +85,16 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	NewPlatform->Speed = FMath::RandRange(NewPlatform->Speed, NewPlatform->Speed + 100.0f);
 	NewPlatform->Speed = FMath::RandBool() ? NewPlatform->Speed : -NewPlatform->Speed;
 	NewPlatform->Threshold = FMath::RandRange(NewPlatform->Threshold - ThresholdOffset, NewPlatform->Threshold);
+
+	// Move to normal X
+	// UE_LOG(LogPlatform, Display, TEXT("Spawned to far"));
+	FVector CorrectLocation = NewPlatform->GetActorLocation();
+	CorrectLocation.X = GetActorLocation().X + PlatformMesh->Bounds.BoxExtent.X + NewPlatform->PlatformMesh->Bounds.BoxExtent.X + FMath::RandRange(MinDist, MaxDist);
+	NewPlatform->SetActorLocation(CorrectLocation);
+
+	FRotator CorrectRotation = FRotator(0.0f, (GetActorLocation() - NewPlatform->GetActorLocation()).ToOrientationRotator().Yaw, 0.0f);
+	NewPlatform->SetActorRotation(CorrectRotation);
+
 	// UE_LOG(LogPlatform, Display, TEXT("%f %f"), NewPlatform->PlatformMesh->Bounds.BoxExtent.X, NewPlatform->PlatformMesh->Bounds.BoxExtent.Y);
 
 	// Target
