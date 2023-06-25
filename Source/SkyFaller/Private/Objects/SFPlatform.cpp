@@ -9,6 +9,7 @@
 #include "Objects/SF_FloatFog.h"
 #include "Components/SFProgressComponent.h"
 #include "Objects/SFTarget.h"
+#include "Objects/SFPlatformSkin.h"
 #include "..\..\Public\Objects\SFPlatform.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogPlatform, All, All)
@@ -17,8 +18,12 @@ ASFPlatform::ASFPlatform()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	// SceneComponent = CreateDefaultSubobject<USceneComponent>("SceneComponent");
 	PlatformMesh = CreateDefaultSubobject<UStaticMeshComponent>("PlatformMesh");
+	SkinMesh = CreateDefaultSubobject<UStaticMeshComponent>("SkinMesh");
 	SetRootComponent(PlatformMesh);
+	//PlatformMesh->AttachToComponent(SceneComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	SkinMesh->AttachToComponent(PlatformMesh, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 void ASFPlatform::BeginPlay()
@@ -57,13 +62,16 @@ void ASFPlatform::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 
 void ASFPlatform::SetTemplate()
 {
-	const auto Mesh = Meshes.IsValidIndex(0) ? Meshes[FMath::RandRange(0, Meshes.Num() - 1)] : nullptr;
+	/*const auto Mesh = Meshes.IsValidIndex(0) ? Meshes[FMath::RandRange(0, Meshes.Num() - 1)] : nullptr;
 	if (!Mesh)
 	{
 		UE_LOG(LogPlatform, Warning, TEXT("No mesh"));
 		return;
 	}
-	PlatformMesh->SetStaticMesh(Mesh);
+	PlatformMesh->SetStaticMesh(Mesh);*/
+	const auto Asset = Assets.IsValidIndex(0) ? Assets[FMath::RandRange(0, Assets.Num() - 1)] : FAssets();
+	PlatformMesh->SetStaticMesh(Asset.Platform);
+	SkinMesh->SetStaticMesh(Asset.Skin);
 }
 
 void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
@@ -92,7 +100,7 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	CorrectLocation.X = GetActorLocation().X + PlatformMesh->Bounds.BoxExtent.X + NewPlatform->PlatformMesh->Bounds.BoxExtent.X + FMath::RandRange(MinDist, MaxDist);
 	NewPlatform->SetActorLocation(CorrectLocation);
 
-	FRotator CorrectRotation = FRotator(0.0f, (GetActorLocation() - NewPlatform->GetActorLocation()).ToOrientationRotator().Yaw, 0.0f);
+	FRotator CorrectRotation = FRotator(0.0f, (GetActorLocation() - NewPlatform->GetActorLocation()).ToOrientationRotator().Yaw + 180.0f, 0.0f);
 	NewPlatform->SetActorRotation(CorrectRotation);
 
 	// UE_LOG(LogPlatform, Display, TEXT("%f %f"), NewPlatform->PlatformMesh->Bounds.BoxExtent.X, NewPlatform->PlatformMesh->Bounds.BoxExtent.Y);

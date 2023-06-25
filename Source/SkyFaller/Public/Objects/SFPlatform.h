@@ -9,6 +9,25 @@
 class UStaticMeshComponent;
 class ABaseCharacter;
 class ASFTarget;
+class USceneComponent;
+
+USTRUCT(BlueprintType)
+struct FAssets
+{
+	GENERATED_USTRUCT_BODY()
+
+	FAssets()
+	{
+		Platform = nullptr;
+		Skin = nullptr;
+	}
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UStaticMesh* Platform;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UStaticMesh* Skin;
+};
 
 UCLASS()
 class SKYFALLER_API ASFPlatform : public AActor
@@ -18,10 +37,15 @@ class SKYFALLER_API ASFPlatform : public AActor
 public:	
 	ASFPlatform();
 
+	UStaticMeshComponent* GetMesh() const { return PlatformMesh; };
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Assets")
-	TArray<UStaticMesh*> Meshes;
+	TArray<FAssets> Assets;
+
+	/*UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Assets")
+	TArray<UStaticMesh*> Meshes;*/
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	float Threshold = 750.0f;
@@ -51,7 +75,13 @@ protected:
 	float MinDist = 200.0f;
 
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite, Category = "Components")
+	USceneComponent* SceneComponent;
+
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* PlatformMesh;
+
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite, Category = "Components")
+	UStaticMeshComponent* SkinMesh;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	TSubclassOf<ASFPlatform> PlatformClass;
