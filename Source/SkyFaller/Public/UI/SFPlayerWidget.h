@@ -34,6 +34,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	int32 CachedScore = 0;
 
+	UPROPERTY(BlueprintReadWrite)
+	int32 PlayerScore = 0;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Time")
 	float CachedScoreTime = 5.0f;
 

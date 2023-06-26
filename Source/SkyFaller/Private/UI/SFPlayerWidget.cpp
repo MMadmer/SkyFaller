@@ -44,6 +44,10 @@ float USFPlayerWidget::GetWeaponCharge() const
 
 void USFPlayerWidget::OnScoreChanged(int32 Value)
 {
+	// Current player score
+	PlayerScore = GetPlayerScore();
+
+	// Updated Score
 	CachedScore = Value;
 
 	if (!GetWorld()) return;
