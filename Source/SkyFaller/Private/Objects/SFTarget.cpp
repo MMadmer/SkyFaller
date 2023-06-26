@@ -34,6 +34,7 @@ void ASFTarget::Tick(float DeltaTime)
 void ASFTarget::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (bHitted) return;
+	bHitted = true;
 
 	const auto Arrow = Cast<ASFArrow>(OtherActor);
 	if (!Arrow) return;
