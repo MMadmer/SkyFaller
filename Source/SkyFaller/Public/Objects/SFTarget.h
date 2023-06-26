@@ -24,6 +24,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Points system")
 	float RewardPoints = 10.0f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Tools")
+	float LifeSpan = 30.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Tools", meta = (ClapMin = "0", ClapMax = "100"))
+	float SpeedTransmission = 0.1f;
+
 	virtual void BeginPlay() override;
 
 public:	
@@ -34,4 +40,5 @@ private:
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
+	bool bHitted = false;
 };

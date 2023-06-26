@@ -6,6 +6,8 @@
 #include "Player/Weapon/SFArrow.h"
 #include "Components/SFProgressComponent.h"
 #include "Player/BaseCharacter.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "PhysicsEngine/PhysicsConstraintComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTarget, All, All)
 
@@ -27,11 +29,12 @@ void ASFTarget::BeginPlay()
 void ASFTarget::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void ASFTarget::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (bHitted) return;
+
 	const auto Arrow = Cast<ASFArrow>(OtherActor);
 	if (!Arrow) return;
 
@@ -42,7 +45,15 @@ void ASFTarget::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPr
 	if (!ProgressComponent) return;
 
 	ProgressComponent->AddScore(RewardPoints);
-	Arrow->SetActorHiddenInGame(true);
-	Arrow->SetLifeSpan(Arrow->GetLifeHitTrace() + 0.1f);
-	Destroy();
+
+	// Physics
+	StaticMeshComponent->SetSimulatePhysics(true);
+	FVector Force = Arrow->GetVelocity() * Arrow->GetMesh()->GetMass() * Arrow->ImpactForceMultiplier;
+	StaticMeshComponent->AddForceAtLocation(Force, Hit.ImpactPoint);
+
+	SetLifeSpan(LifeSpan);
+	// UE_LOG(LogTarget, Display, TEXT("ArrowSpeed: %f"), Arrow->GetVelocity().Size());
+	// Arrow->SetActorHiddenInGame(true);
+	// Arrow->SetLifeSpan(Arrow->GetLifeHitTrace() + 0.1f);
+	// Destroy();
 }

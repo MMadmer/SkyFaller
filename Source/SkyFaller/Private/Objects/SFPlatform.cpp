@@ -18,12 +18,8 @@ ASFPlatform::ASFPlatform()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	// SceneComponent = CreateDefaultSubobject<USceneComponent>("SceneComponent");
 	PlatformMesh = CreateDefaultSubobject<UStaticMeshComponent>("PlatformMesh");
-	SkinMesh = CreateDefaultSubobject<UStaticMeshComponent>("SkinMesh");
 	SetRootComponent(PlatformMesh);
-	//PlatformMesh->AttachToComponent(SceneComponent, FAttachmentTransformRules::KeepRelativeTransform);
-	SkinMesh->AttachToComponent(PlatformMesh, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 void ASFPlatform::BeginPlay()
@@ -62,16 +58,13 @@ void ASFPlatform::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 
 void ASFPlatform::SetTemplate()
 {
-	/*const auto Mesh = Meshes.IsValidIndex(0) ? Meshes[FMath::RandRange(0, Meshes.Num() - 1)] : nullptr;
+	const auto Mesh = Meshes.IsValidIndex(0) ? Meshes[FMath::RandRange(0, Meshes.Num() - 1)] : nullptr;
 	if (!Mesh)
 	{
 		UE_LOG(LogPlatform, Warning, TEXT("No mesh"));
 		return;
 	}
-	PlatformMesh->SetStaticMesh(Mesh);*/
-	const auto Asset = Assets.IsValidIndex(0) ? Assets[FMath::RandRange(0, Assets.Num() - 1)] : FAssets();
-	PlatformMesh->SetStaticMesh(Asset.Platform);
-	SkinMesh->SetStaticMesh(Asset.Skin);
+	PlatformMesh->SetStaticMesh(Mesh);
 }
 
 void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
@@ -82,7 +75,7 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	// Get the location and rotation of the new platform
 	FVector SpawnLocation = GetActorLocation();
 	// UE_LOG(LogPlatform, Display, TEXT("%f %f"), PlatformMesh->Bounds.BoxExtent.X, PlatformMesh->Bounds.BoxExtent.Y);
-	SpawnLocation.Y += FMath::RandRange(-PlatformMesh->Bounds.BoxExtent.Y * 2, PlatformMesh->Bounds.BoxExtent.Y * 2);
+	SpawnLocation.Y += FMath::RandRange(-PlatformMesh->Bounds.BoxExtent.Y * 1.5f, PlatformMesh->Bounds.BoxExtent.Y * 1.5f);
 	SpawnLocation.Z += SpawnHeight;
 	FRotator SpawnRotation = GetActorRotation();// (GetActorLocation() - SpawnLocation).ToOrientationRotator();
 

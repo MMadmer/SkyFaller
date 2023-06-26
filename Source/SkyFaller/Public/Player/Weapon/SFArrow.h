@@ -20,8 +20,13 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Physics", meta = (ClapMin = "0"))
+	float ImpactForceMultiplier = 1.0f;
+
 	void SetShotDirection(const FVector& Direction) { ShotDirection = Direction; }
 	float GetLifeHitTrace() const { return LifeHitTrace; };
+	FVector GetVelocity() const;
+	USkeletalMeshComponent* GetMesh() const { return ArrowMesh; };
 
 protected:
 
@@ -31,7 +36,7 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	UProjectileMovementComponent* MovementComponent;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement", meta = (ClampMin = "0", ClampMax = "1"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Physics", meta = (ClampMin = "0", ClampMax = "1"))
 	float PercentagePenetration = 0.19643f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
