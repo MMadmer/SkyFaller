@@ -19,7 +19,9 @@ ASFPlatform::ASFPlatform()
 	PrimaryActorTick.bCanEverTick = true;
 
 	PlatformMesh = CreateDefaultSubobject<UStaticMeshComponent>("PlatformMesh");
+	SkinMesh = CreateDefaultSubobject<UStaticMeshComponent>("SkinMesh");
 	SetRootComponent(PlatformMesh);
+	SkinMesh->SetupAttachment(PlatformMesh);
 }
 
 void ASFPlatform::BeginPlay()
@@ -58,13 +60,21 @@ void ASFPlatform::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 
 void ASFPlatform::SetTemplate()
 {
-	const auto Mesh = Meshes.IsValidIndex(0) ? Meshes[FMath::RandRange(0, Meshes.Num() - 1)] : nullptr;
+	/*const auto Mesh = Meshes.IsValidIndex(0) ? Meshes[FMath::RandRange(0, Meshes.Num() - 1)] : nullptr;
 	if (!Mesh)
 	{
 		UE_LOG(LogPlatform, Warning, TEXT("No mesh"));
 		return;
 	}
-	PlatformMesh->SetStaticMesh(Mesh);
+	PlatformMesh->SetStaticMesh(Mesh);*/
+	const auto Asset = Assets.IsValidIndex(0) ? Assets[FMath::RandRange(0, Assets.Num() - 1)] : FAssets();
+	if (!Asset.Platform || !Asset.Skin)
+	{
+		UE_LOG(LogPlatform, Warning, TEXT("No mesh"));
+		return;
+	}
+	PlatformMesh->SetStaticMesh(Asset.Platform);
+	SkinMesh->SetStaticMesh(Asset.Skin);
 }
 
 void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
