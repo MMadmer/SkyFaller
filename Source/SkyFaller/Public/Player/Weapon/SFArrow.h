@@ -58,6 +58,7 @@ private:
 	FVector ShotDirection;
 	bool bAttached = false;
 	FTimerHandle TraceTimer;
+	void SeriesCalc(AActor* OtherActor);
 
 	void PhysicsFalling();
 

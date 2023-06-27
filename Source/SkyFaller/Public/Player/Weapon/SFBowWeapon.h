@@ -54,4 +54,5 @@ private:
 	bool CanFire() const;
 	void Charging();
 	void BowstringOffset(float Offset);
+	void SeriesCalc();
 };

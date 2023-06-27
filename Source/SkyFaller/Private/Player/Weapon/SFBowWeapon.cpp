@@ -11,6 +11,7 @@
 #include "Components/AudioComponent.h"
 #include "Player/BaseCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/SFProgressComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBow, All, All)
 
@@ -24,8 +25,8 @@ void ASFBowWeapon::BeginPlay()
 void ASFBowWeapon::StartFire()
 {
 	const auto Player = GetPlayer();
-	if (Player->GetMovementComponent()->IsFalling()) return; // Don't start if falling
 	ChachedPlayerBP = Player->GetMesh()->AnimClass; // Caching original(last) player anim BP
+	if (Player->GetMovementComponent()->IsFalling()) return; // Don't start if falling
 	// Set weapon aiming BP to player
 	Player->GetMesh()->SetAnimInstanceClass(PlayerAimBP);
 	float MontageTime = ChargeTime / PlayerAimAnimMontage->SequenceLength;
@@ -50,6 +51,7 @@ void ASFBowWeapon::StopFire()
 	bCharged = false;
 
 	MakeShot();
+	SeriesCalc();
 }
 
 void ASFBowWeapon::MakeShot()
@@ -83,7 +85,6 @@ void ASFBowWeapon::MakeShot()
 	if (!(AudioComponent && ShotSound)) return;
 	AudioComponent->SetSound(ShotSound);
 	AudioComponent->Play();
-	
 }
 
 bool ASFBowWeapon::CanFire() const
@@ -115,4 +116,24 @@ void ASFBowWeapon::Charging()
 void ASFBowWeapon::BowstringOffset(float Offset)
 {
 	WeaponMesh->GlobalAnimRateScale = 1.0f;
+}
+
+void ASFBowWeapon::SeriesCalc()
+{
+	const auto Player = GetPlayer();
+	if (!Player) return;
+	USFProgressComponent* ProgressComponent = Cast<USFProgressComponent>(Player->GetComponentByClass(USFProgressComponent::StaticClass()));
+	if (!ProgressComponent) return;
+
+	if (!ProgressComponent->GetSeries()) return;
+
+	if (ProgressComponent->bInSeries)
+	{
+		ProgressComponent->SetSeries(0);
+		ProgressComponent->bInSeries = false;
+	}
+	else
+	{
+		ProgressComponent->bInSeries = true;
+	}
 }

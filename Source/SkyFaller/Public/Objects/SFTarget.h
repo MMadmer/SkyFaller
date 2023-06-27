@@ -22,7 +22,10 @@ protected:
 	UStaticMeshComponent* StaticMeshComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Points system")
-	float RewardPoints = 10.0f;
+	int32 RewardPoints = 10;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Points system")
+	int32 SeriesPoints = 5;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Tools")
 	float LifeSpan = 30.0f;

@@ -45,7 +45,9 @@ void ASFTarget::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPr
 	USFProgressComponent* ProgressComponent = Cast<USFProgressComponent>(Player->GetComponentByClass(USFProgressComponent::StaticClass()));
 	if (!ProgressComponent) return;
 
-	ProgressComponent->AddScore(RewardPoints);
+	ProgressComponent->AddScore(RewardPoints + ProgressComponent->GetSeries() * SeriesPoints);
+	ProgressComponent->SetSeries(ProgressComponent->GetSeries() + 1);
+	ProgressComponent->bInSeries = false;
 
 	// Physics
 	StaticMeshComponent->SetSimulatePhysics(true);

@@ -91,7 +91,6 @@ void ASFBaseWeapon::MakeHit(FHitResult& HitResult, const FVector& TraceStart, co
 ABaseCharacter* ASFBaseWeapon::GetPlayer()
 {
 	const auto Player = Cast<ABaseCharacter>(GetOwner());
-	if (!Player) return nullptr;
 
 	return Player;
 }
