@@ -42,7 +42,14 @@ void ASFPlatform::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	Spawned ? Spawner(DeltaTime) : Mover(DeltaTime);
+	if (!bDespawned)
+	{
+		Spawned ? Spawner(DeltaTime) : Mover(DeltaTime);
+	}
+	else
+	{
+		Despawner(DeltaTime);
+	}
 }
 
 void ASFPlatform::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -134,9 +141,39 @@ void ASFPlatform::Spawner(float DeltaTime)
 	SetActorLocation(GetActorLocation() + FVector(0.0f, 0.0f, SpawnSpeed * DeltaTime));
 }
 
+void ASFPlatform::Despawner(float DeltaTime)
+{
+	if (!GetWorld()) return;
+	if (GetActorLocation().Z <= GetWorld()->GetWorldSettings()->KillZ)
+	{
+		TArray<AActor*> Actors;
+		GetAttachedActors(Actors);
+		for (const auto Actor : Actors)
+		{
+			Actor->Destroy();
+		}
+		Destroy();
+	}
+	else
+	{
+		SetActorLocation(GetActorLocation() - FVector(0.0f, 0.0f, DespawnSpeed * DeltaTime));
+		SetActorRotation(FRotator(0.0f, 0.0f, GetActorRotation().Roll + DespawnRotationSpeed * DeltaTime));
+	}
+}
+
 void ASFPlatform::Mover(float DeltaTime)
 {
 	if (!GetWorld()) return;
+
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	const auto Player = Cast<ABaseCharacter>(PlayerController->GetPawn());
+	if (Player)
+	{
+		if (FMath::Abs((Player->GetActorLocation() - GetActorLocation()).Size()) > DespawnDist)
+		{
+			bDespawned = true;
+		}
+	}
 
 	// Horizontal moving
 	Speed = (Offset >= Threshold || Offset <= -Threshold) ? -Speed : Speed;

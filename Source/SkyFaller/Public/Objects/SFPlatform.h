@@ -58,25 +58,34 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement", meta = (ClampMin = "0", ClampMax = "1"))
 	float MinSpeed = 1.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
-	float SpawnHeight = -2000.0f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
-	float SpawnSpeed = 2000.0f;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement", meta = (ClampMin = "0"))
 	float Frequency = 10.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement", meta = (ClampMin = "0"))
 	float Amplitude = 100.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement", meta = (ClapMin = "0"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
+	float SpawnHeight = -2000.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
+	float SpawnSpeed = 2000.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
+	float DespawnDist = 2000.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
+	float DespawnSpeed = 200.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
+	float DespawnRotationSpeed = 5.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn", meta = (ClapMin = "0"))
 	float MaxRightOffset = 1.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Player", meta = (ClampMin = "0"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn", meta = (ClampMin = "0"))
 	float MaxDist = 650.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Player", meta = (ClampMin = "0"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn", meta = (ClampMin = "0"))
 	float MinDist = 200.0f;
 
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite, Category = "Components")
@@ -108,6 +117,7 @@ private:
 	bool Spawned = true;
 	float ParentZ = 0.0f;
 	float LocalTime = 0.0f;
+	bool bDespawned = false;
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
@@ -116,6 +126,7 @@ private:
 	void SpawnNext(UWorld* World, ABaseCharacter* Player);
 	void ScoringPoints(ABaseCharacter* Player, float Points);
 	void Spawner(float DeltaTime);
+	void Despawner(float DeltaTime);
 	void Mover(float DeltaTime);
 	void SpawnTarget(UWorld* World, ABaseCharacter* Player, ASFPlatform* NewTarget);
 
