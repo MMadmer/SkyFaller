@@ -10,6 +10,7 @@
 #include "Components/SFProgressComponent.h"
 #include "Objects/SFTarget.h"
 #include "Objects/SFPlatformSkin.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "..\..\Public\Objects\SFPlatform.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogPlatform, All, All)
@@ -52,6 +53,8 @@ void ASFPlatform::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 	const auto Player = Cast<ABaseCharacter>(OtherActor);
 	if (!Player) return;
 
+	if (Player->GetCharacterMovement()->IsFalling()) return;
+
 	bTouched = true;
 
 	ScoringPoints(Player, RewardPoints);
@@ -85,7 +88,7 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	// Get the location and rotation of the new platform
 	FVector SpawnLocation = GetActorLocation();
 	// UE_LOG(LogPlatform, Display, TEXT("%f %f"), PlatformMesh->Bounds.BoxExtent.X, PlatformMesh->Bounds.BoxExtent.Y);
-	SpawnLocation.Y += FMath::RandRange(-PlatformMesh->Bounds.BoxExtent.Y * 1.5f, PlatformMesh->Bounds.BoxExtent.Y * 1.5f);
+	SpawnLocation.Y += FMath::RandRange(-PlatformMesh->Bounds.BoxExtent.Y * MaxRightOffset, PlatformMesh->Bounds.BoxExtent.Y * MaxRightOffset);
 	SpawnLocation.Z += SpawnHeight;
 	FRotator SpawnRotation = GetActorRotation();// (GetActorLocation() - SpawnLocation).ToOrientationRotator();
 
@@ -137,19 +140,20 @@ void ASFPlatform::Mover(float DeltaTime)
 
 	// Horizontal moving
 	Speed = (Offset >= Threshold || Offset <= -Threshold) ? -Speed : Speed;
-	float CurrentOffset = Speed * DeltaTime;
+	float CurrentSpeed = Speed * (MinSpeed + (1 - MinSpeed) * (1 - FMath::Abs(Offset) / Threshold)); // Smooth speed
+	float CurrentOffset = CurrentSpeed * DeltaTime;
 
 	// Vertical moving
 	float Time = GetWorld()->GetTimeSeconds() + LocalTime;
 	FVector NewLocation = GetActorLocation();
 	NewLocation.Z = ParentZ + Amplitude * FMath::Sin(Frequency * Time);
-
+	
 	// Set new location
 	SetActorLocation(GetActorRightVector() * CurrentOffset + NewLocation);
-	// AddActorLocalOffset(, false);
 
 	Offset += CurrentOffset;
-	// UE_LOG(LogPlatform, Display, TEXT("Z %f"), GetActorLocation().Z);
+	// UE_LOG(LogPlatform, Display, TEXT("Speed %f"), CurrentSpeed);
+	// UE_LOG(LogPlatform, Display, TEXT("Offset %f"), Offset);
 }
 
 void ASFPlatform::SpawnTarget(UWorld* World, ABaseCharacter* Player, ASFPlatform* NewPlatform)
