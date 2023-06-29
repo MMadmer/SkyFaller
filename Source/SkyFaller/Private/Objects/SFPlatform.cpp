@@ -70,19 +70,22 @@ void ASFPlatform::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 
 void ASFPlatform::SetTemplate()
 {
-	/*const auto Mesh = Meshes.IsValidIndex(0) ? Meshes[FMath::RandRange(0, Meshes.Num() - 1)] : nullptr;
-	if (!Mesh)
+	int32 CurrentIndex;
+	FAssets Asset;
+
+	if (AssetsIndexes.Num() >= Assets.Num()) AssetsIndexes.Empty();
+
+	if (!Assets.IsValidIndex(0)) return;
+
+	do
 	{
-		UE_LOG(LogPlatform, Warning, TEXT("No mesh"));
-		return;
-	}
-	PlatformMesh->SetStaticMesh(Mesh);*/
-	const auto Asset = Assets.IsValidIndex(0) ? Assets[FMath::RandRange(0, Assets.Num() - 1)] : FAssets();
-	if (!Asset.Platform || !Asset.Skin)
-	{
-		UE_LOG(LogPlatform, Warning, TEXT("No mesh"));
-		return;
-	}
+		CurrentIndex = FMath::RandRange(0, Assets.Num() - 1);
+
+	} while (AssetsIndexes.Contains(CurrentIndex));
+	AssetsIndexes.Add(CurrentIndex);
+
+	Asset = Assets[CurrentIndex];
+
 	PlatformMesh->SetStaticMesh(Asset.Platform);
 	SkinMesh->SetStaticMesh(Asset.Skin);
 }
@@ -99,7 +102,11 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	SpawnLocation.Z += SpawnHeight;
 	FRotator SpawnRotation = GetActorRotation();// (GetActorLocation() - SpawnLocation).ToOrientationRotator();
 
-	ASFPlatform* NewPlatform = World->SpawnActor<ASFPlatform>(PlatformClass, SpawnLocation, SpawnRotation, SpawnParams);
+	FTransform SpawnTransform(SpawnRotation, SpawnLocation);
+
+	ASFPlatform* NewPlatform = World->SpawnActorDeferred<ASFPlatform>(PlatformClass, SpawnTransform);
+	NewPlatform->AssetsIndexes = AssetsIndexes;
+	NewPlatform->FinishSpawning(SpawnTransform);
 	if (!NewPlatform) return;
 
 	NewPlatform->ParentZ = GetActorLocation().Z;

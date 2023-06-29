@@ -40,9 +40,6 @@ public:
 
 protected:
 
-	/*UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Assets")
-	TArray<UStaticMesh*> Meshes;*/
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Assets")
 	TArray<FAssets> Assets;
 
@@ -118,6 +115,7 @@ private:
 	float ParentZ = 0.0f;
 	float LocalTime = 0.0f;
 	bool bDespawned = false;
+	TArray<int32> AssetsIndexes;
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
