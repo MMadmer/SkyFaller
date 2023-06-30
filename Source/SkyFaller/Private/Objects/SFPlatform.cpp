@@ -98,9 +98,23 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	// Set new platform spawn location and rotation
-	float NextAngle = FMath::RandRange(-SpawnAngle, SpawnAngle);
+	float NextAngle = 0.0f;
+	if (*pGlobalRotation > 90.0f)
+	{
+		NextAngle = -SpawnAngle;
+	}
+	else if (*pGlobalRotation < -90.0f)
+	{
+		NextAngle = SpawnAngle;
+	}
+	else
+	{
+		NextAngle = FMath::RandRange(-SpawnAngle, SpawnAngle);
+	}
+	*pGlobalRotation += NextAngle;
 	FRotator SpawnDirection(0.0f, NextAngle, 0.0f);
-	UE_LOG(LogPlatform, Display, TEXT("Angle: %f"),NextAngle);
+	UE_LOG(LogPlatform, Display, TEXT("Global rotation: %f"), *pGlobalRotation);
+
 	FVector SpawnLocation = GetActorLocation() + (GetActorRotation() + SpawnDirection).Vector() * (MESH_DIAMETER + FMath::RandRange(MinDist, MaxDist)); // Get end point of new platform spawn location
 	SpawnLocation.Z += SpawnHeight;
 	FRotator SpawnRotation = FRotator(0.0f, (GetActorLocation() - SpawnLocation).ToOrientationRotator().Yaw + 180.0f, 0.0f);
@@ -109,6 +123,7 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 
 	ASFPlatform* NewPlatform = World->SpawnActorDeferred<ASFPlatform>(PlatformClass, SpawnTransform);
 	NewPlatform->AssetsIndexes = AssetsIndexes;
+	NewPlatform->pGlobalRotation = pGlobalRotation;
 	NewPlatform->FinishSpawning(SpawnTransform);
 	if (!NewPlatform) return;
 
@@ -170,7 +185,7 @@ void ASFPlatform::Mover(float DeltaTime)
 	const auto Player = Cast<ABaseCharacter>(PlayerController->GetPawn());
 	if (Player)
 	{
-		if (FMath::Abs((Player->GetActorLocation() - GetActorLocation()).Size()) > DespawnDist)
+		if (FMath::Abs((Player->GetActorLocation() - GetActorLocation()).Size()) > DespawnDist && bTouched)
 		{
 			bDespawned = true;
 		}

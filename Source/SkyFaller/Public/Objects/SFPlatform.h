@@ -61,7 +61,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement", meta = (ClampMin = "0"))
 	float Amplitude = 100.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn", meta = (ClampMin = "0", ClampMax = "180"))
 	float SpawnAngle = 30.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
@@ -120,6 +120,8 @@ private:
 	bool bDespawned = false;
 	TArray<int32> AssetsIndexes;
 	const float MESH_DIAMETER = 742.0f * 2; // Platform's "bounds"(not real)
+	float GlobalRotation = 0.0f;
+	float* pGlobalRotation = &GlobalRotation;
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
