@@ -11,6 +11,8 @@
 #include "Objects/SFTarget.h"
 #include "Objects/SFPlatformSkin.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "DrawDebugHelpers.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "..\..\Public\Objects\SFPlatform.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogPlatform, All, All)
@@ -95,12 +97,13 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-	// Get the location and rotation of the new platform
-	FVector SpawnLocation = GetActorLocation();
-	// UE_LOG(LogPlatform, Display, TEXT("%f %f"), PlatformMesh->Bounds.BoxExtent.X, PlatformMesh->Bounds.BoxExtent.Y);
-	SpawnLocation.Y += FMath::RandRange(-PlatformMesh->Bounds.BoxExtent.Y * MaxRightOffset, PlatformMesh->Bounds.BoxExtent.Y * MaxRightOffset);
+	// Set new platform spawn location and rotation
+	float NextAngle = FMath::RandRange(-SpawnAngle, SpawnAngle);
+	FRotator SpawnDirection(0.0f, NextAngle, 0.0f);
+	UE_LOG(LogPlatform, Display, TEXT("Angle: %f"),NextAngle);
+	FVector SpawnLocation = GetActorLocation() + (GetActorRotation() + SpawnDirection).Vector() * (MESH_DIAMETER + FMath::RandRange(MinDist, MaxDist)); // Get end point of new platform spawn location
 	SpawnLocation.Z += SpawnHeight;
-	FRotator SpawnRotation = GetActorRotation();// (GetActorLocation() - SpawnLocation).ToOrientationRotator();
+	FRotator SpawnRotation = FRotator(0.0f, (GetActorLocation() - SpawnLocation).ToOrientationRotator().Yaw + 180.0f, 0.0f);
 
 	FTransform SpawnTransform(SpawnRotation, SpawnLocation);
 
@@ -113,15 +116,6 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	NewPlatform->Speed = FMath::RandRange(NewPlatform->Speed, NewPlatform->Speed + 100.0f);
 	NewPlatform->Speed = FMath::RandBool() ? NewPlatform->Speed : -NewPlatform->Speed;
 	NewPlatform->Threshold = FMath::RandRange(NewPlatform->Threshold - ThresholdOffset, NewPlatform->Threshold);
-
-	// Move to normal X
-	// UE_LOG(LogPlatform, Display, TEXT("Spawned to far"));
-	FVector CorrectLocation = NewPlatform->GetActorLocation();
-	CorrectLocation.X = GetActorLocation().X + PlatformMesh->Bounds.BoxExtent.X + NewPlatform->PlatformMesh->Bounds.BoxExtent.X + FMath::RandRange(MinDist, MaxDist);
-	NewPlatform->SetActorLocation(CorrectLocation);
-
-	FRotator CorrectRotation = FRotator(0.0f, (GetActorLocation() - NewPlatform->GetActorLocation()).ToOrientationRotator().Yaw + 180.0f, 0.0f);
-	NewPlatform->SetActorRotation(CorrectRotation);
 
 	// UE_LOG(LogPlatform, Display, TEXT("%f %f"), NewPlatform->PlatformMesh->Bounds.BoxExtent.X, NewPlatform->PlatformMesh->Bounds.BoxExtent.Y);
 

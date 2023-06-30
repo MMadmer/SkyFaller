@@ -62,13 +62,16 @@ protected:
 	float Amplitude = 100.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
+	float SpawnAngle = 30.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
 	float SpawnHeight = -2000.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
 	float SpawnSpeed = 2000.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
-	float DespawnDist = 2000.0f;
+	float DespawnDist = 7500.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
 	float DespawnSpeed = 200.0f;
@@ -116,6 +119,7 @@ private:
 	float LocalTime = 0.0f;
 	bool bDespawned = false;
 	TArray<int32> AssetsIndexes;
+	const float MESH_DIAMETER = 742.0f * 2; // Platform's "bounds"(not real)
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
