@@ -13,6 +13,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Components/SFTrapComponent.h"
 #include "..\..\Public\Objects\SFPlatform.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogPlatform, All, All)
@@ -25,6 +26,8 @@ ASFPlatform::ASFPlatform()
 	SkinMesh = CreateDefaultSubobject<UStaticMeshComponent>("SkinMesh");
 	SetRootComponent(PlatformMesh);
 	SkinMesh->SetupAttachment(PlatformMesh);
+
+	TrapComponent = CreateDefaultSubobject<USFTrapComponent>("TrapComponent");
 }
 
 void ASFPlatform::BeginPlay()
@@ -99,11 +102,11 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 
 	// Set new platform spawn location and rotation
 	float NextAngle = 0.0f;
-	if (*pGlobalRotation > 90.0f)
+	if (GlobalRotation > 90.0f)
 	{
 		NextAngle = -SpawnAngle;
 	}
-	else if (*pGlobalRotation < -90.0f)
+	else if (GlobalRotation < -90.0f)
 	{
 		NextAngle = SpawnAngle;
 	}
@@ -111,9 +114,11 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	{
 		NextAngle = FMath::RandRange(-SpawnAngle, SpawnAngle);
 	}
-	*pGlobalRotation += NextAngle;
+
+	GlobalRotation = NextAngle;
+
 	FRotator SpawnDirection(0.0f, NextAngle, 0.0f);
-	UE_LOG(LogPlatform, Display, TEXT("Global rotation: %f"), *pGlobalRotation);
+	// UE_LOG(LogPlatform, Display, TEXT("Global rotation: %f"), *pGlobalRotation);
 
 	FVector SpawnLocation = GetActorLocation() + (GetActorRotation() + SpawnDirection).Vector() * (MESH_DIAMETER + FMath::RandRange(MinDist, MaxDist)); // Get end point of new platform spawn location
 	SpawnLocation.Z += SpawnHeight;
@@ -122,8 +127,7 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	FTransform SpawnTransform(SpawnRotation, SpawnLocation);
 
 	ASFPlatform* NewPlatform = World->SpawnActorDeferred<ASFPlatform>(PlatformClass, SpawnTransform);
-	NewPlatform->AssetsIndexes = AssetsIndexes;
-	NewPlatform->pGlobalRotation = pGlobalRotation;
+	NewPlatform->AssetsIndexes.Append(AssetsIndexes);
 	NewPlatform->FinishSpawning(SpawnTransform);
 	if (!NewPlatform) return;
 
@@ -131,6 +135,7 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	NewPlatform->Speed = FMath::RandRange(NewPlatform->Speed, NewPlatform->Speed + 100.0f);
 	NewPlatform->Speed = FMath::RandBool() ? NewPlatform->Speed : -NewPlatform->Speed;
 	NewPlatform->Threshold = FMath::RandRange(NewPlatform->Threshold - ThresholdOffset, NewPlatform->Threshold);
+	NewPlatform->GlobalRotation = GlobalRotation;
 
 	// UE_LOG(LogPlatform, Display, TEXT("%f %f"), NewPlatform->PlatformMesh->Bounds.BoxExtent.X, NewPlatform->PlatformMesh->Bounds.BoxExtent.Y);
 

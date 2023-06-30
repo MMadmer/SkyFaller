@@ -14,7 +14,7 @@ void USFGameInstance::PlayLevelAmbient(UAudioComponent* WorldAmbient, TArray<USo
 	AudioComponent = WorldAmbient;
 	AudioComponent->OnAudioFinished.AddDynamic(this, &USFGameInstance::CycleAmbient);
 	if (LevelAmbient.Num() > 0) LevelAmbient.Empty();
-	LevelAmbient = CurrentLevelAmbient;
+	LevelAmbient.Append(CurrentLevelAmbient);
 	CycleAmbient();
 }
 

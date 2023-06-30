@@ -9,6 +9,7 @@
 class UStaticMeshComponent;
 class ABaseCharacter;
 class ASFTarget;
+class USFTrapComponent;
 
 USTRUCT(BlueprintType)
 struct FAssets
@@ -50,28 +51,28 @@ protected:
 	float ThresholdOffset = 200.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
-	float Speed = 100.0f;
+	float Speed = 75.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement", meta = (ClampMin = "0", ClampMax = "1"))
-	float MinSpeed = 1.0f;
+	float MinSpeed = 0.3f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement", meta = (ClampMin = "0"))
-	float Frequency = 10.0f;
+	float Frequency = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement", meta = (ClampMin = "0"))
-	float Amplitude = 100.0f;
+	float Amplitude = 10.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn", meta = (ClampMin = "0", ClampMax = "180"))
-	float SpawnAngle = 30.0f;
+	float SpawnAngle = 40.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
 	float SpawnHeight = -2000.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
-	float SpawnSpeed = 2000.0f;
+	float SpawnSpeed = 1500.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
-	float DespawnDist = 7500.0f;
+	float DespawnDist = 7000.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
 	float DespawnSpeed = 200.0f;
@@ -79,17 +80,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
 	float DespawnRotationSpeed = 5.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn", meta = (ClapMin = "0"))
-	float MaxRightOffset = 1.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn", meta = (ClampMin = "0"))
+	float MaxDist = 600.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn", meta = (ClampMin = "0"))
-	float MaxDist = 650.0f;
+	float MinDist = 350.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn", meta = (ClampMin = "0"))
-	float MinDist = 200.0f;
-
-	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite, Category = "Components")
-	USceneComponent* SceneComponent;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	USFTrapComponent* TrapComponent;
 
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* PlatformMesh;
@@ -121,7 +119,6 @@ private:
 	TArray<int32> AssetsIndexes;
 	const float MESH_DIAMETER = 742.0f * 2; // Platform's "bounds"(not real)
 	float GlobalRotation = 0.0f;
-	float* pGlobalRotation = &GlobalRotation;
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
