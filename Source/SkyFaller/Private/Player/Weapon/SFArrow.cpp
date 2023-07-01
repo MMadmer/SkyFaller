@@ -54,7 +54,7 @@ void ASFArrow::BeginPlay()
 	SetLifeSpan(30.0f);
 
 	ArrowMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
-	ArrowMesh->SetMassOverrideInKg(NAME_None, 0.05f);
+	ArrowMesh->SetMassOverrideInKg(NAME_None, Mass);
 
 	ArrowMesh->OnComponentHit.AddDynamic(this, &ASFArrow::OnHit);
 }

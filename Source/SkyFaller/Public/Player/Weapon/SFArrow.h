@@ -39,6 +39,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Physics", meta = (ClampMin = "0", ClampMax = "1"))
 	float PercentagePenetration = 0.19643f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Physics", meta = (ClampMin = "0"))
+	float Mass = 0.15f;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
 	USoundCue* HitSound;
 
@@ -58,7 +61,6 @@ private:
 	FVector ShotDirection;
 	bool bAttached = false;
 	FTimerHandle TraceTimer;
-	void SeriesCalc(AActor* OtherActor);
 
 	void PhysicsFalling();
 

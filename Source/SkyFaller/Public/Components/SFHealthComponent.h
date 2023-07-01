@@ -25,6 +25,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	bool IsDead() const { return FMath::IsNearlyZero(Health); }
 
+	float GetHealth() const { return Health; };
+
 protected:
 
 	virtual void BeginPlay() override;

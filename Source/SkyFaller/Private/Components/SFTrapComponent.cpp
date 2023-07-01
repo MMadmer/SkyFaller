@@ -4,6 +4,7 @@
 #include "Components/SFTrapComponent.h"
 #include "Objects/SFTrap.h"
 #include "Objects/SFPlatform.h"
+#include <cmath>
 
 DEFINE_LOG_CATEGORY_STATIC(LogTrapComponent, All, All)
 
@@ -29,13 +30,13 @@ void USFTrapComponent::SpawnTraps()
 
 	for (auto Trap : Traps)
 	{
-		// if (FMath::RandBool()) continue;
+		// Spawn chance
+		if ((std::roundf(FMath::RandRange(0.0f, 100.0f) * 100.0f) / 100.0f) > Cast<ASFTrap>(Trap->GetDefaultObject())->GetSpawnChance()) continue;
 
 		const auto NewTrap = World->SpawnActor<ASFTrap>(Trap);
 		if (!NewTrap) return;
 
 		NewTrap->SetOwner(Platform);
-
 		AttachTrapToSocket(NewTrap, Platform->GetMesh(), NewTrap->GetSocketName());
 	}
 }

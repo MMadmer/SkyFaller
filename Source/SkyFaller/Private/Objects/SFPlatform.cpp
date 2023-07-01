@@ -120,6 +120,7 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	FRotator SpawnDirection(0.0f, NextAngle, 0.0f);
 	// UE_LOG(LogPlatform, Display, TEXT("Global rotation: %f"), *pGlobalRotation);
 
+	// Set location and rotation of new platform
 	FVector SpawnLocation = GetActorLocation() + (GetActorRotation() + SpawnDirection).Vector() * (MESH_DIAMETER + FMath::RandRange(MinDist, MaxDist)); // Get end point of new platform spawn location
 	SpawnLocation.Z += SpawnHeight;
 	FRotator SpawnRotation = FRotator(0.0f, (GetActorLocation() - SpawnLocation).ToOrientationRotator().Yaw + 180.0f, 0.0f);

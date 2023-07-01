@@ -23,6 +23,9 @@ protected:
 	int32 GetPlayerScore() const;
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
+	float GetPlayerHealth() const;
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
 	float GetWeaponCharge() const;
 
 	UFUNCTION(BlueprintCallable, Category = "UI")

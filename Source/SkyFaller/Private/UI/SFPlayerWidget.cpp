@@ -6,6 +6,7 @@
 #include "Components/SFWeaponComponent.h"
 #include "Player/Weapon/SFBowWeapon.h"
 #include "Components/SFProgressComponent.h"
+#include "Components/SFHealthComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogPlayerWidget, All, All)
 
@@ -68,4 +69,15 @@ void USFPlayerWidget::OnScoreTimerEnd()
 	if (!GetWorld()) return;
 
 	CachedScore = 0;
+}
+
+float USFPlayerWidget::GetPlayerHealth() const
+{
+	const auto Player = GetOwningPlayerPawn();
+	if (!Player) return 0.0f;
+
+	const auto HealthComponent = Cast<USFHealthComponent>(Player->GetComponentByClass(USFHealthComponent::StaticClass()));
+	if (!HealthComponent) return 0.0f;
+
+	return HealthComponent->GetHealth() / 100.0f;
 }
