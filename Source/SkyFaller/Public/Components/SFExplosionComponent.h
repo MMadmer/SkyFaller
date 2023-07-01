@@ -8,6 +8,8 @@
 
 class URadialForceComponent;
 class USphereComponent;
+class UNiagaraSystem;
+class USoundCue;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SKYFALLER_API USFExplosionComponent : public UActorComponent
@@ -16,7 +18,6 @@ class SKYFALLER_API USFExplosionComponent : public UActorComponent
 
 public:	
 	USFExplosionComponent();
-	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void Explode();
 
@@ -34,9 +35,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Data")
 	float MinDamage = 0.5f;
 
-	// UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Data")
-	// float DamageFalloff = 1.0f;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Data")
 	float InnerRad = 250.0f;
 
@@ -48,6 +46,15 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Radial Force")
 	float ExplosionImpulse = 10000.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+	UNiagaraSystem* NiagaraSystem;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sounds", meta = (ClampMin = "0"))
+	float SoundRadius = 500.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sounds")
+	USoundCue* ExplosionSound;
 
 	virtual void BeginPlay() override;
 

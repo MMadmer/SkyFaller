@@ -17,9 +17,3 @@ void ASFTrap::BeginPlay()
 	Super::BeginPlay();
 	
 }
-
-void ASFTrap::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}

@@ -8,7 +8,6 @@
 
 class USFExplosionComponent;
 class URadialForceComponent;
-class UNiagaraSystem;
 
 UCLASS()
 class SKYFALLER_API ASFMineTrap : public ASFTrap
@@ -22,9 +21,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	USFExplosionComponent* ExplosionComponent;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
-	UNiagaraSystem* NiagaraSystem;
 
 	virtual void BeginPlay() override;
 

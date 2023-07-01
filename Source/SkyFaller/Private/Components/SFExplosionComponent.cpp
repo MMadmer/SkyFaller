@@ -7,14 +7,18 @@
 #include "Components/SphereComponent.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "Engine/World.h"
-#include "DrawDebugHelpers.h"
 #include "Player/BaseCharacter.h"
+#include "NiagaraSystem.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "Sound/SoundCue.h"
+#include "Components/AudioComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogExplosionComp, All, All)
 
 USFExplosionComponent::USFExplosionComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 void USFExplosionComponent::BeginPlay()
@@ -24,18 +28,10 @@ void USFExplosionComponent::BeginPlay()
 	
 }
 
-void USFExplosionComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (!GetWorld()) return;
-
-	DrawDebugSphere(GetWorld(), GetOwner()->GetActorLocation(), InnerRad, 16, FColor::Red);
-	DrawDebugSphere(GetWorld(), GetOwner()->GetActorLocation(), OuterRad, 16, FColor::Blue);
-}
-
 void USFExplosionComponent::Explode()
 {
+	if (!GetWorld()) return;
+
 	TArray<AActor*> AttachedActors;
 	GetOwner()->GetAttachedActors(AttachedActors);
 	for (auto Actor : AttachedActors)
@@ -48,22 +44,32 @@ void USFExplosionComponent::Explode()
 		}
 	}
 
-	/*if (!GetWorld()) return;
-	UGameplayStatics::ApplyRadialDamageWithFalloff(
-		GetWorld(), 
-		Damage, 
-		Damage * MinDamage, 
-		GetOwner()->GetActorLocation(), 
-		InnerRad, 
-		OuterRad, 
-		DamageFalloff, 
-		nullptr, 
-		{}, 
-		GetOwner(), 
-		nullptr,
-		ECollisionChannel::ECC_WorldStatic);*/
-
 	RadialDamage();
+
+	// Niagara
+	if (NiagaraSystem)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NiagaraSystem, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
+	}
+
+	// Explosion sound
+	UAudioComponent* AudioComponent = NewObject<UAudioComponent>(this);
+	USoundAttenuation* AttenuationSettings = NewObject<USoundAttenuation>(this);
+	if (AudioComponent && ExplosionSound && AttenuationSettings)
+	{
+		// Set sound radius
+		AttenuationSettings->Attenuation.bAttenuate = true;
+		AttenuationSettings->Attenuation.AttenuationShape = EAttenuationShape::Sphere;
+		AttenuationSettings->Attenuation.AttenuationShapeExtents = FVector(SoundRadius);
+
+		// Play sound
+		AudioComponent->SetSound(ExplosionSound);
+		AudioComponent->bAllowSpatialization = true;
+		AudioComponent->bAutoDestroy = true;
+		AudioComponent->AttenuationSettings = AttenuationSettings;
+		AudioComponent->SetWorldLocation(GetOwner()->GetActorLocation());
+		AudioComponent->Play();
+	}
 	
 	RadialForceComponent = NewObject<URadialForceComponent>(GetOwner());
 	RadialForceComponent->RegisterComponent();

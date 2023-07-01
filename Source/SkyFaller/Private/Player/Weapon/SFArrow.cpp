@@ -12,6 +12,7 @@
 #include "NiagaraSystem.h"
 #include "NiagaraComponent.h"
 #include "Player/BaseCharacter.h"
+#include "Objects/SFMineTrap.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogArrow, All, All)
 
@@ -83,23 +84,26 @@ void ASFArrow::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPri
 		OtherComp->AddForceAtLocation(Force, Hit.ImpactPoint);
 	}
 
-	// Hit sound
-	UAudioComponent* AudioComponent = NewObject<UAudioComponent>(this);
-	USoundAttenuation* AttenuationSettings = NewObject<USoundAttenuation>(this);
-	if (!(AudioComponent && HitSound && AttenuationSettings)) return;
+	if (!Cast<ASFMineTrap>(OtherActor))
+	{
+		// Hit sound
+		UAudioComponent* AudioComponent = NewObject<UAudioComponent>(this);
+		USoundAttenuation* AttenuationSettings = NewObject<USoundAttenuation>(this);
+		if (!(AudioComponent && HitSound && AttenuationSettings)) return;
 
-	// Set sound radius
-	AttenuationSettings->Attenuation.bAttenuate = true;
-	AttenuationSettings->Attenuation.AttenuationShape = EAttenuationShape::Sphere;
-	AttenuationSettings->Attenuation.AttenuationShapeExtents = FVector(HitSoundRadius) ;
+		// Set sound radius
+		AttenuationSettings->Attenuation.bAttenuate = true;
+		AttenuationSettings->Attenuation.AttenuationShape = EAttenuationShape::Sphere;
+		AttenuationSettings->Attenuation.AttenuationShapeExtents = FVector(HitSoundRadius);
 
-	// Play sound
-	AudioComponent->SetSound(HitSound);
-	AudioComponent->bAllowSpatialization = true;
-	AudioComponent->bAutoDestroy = true;
-	AudioComponent->AttenuationSettings = AttenuationSettings;
-	AudioComponent->SetWorldLocation(Hit.ImpactPoint);
-	AudioComponent->Play();
+		// Play sound
+		AudioComponent->SetSound(HitSound);
+		AudioComponent->bAllowSpatialization = true;
+		AudioComponent->bAutoDestroy = true;
+		AudioComponent->AttenuationSettings = AttenuationSettings;
+		AudioComponent->SetWorldLocation(Hit.ImpactPoint);
+		AudioComponent->Play();
+	}
 
 	// Delete niagara FX
 	UNiagaraComponent* NiagaraComponent = FindComponentByClass<UNiagaraComponent>();
