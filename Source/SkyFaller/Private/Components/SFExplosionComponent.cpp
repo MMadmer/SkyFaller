@@ -7,12 +7,12 @@
 #include "Components/SphereComponent.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "Engine/World.h"
-#include "Player/BaseCharacter.h"
 #include "NiagaraSystem.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Sound/SoundCue.h"
 #include "Components/AudioComponent.h"
+#include "Components/SFHealthComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogExplosionComp, All, All)
 
@@ -95,15 +95,15 @@ void USFExplosionComponent::RadialDamage()
 
 void USFExplosionComponent::OnExplosionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	const auto Player = Cast<ABaseCharacter>(OtherActor);
-	if (!Player) return;
+	const auto HealthComponent = OtherActor->FindComponentByClass<USFHealthComponent>();
+	if (!HealthComponent) return;
 
-	float Distance = (Player->GetActorLocation() - GetOwner()->GetActorLocation()).Size() - InnerRad;
-	if (Distance <= 0.0f) Player->TakeDamage(Damage, FDamageEvent::FDamageEvent(), nullptr, GetOwner());
+	float Distance = (OtherActor->GetActorLocation() - GetOwner()->GetActorLocation()).Size() - InnerRad;
+	if (Distance <= 0.0f) OtherActor->TakeDamage(Damage, FDamageEvent::FDamageEvent(), nullptr, GetOwner());
 	else
 	{
 		float DamageToTake = Damage * (MinDamage + (1 - MinDamage) * (1 - Distance / (OuterRad - InnerRad))); // Parabolic interpolation
 
-		Player->TakeDamage(DamageToTake, FDamageEvent::FDamageEvent(), nullptr, GetOwner());
+		OtherActor->TakeDamage(DamageToTake, FDamageEvent::FDamageEvent(), nullptr, GetOwner());
 	}
 }
