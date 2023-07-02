@@ -12,7 +12,7 @@
 #include "NiagaraSystem.h"
 #include "NiagaraComponent.h"
 #include "Player/BaseCharacter.h"
-#include "Objects/SFMineTrap.h"
+#include "Objects/SFTrap.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogArrow, All, All)
 
@@ -84,7 +84,7 @@ void ASFArrow::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPri
 		OtherComp->AddForceAtLocation(Force, Hit.ImpactPoint);
 	}
 
-	if (!Cast<ASFMineTrap>(OtherActor))
+	if (!Cast<ASFTrap>(OtherActor))
 	{
 		// Hit sound
 		UAudioComponent* AudioComponent = NewObject<UAudioComponent>(this);

@@ -8,6 +8,7 @@
 #include "SFTrap.generated.h"
 
 class UStaticMeshComponent;
+class USoundCue;
 
 UCLASS()
 class SKYFALLER_API ASFTrap : public AActor
@@ -31,6 +32,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Data")
 	FName SocketName;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sounds")
+	USoundCue* TrapSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sounds", meta = (ClampMin = "0"))
+	float TrapSoundRadius = 500.0f;
+
 	virtual void BeginPlay() override;
+	void PlayTrapSound();
 
 };

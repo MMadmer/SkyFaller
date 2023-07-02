@@ -22,6 +22,7 @@ void ASFMineTrap::BeginPlay()
 	Super::BeginPlay();
 
 	InnerSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+	OuterSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 
 	InnerSphere->SetSphereRadius(ExplosionComponent->GetInnerRadius());
 	OuterSphere->SetSphereRadius(ExplosionComponent->GetOuterRadius());
