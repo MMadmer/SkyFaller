@@ -28,7 +28,7 @@ void USFExplosionComponent::BeginPlay()
 	
 }
 
-void USFExplosionComponent::Explode()
+void USFExplosionComponent::Explode(const FVector& ImpactLocation)
 {
 	if (!GetWorld()) return;
 
@@ -49,7 +49,7 @@ void USFExplosionComponent::Explode()
 	// Niagara
 	if (NiagaraSystem)
 	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NiagaraSystem, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NiagaraSystem, ImpactLocation);
 	}
 
 	// Explosion sound

@@ -19,7 +19,9 @@ class SKYFALLER_API USFExplosionComponent : public UActorComponent
 public:	
 	USFExplosionComponent();
 
-	void Explode();
+	void Explode(const FVector& ImpactLocation);
+	float GetInnerRadius() const { return InnerRad; };
+	float GetOuterRadius() const { return OuterRad; };
 
 protected:
 
