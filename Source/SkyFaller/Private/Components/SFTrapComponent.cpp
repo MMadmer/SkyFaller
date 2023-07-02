@@ -30,6 +30,9 @@ void USFTrapComponent::SpawnTraps()
 
 	for (auto Trap : Traps)
 	{
+		// Sockets check
+		FName Socket = GetRandomSocket(Cast<ASFTrap>(Trap->GetDefaultObject()), Platform->GetMesh()->GetAllSocketNames());
+		if (!Platform->GetMesh()->DoesSocketExist(Socket)) continue;
 		// Spawn chance
 		if ((std::roundf(FMath::RandRange(0.0f, 100.0f) * 100.0f) / 100.0f) > Cast<ASFTrap>(Trap->GetDefaultObject())->GetSpawnChance()) continue;
 
@@ -37,7 +40,7 @@ void USFTrapComponent::SpawnTraps()
 		if (!NewTrap) return;
 
 		NewTrap->SetOwner(Platform);
-		AttachTrapToSocket(NewTrap, Platform->GetMesh(), NewTrap->GetSocketName());
+		AttachTrapToSocket(NewTrap, Platform->GetMesh(), Socket);
 	}
 }
 
@@ -47,4 +50,16 @@ void USFTrapComponent::AttachTrapToSocket(ASFTrap* Trap, USceneComponent* SceneC
 
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
 	Trap->AttachToComponent(SceneComponent, AttachmentRules, SocketName);
+}
+
+FName USFTrapComponent::GetRandomSocket(ASFTrap* Trap, TArray<FName> Sockets)
+{
+	FString TrapSocket = Trap->GetSocketName().ToString();
+	TArray<FName> ConfirmedSockets;
+	for (const auto& Socket : Sockets)
+	{
+		if (Socket.ToString().StartsWith(TrapSocket)) ConfirmedSockets.Add(Socket);
+	}
+
+	return ConfirmedSockets.Num() > 0 ? ConfirmedSockets[FMath::RandRange(0, ConfirmedSockets.Num() - 1)] : "";
 }

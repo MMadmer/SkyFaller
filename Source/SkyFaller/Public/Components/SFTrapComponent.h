@@ -26,5 +26,6 @@ protected:
 private:
 	void SpawnTraps();
 	void AttachTrapToSocket(ASFTrap* Trap, USceneComponent* SceneComponent, const FName& SocketName);
-		
+	FName GetRandomSocket(ASFTrap* Trap, TArray<FName> Sockets);
+
 };

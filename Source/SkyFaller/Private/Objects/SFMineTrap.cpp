@@ -82,25 +82,22 @@ void ASFMineTrap::Timer()
 		Explosion();
 		GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 	}
-	else
+	// Explosion sound
+	UAudioComponent* AudioComponent = NewObject<UAudioComponent>(this);
+	USoundAttenuation* AttenuationSettings = NewObject<USoundAttenuation>(this);
+	if (AudioComponent && TickSound && AttenuationSettings)
 	{
-		// Explosion sound
-		UAudioComponent* AudioComponent = NewObject<UAudioComponent>(this);
-		USoundAttenuation* AttenuationSettings = NewObject<USoundAttenuation>(this);
-		if (AudioComponent && TickSound && AttenuationSettings)
-		{
-			// Set sound radius
-			AttenuationSettings->Attenuation.bAttenuate = true;
-			AttenuationSettings->Attenuation.AttenuationShape = EAttenuationShape::Sphere;
-			AttenuationSettings->Attenuation.AttenuationShapeExtents = FVector(ExplosionComponent->GetOuterRadius());
+		// Set sound radius
+		AttenuationSettings->Attenuation.bAttenuate = true;
+		AttenuationSettings->Attenuation.AttenuationShape = EAttenuationShape::Sphere;
+		AttenuationSettings->Attenuation.AttenuationShapeExtents = FVector(ExplosionComponent->GetOuterRadius());
 
-			// Play sound
-			AudioComponent->SetSound(TickSound);
-			AudioComponent->bAllowSpatialization = true;
-			AudioComponent->bAutoDestroy = true;
-			AudioComponent->AttenuationSettings = AttenuationSettings;
-			AudioComponent->SetWorldLocation(GetOwner()->GetActorLocation());
-			AudioComponent->Play();
-		}
+		// Play sound
+		AudioComponent->SetSound(TickSound);
+		AudioComponent->bAllowSpatialization = true;
+		AudioComponent->bAutoDestroy = true;
+		AudioComponent->AttenuationSettings = AttenuationSettings;
+		AudioComponent->SetWorldLocation(GetActorLocation());
+		AudioComponent->Play();
 	}
 }
