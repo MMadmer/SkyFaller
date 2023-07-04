@@ -95,11 +95,8 @@ void USFExplosionComponent::RadialDamage()
 void USFExplosionComponent::OnExplosionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	float Distance = (OtherActor->GetActorLocation() - GetOwner()->GetActorLocation()).Size() - InnerRad;
-	if (Distance <= 0.0f) OtherActor->TakeDamage(Damage, FDamageEvent::FDamageEvent(), nullptr, GetOwner());
-	else
-	{
-		float DamageToTake = Damage * (MinDamage + (1 - MinDamage) * (1 - Distance / (OuterRad - InnerRad))); // Parabolic interpolation
+	
+	float DamageToTake = FMath::Clamp(Damage * (MinDamage + (1 - MinDamage) * (1 - Distance / (OuterRad - InnerRad))), Damage * MinDamage, Damage); // Modifyed parabolic interpolation
 
-		OtherActor->TakeDamage(DamageToTake, FDamageEvent::FDamageEvent(), nullptr, GetOwner());
-	}
+	OtherActor->TakeDamage(DamageToTake, FDamageEvent::FDamageEvent(), nullptr, GetOwner());
 }

@@ -40,6 +40,14 @@ void USFWeaponComponent::BeginPlay()
 	SpawnWeapon();
 }
 
+void USFWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	CurrentWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	CurrentWeapon->Destroy();
+
+	Super::EndPlay(EndPlayReason);
+}
+
 void USFWeaponComponent::SpawnWeapon()
 {
 	const auto World = GetWorld();
