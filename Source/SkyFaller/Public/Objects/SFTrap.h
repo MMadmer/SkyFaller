@@ -26,6 +26,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* TrapMesh;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Data")
+	float Damage;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Data", meta = (ClampMin = "0", ClampMax = "100"))
 	float SpawnChance;
 

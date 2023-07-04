@@ -22,9 +22,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* SecondMesh;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
-	float Damage = 25.0f;
-
 protected:
 	virtual void BeginPlay() override;
 

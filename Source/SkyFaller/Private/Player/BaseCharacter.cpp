@@ -92,6 +92,7 @@ void ABaseCharacter::OnDeath()
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetSimulatePhysics(true);
+	
 }
 
 void ABaseCharacter::MoveForward(float Amount)
