@@ -17,8 +17,6 @@ USFTrapComponent::USFTrapComponent()
 void USFTrapComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	SpawnTraps();
 }
 
 void USFTrapComponent::SpawnTraps()

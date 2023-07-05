@@ -36,6 +36,8 @@ void ASFPlatform::BeginPlay()
 
 	SetTemplate();
 
+	TrapComponent->SpawnTraps();
+
 	PlatformMesh->OnComponentHit.AddDynamic(this, &ASFPlatform::OnHit);
 
 	FogConnecting();
@@ -93,6 +95,8 @@ void ASFPlatform::SetTemplate()
 
 	PlatformMesh->SetStaticMesh(Asset.Platform);
 	SkinMesh->SetStaticMesh(Asset.Skin);
+
+	UE_LOG(LogPlatform, Display, TEXT("Setted"));
 }
 
 void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)

@@ -16,6 +16,8 @@ class SKYFALLER_API USFTrapComponent : public UActorComponent
 public:	
 	USFTrapComponent();
 
+	void SpawnTraps();
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Traps")
@@ -24,7 +26,6 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	void SpawnTraps();
 	void AttachTrapToSocket(ASFTrap* Trap, USceneComponent* SceneComponent, const FName& SocketName);
 	FName GetRandomSocket(ASFTrap* Trap, TArray<FName> Sockets);
 
