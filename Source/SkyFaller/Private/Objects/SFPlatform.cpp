@@ -95,8 +95,6 @@ void ASFPlatform::SetTemplate()
 
 	PlatformMesh->SetStaticMesh(Asset.Platform);
 	SkinMesh->SetStaticMesh(Asset.Skin);
-
-	UE_LOG(LogPlatform, Display, TEXT("Setted"));
 }
 
 void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
@@ -248,7 +246,7 @@ void ASFPlatform::FogConnecting()
 	if (!GetWorld()) return;
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASF_FloatFog::StaticClass(), FoundActors);
-
+	
 	ASF_FloatFog* FogInst = nullptr;
 
 	for (AActor* Actor : FoundActors)
