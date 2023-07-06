@@ -36,8 +36,10 @@ class SKYFALLER_API ASFPlatform : public AActor
 	
 public:	
 	ASFPlatform();
+	virtual void Tick(float DeltaTime) override;
 
 	UStaticMeshComponent* GetMesh() const { return PlatformMesh; };
+	int32 GetSelfIndex() { return SelfIndex; };
 
 protected:
 
@@ -106,9 +108,6 @@ protected:
 
 	virtual void BeginPlay() override;
 
-public:	
-	virtual void Tick(float DeltaTime) override;
-
 private:
 	bool bTouched = false;
 	float Offset = 0.0f;
@@ -119,6 +118,7 @@ private:
 	TArray<int32> AssetsIndexes;
 	const float MESH_DIAMETER = 742.0f * 2; // Platform's "bounds"(not real)
 	float GlobalRotation = 0.0f;
+	int32 SelfIndex = 0;
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
@@ -131,6 +131,6 @@ private:
 	void Mover(float DeltaTime);
 	void SpawnTarget(UWorld* World, ABaseCharacter* Player, ASFPlatform* NewTarget);
 
-	void FogConnecting();
+	void ListenerConnecting();
 
 };

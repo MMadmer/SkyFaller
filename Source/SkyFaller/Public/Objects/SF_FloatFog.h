@@ -16,16 +16,10 @@ class SKYFALLER_API ASF_FloatFog : public AActor
 public:	
 	ASF_FloatFog();
 
-	UFUNCTION()
-	void Mover(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* FogMesh;
 
 	virtual void BeginPlay() override;
-
-private:
-	FVector GetPlayerLocation() const;
 };

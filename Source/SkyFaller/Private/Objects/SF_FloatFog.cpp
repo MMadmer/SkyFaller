@@ -24,13 +24,3 @@ void ASF_FloatFog::BeginPlay()
 
 	FogMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 }
-
-void ASF_FloatFog::Mover(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-	if (!GetWorld()) return;
-	const auto Player = Cast<ACharacter>(OtherActor);
-	if (!Player) return;
-
-	FVector PlayerLocation = Player->GetActorLocation();
-	SetActorLocation(FVector(PlayerLocation.X, PlayerLocation.Y, -1500.0f));
-}

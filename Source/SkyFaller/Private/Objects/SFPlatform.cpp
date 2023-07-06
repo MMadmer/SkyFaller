@@ -6,7 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Player/BaseCharacter.h"
 #include "Kismet/GameplayStatics.h"
-#include "Objects/SF_FloatFog.h"
+#include "SFListener.h"
 #include "Components/SFProgressComponent.h"
 #include "Objects/SFTarget.h"
 #include "Objects/SFPlatformSkin.h"
@@ -40,7 +40,7 @@ void ASFPlatform::BeginPlay()
 
 	PlatformMesh->OnComponentHit.AddDynamic(this, &ASFPlatform::OnHit);
 
-	FogConnecting();
+	ListenerConnecting();
 
 	LocalTime = (float)FMath::RandHelper(10);
 }
@@ -130,6 +130,7 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	FTransform SpawnTransform(SpawnRotation, SpawnLocation);
 
 	ASFPlatform* NewPlatform = World->SpawnActorDeferred<ASFPlatform>(PlatformClass, SpawnTransform);
+	NewPlatform->SelfIndex = SelfIndex + 1;
 	NewPlatform->AssetsIndexes.Append(AssetsIndexes);
 	NewPlatform->FinishSpawning(SpawnTransform);
 	if (!NewPlatform) return;
@@ -241,26 +242,26 @@ void ASFPlatform::SpawnTarget(UWorld* World, ABaseCharacter* Player, ASFPlatform
 }
 
 // Move fog to player after step on platform
-void ASFPlatform::FogConnecting()
+void ASFPlatform::ListenerConnecting()
 {
 	if (!GetWorld()) return;
 	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASF_FloatFog::StaticClass(), FoundActors);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASFListener::StaticClass(), FoundActors);
 	
-	ASF_FloatFog* FogInst = nullptr;
+	ASFListener* ListenerInst = nullptr;
 
 	for (AActor* Actor : FoundActors)
 	{
-		ASF_FloatFog* FoundFog = Cast<ASF_FloatFog>(Actor);
-		if (FoundFog)
+		ASFListener* FoundListener = Cast<ASFListener>(Actor);
+		if (FoundListener)
 		{
-			FogInst = FoundFog;
+			ListenerInst = FoundListener;
 			break;
 		}
 	}
-	if (FogInst)
+	if (ListenerInst)
 	{
-		// UE_LOG(LogPlatform, Display, TEXT("Added"));
-		PlatformMesh->OnComponentHit.AddDynamic(FogInst, &ASF_FloatFog::Mover);
+		// UE_LOG(LogPlatform, Display, TEXT("Listener added"));
+		PlatformMesh->OnComponentHit.AddDynamic(ListenerInst, &ASFListener::OnPlatformHit);
 	}
 }

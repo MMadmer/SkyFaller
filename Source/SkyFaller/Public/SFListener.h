@@ -14,7 +14,13 @@ class SKYFALLER_API ASFListener : public AActor
 public:	
 	ASFListener();
 
+	UFUNCTION()
+	void OnPlatformHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 protected:
 	virtual void BeginPlay() override;
+
+private:
+	void FogConnecting(const ACharacter* Player);
 
 };
