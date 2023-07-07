@@ -15,6 +15,21 @@ struct FBackAssets
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float DistY;
+
+	/** Distance that adds to the layer object X pos for spawn */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float DistX;
+
+	/** Distance between layer objects */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float BetweenX;
+
+	/** First spawn only */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	int32 ObjectsNum;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TArray<UStaticMesh*> Assets;
 };
 
@@ -29,6 +44,10 @@ public:
 	ASFBackgroundActor();
 
 	int32 GetLayer() { return Layer; };
+	void SetLayer(int32 NewLayer) { Layer = NewLayer; };
+	int32 GetBackLayers() { return BackLayers.Num(); };
+	FBackAssets GetCurrentLayer() { return BackLayers[Layer]; }; // Layer struct
+	int32 GetObjectsNumOfLayer(int32 LayerNum) { return LayerNum < BackLayers.Num() ? BackLayers[LayerNum].ObjectsNum : -1; };
 
 protected:
 
@@ -50,11 +69,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	int32 Layer;
+	int32 Layer = 0;
 	float ParentZ = 0.0f;
 	float LocalTime = 0.0f;
 
-	void SetTemplate(int32 NewLayer);
+	void SetTemplate();
 	void Mover(float DeltaTime);
 
 };

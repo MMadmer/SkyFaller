@@ -17,6 +17,7 @@ void ASFBackgroundActor::BeginPlay()
 	Super::BeginPlay();
 
 	LocalTime = (float)FMath::RandHelper(10);
+	SetTemplate();
 }
 
 void ASFBackgroundActor::Tick(float DeltaTime)
@@ -26,9 +27,8 @@ void ASFBackgroundActor::Tick(float DeltaTime)
 	Mover(DeltaTime);
 }
 
-void ASFBackgroundActor::SetTemplate(int32 NewLayer)
+void ASFBackgroundActor::SetTemplate()
 {
-	Layer = NewLayer;
 	int32 CurrentIndex;
 	TArray<UStaticMesh*> LayerAssets = BackLayers[Layer].Assets;
 
