@@ -104,11 +104,11 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 
 	// Set new platform spawn location and rotation
 	float NextAngle = 0.0f;
-	if (GlobalRotation > 90.0f)
+	if (GlobalRotation > 75.0f)
 	{
 		NextAngle = -SpawnAngle;
 	}
-	else if (GlobalRotation < -90.0f)
+	else if (GlobalRotation < -75.0f)
 	{
 		NextAngle = SpawnAngle;
 	}
@@ -117,7 +117,7 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 		NextAngle = FMath::RandRange(-SpawnAngle, SpawnAngle);
 	}
 
-	GlobalRotation = NextAngle;
+	GlobalRotation += NextAngle;
 
 	FRotator SpawnDirection(0.0f, NextAngle, 0.0f);
 	// UE_LOG(LogPlatform, Display, TEXT("Global rotation: %f"), *pGlobalRotation);
@@ -141,7 +141,7 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	NewPlatform->Threshold = FMath::RandRange(NewPlatform->Threshold - ThresholdOffset, NewPlatform->Threshold);
 	NewPlatform->GlobalRotation = GlobalRotation;
 
-	// UE_LOG(LogPlatform, Display, TEXT("%f %f"), NewPlatform->PlatformMesh->Bounds.BoxExtent.X, NewPlatform->PlatformMesh->Bounds.BoxExtent.Y);
+	// UE_LOG(LogPlatform, Display, TEXT("Global rotation:  %f"), GlobalRotation);
 
 	// Target
 	if (FMath::RandBool()) SpawnTarget(World, Player, NewPlatform);

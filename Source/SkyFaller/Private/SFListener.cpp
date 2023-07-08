@@ -30,7 +30,7 @@ void ASFListener::OnPlatformHit(UPrimitiveComponent* HitComponent, AActor* Other
 	if (!Player) return;
 
 	FogMoving(Player);
-
+	BackgroundManage();
 }
 
 // Move fog to player after step on platform
@@ -95,34 +95,79 @@ void ASFListener::BackgroundInit()
 
 	for (int i = 0; i < BackgroundActors.Num(); i++)
 	{
-		for (int j = -BackInst->GetObjectsNumOfLayer(i) + 1; j <= 0; j++)
+		int32 HalfObjectsNum = BackInst->GetObjectsNumOfLayer(i) / 2;
+		for (int j = -HalfObjectsNum; BackInst->GetObjectsNumOfLayer(i) % 2 == 1 ? j <= HalfObjectsNum : j < HalfObjectsNum; j++)
 		{
 			FTransform NewTransform;
 
-			/// <First actor>
+			/// <Original actor>
 			ASFBackgroundActor* Actor = GetWorld()->SpawnActorDeferred<ASFBackgroundActor>(BackgroundClass, NewTransform);
 
 			Actor->SetLayer(i);
 
 			FBackAssets ActorLayer = Actor->GetCurrentLayer();
-			FVector NewLocation = GetActorLocation();
+			FVector NewLocation = Player->GetActorLocation();
 			NewLocation.Y += ActorLayer.DistY;
 			NewLocation.X += ActorLayer.BetweenX * j;
+			NewLocation.Z += ActorLayer.DistZ;
 			NewTransform.SetLocation(NewLocation);
+
+			Actor->SetParentZ(NewLocation.Z);
 
 			Actor->FinishSpawning(NewTransform);
 			BackgroundActors[i].Add(Actor);
-			/// </First actor>
+			/// </Original actor>
 			
-			/// <Second actor>
+			/// <Mirror actor>
 			NewLocation.Y -= ActorLayer.DistY * 2;
 			NewTransform.SetLocation(NewLocation);
 			ASFBackgroundActor* MirrorActor = GetWorld()->SpawnActorDeferred<ASFBackgroundActor>(BackgroundClass, NewTransform);
-			Actor->SetLayer(i);
+
+			MirrorActor->SetLayer(i);
+			MirrorActor->SetParentZ(NewLocation.Z);
+
 			MirrorActor->FinishSpawning(NewTransform);
 			BackgroundActors[i].Add(MirrorActor);
-			/// </Second actor>
+			/// </Mirror actor>
 		}
 	}
 	// UE_LOG(LogListener, Display, TEXT("Background initialized"));
+}
+
+void ASFListener::BackgroundManage()
+{
+	if (!GetWorld()) return;
+	const auto Player = Cast<ACharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	if (!Player) return;
+
+	if (BackgroundActors.Num() <= 0) return;
+
+	for (auto& Layer : BackgroundActors)
+	{
+		if (Layer.Num() < 2) continue;
+
+		while (BackgroundSpawner(Layer, Player, Layer.Num() - 1));
+	}
+}
+
+bool ASFListener::BackgroundSpawner(TArray<ASFBackgroundActor*>& Layer, const ACharacter* Player, const int32 Index)
+{
+	// UE_LOG(LogListener, Display, TEXT("Objects link: %d"), Layer.Num());
+
+	const auto LayerStruct = Layer[Index]->GetCurrentLayer();
+	if (Player->GetActorLocation().X - (Layer[Index]->GetActorLocation().X + LayerStruct.DistX) >= 0)
+	{
+		const auto Origin = Layer[Index]->SpawnNext(BackgroundClass);
+		const auto Mirror = Layer[Index - 1]->SpawnNext(BackgroundClass);
+		if (!(Origin && Mirror))
+		{
+			UE_LOG(LogListener, Warning, TEXT("Background not spawned"));
+			return false;
+		}
+		Layer.Add(Origin);
+		Layer.Add(Mirror);
+		return true;
+	}
+
+	return false;
 }

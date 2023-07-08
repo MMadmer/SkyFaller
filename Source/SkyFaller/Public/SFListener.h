@@ -8,6 +8,7 @@
 
 class ASFPlatform;
 class ASFBackgroundActor;
+class ACharacter;
 
 UCLASS()
 class SKYFALLER_API ASFListener : public AActor
@@ -34,5 +35,7 @@ private:
 	void FogMoving(const ACharacter* Player);
 	void PlatformConnecting(int32 Index);
 	void BackgroundInit();
+	void BackgroundManage();
+	bool BackgroundSpawner(TArray<ASFBackgroundActor*>& Layer, const ACharacter* Player, const int32 Index);
 
 };
