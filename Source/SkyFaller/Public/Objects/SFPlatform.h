@@ -39,7 +39,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UStaticMeshComponent* GetMesh() const { return PlatformMesh; };
-	int32 GetSelfIndex() { return SelfIndex; };
+	int32 GetSelfID() { return SelfID; };
 
 protected:
 
@@ -118,7 +118,7 @@ private:
 	TArray<int32> AssetsIndexes;
 	const float MESH_DIAMETER = 742.0f * 2; // Platform's "bounds"(not real)
 	float GlobalRotation = 0.0f;
-	int32 SelfIndex = 0;
+	int32 SelfID = 0;
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);

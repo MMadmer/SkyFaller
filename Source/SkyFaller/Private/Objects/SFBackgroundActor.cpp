@@ -91,7 +91,7 @@ void ASFBackgroundActor::Mover(float DeltaTime)
 	SetActorLocation(NewLocation);
 }
 
-ASFBackgroundActor* ASFBackgroundActor::SpawnNext(TSubclassOf<ASFBackgroundActor> BackgroundClass)
+ASFBackgroundActor* ASFBackgroundActor::SpawnNext(TSubclassOf<ASFBackgroundActor> BackgroundClass, bool bFront)
 {
 	if (!GetWorld()) return nullptr;
 	
@@ -99,7 +99,7 @@ ASFBackgroundActor* ASFBackgroundActor::SpawnNext(TSubclassOf<ASFBackgroundActor
 	ASFBackgroundActor* NewActor = GetWorld()->SpawnActorDeferred<ASFBackgroundActor>(BackgroundClass, NewTransform);
 
 	FVector NewLocation = GetActorLocation();
-	NewLocation.X += BackLayers[Layer].BetweenX;
+	NewLocation.X += bFront ? BackLayers[Layer].BetweenX : -BackLayers[Layer].BetweenX;
 	NewLocation.Z = ParentZ + BackLayers[Layer].SpawnHeight;
 	NewTransform.SetLocation(NewLocation);
 

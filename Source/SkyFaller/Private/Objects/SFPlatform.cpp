@@ -130,7 +130,7 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	FTransform SpawnTransform(SpawnRotation, SpawnLocation);
 
 	ASFPlatform* NewPlatform = World->SpawnActorDeferred<ASFPlatform>(PlatformClass, SpawnTransform);
-	NewPlatform->SelfIndex = SelfIndex + 1;
+	NewPlatform->SelfID = SelfID + 1;
 	NewPlatform->AssetsIndexes.Append(AssetsIndexes);
 	NewPlatform->FinishSpawning(SpawnTransform);
 	if (!NewPlatform) return;

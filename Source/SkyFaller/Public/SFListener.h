@@ -31,11 +31,13 @@ protected:
 private:
 	ASFPlatform* MainPlatform;
 	TArray<TArray<ASFBackgroundActor*>> BackgroundActors;
+	int32 CachedId = -1;
 
 	void FogMoving(const ACharacter* Player);
 	void PlatformConnecting(int32 Index);
 	void BackgroundInit();
-	void BackgroundManage();
-	bool BackgroundSpawner(TArray<ASFBackgroundActor*>& Layer, const ACharacter* Player, const int32 Index);
+	void BackgroundManage(const ACharacter* Player);
+	bool BackgroundSpawner(TArray<ASFBackgroundActor*>& Layer, const ACharacter* Player, const int32 Index, bool bFront);
+	bool BackgroundDespawner(TArray<ASFBackgroundActor*>& Layer, const ACharacter* Player, const int32 Index);
 
 };

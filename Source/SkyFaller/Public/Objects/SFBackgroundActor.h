@@ -18,10 +18,6 @@ struct FBackAssets
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float DistY;
 
-	/** Distance that adds to the layer object X pos for spawn next */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	float DistX;
-
 	/** Distance that adds to the layer object Z pos for first spawn */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float DistZ;
@@ -49,8 +45,9 @@ struct FBackAssets
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = "0"))
 	float SpawnSpeed = 500.0f;
 
+	/** View distance */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	float DespawnDist = 100000.0f;
+	float SpawnDist = 100000.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float DespawnSpeed = 200.0f;
@@ -75,7 +72,8 @@ public:
 	FBackAssets GetCurrentLayer() { return BackLayers[Layer]; }; // Layer struct
 	int32 GetObjectsNumOfLayer(int32 LayerNum) { return LayerNum < BackLayers.Num() ? BackLayers[LayerNum].ObjectsNum : -1; };
 	void SetParentZ(float NewZ) { ParentZ = NewZ; };
-	ASFBackgroundActor* SpawnNext(TSubclassOf<ASFBackgroundActor> BackgroundClass);
+	void Despawn(bool Enable = true) { bDespawned = Enable; };
+	ASFBackgroundActor* SpawnNext(TSubclassOf<ASFBackgroundActor> BackgroundClass, bool bFront);
 
 protected:
 
