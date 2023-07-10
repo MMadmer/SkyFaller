@@ -68,6 +68,9 @@ protected:
 	float SpawnAngle = 40.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
+	float SpawnY = 5000.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
 	float SpawnHeight = -2000.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
@@ -118,6 +121,7 @@ private:
 	TArray<int32> AssetsIndexes;
 	const float MESH_DIAMETER = 742.0f * 2; // Platform's "bounds"(not real)
 	float GlobalRotation = 0.0f;
+	float ZeroY = 0.0f;
 	int32 SelfID = 0;
 
 	UFUNCTION()

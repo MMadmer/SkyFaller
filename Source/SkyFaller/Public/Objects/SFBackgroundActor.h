@@ -18,6 +18,10 @@ struct FBackAssets
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float DistY;
 
+	/** Distance that adds to the layer object X pos for spawn */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float DistX;
+
 	/** Distance that adds to the layer object Z pos for first spawn */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float DistZ;
@@ -46,7 +50,7 @@ struct FBackAssets
 	float SpawnSpeed = 500.0f;
 
 	/** View distance */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = "2000"))
 	float SpawnDist = 100000.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)

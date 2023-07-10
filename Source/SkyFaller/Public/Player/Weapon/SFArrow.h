@@ -24,7 +24,6 @@ public:
 	float ImpactForceMultiplier = 1.0f;
 
 	void SetShotDirection(const FVector& Direction) { ShotDirection = Direction; }
-	float GetLifeHitTrace() const { return LifeHitTrace; };
 	FVector GetVelocity() const;
 	USkeletalMeshComponent* GetMesh() const { return ArrowMesh; };
 
@@ -48,9 +47,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound", meta = (ClampMin = "0"))
 	float HitSoundRadius = 1000.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FX")
-	float LifeHitTrace = 2.5f;
-
 	virtual void BeginPlay() override;
 
 private:
@@ -60,7 +56,6 @@ private:
 
 	FVector ShotDirection;
 	bool bAttached = false;
-	FTimerHandle TraceTimer;
 
 	void PhysicsFalling();
 

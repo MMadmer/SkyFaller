@@ -107,18 +107,8 @@ void ASFArrow::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPri
 
 	// Delete niagara FX
 	UNiagaraComponent* NiagaraComponent = FindComponentByClass<UNiagaraComponent>();
-	if (!NiagaraComponent || !GetWorld()) return;
-
-	// UE_LOG(LogArrow, Display, TEXT("Niagara connected"));
-	GetWorld()->GetTimerManager().SetTimer(
-		TraceTimer,
-		[NiagaraComponent]()
-		{
-			if (!NiagaraComponent) return;
-			NiagaraComponent->DestroyComponent();
-		},
-		LifeHitTrace,
-		false);
+	if (NiagaraComponent || !GetWorld()) NiagaraComponent->Deactivate();
+	
 }
 
 void ASFArrow::PhysicsFalling()

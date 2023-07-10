@@ -43,6 +43,7 @@ void ASFPlatform::BeginPlay()
 	ListenerConnecting();
 
 	LocalTime = (float)FMath::RandHelper(10);
+	if (SelfID == 0) ZeroY = GetActorLocation().Y;
 }
 
 void ASFPlatform::Tick(float DeltaTime)
@@ -117,20 +118,27 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 		NextAngle = FMath::RandRange(-SpawnAngle, SpawnAngle);
 	}
 
-	GlobalRotation += NextAngle;
-
 	FRotator SpawnDirection(0.0f, NextAngle, 0.0f);
 	// UE_LOG(LogPlatform, Display, TEXT("Global rotation: %f"), *pGlobalRotation);
 
 	// Set location and rotation of new platform
 	FVector SpawnLocation = GetActorLocation() + (GetActorRotation() + SpawnDirection).Vector() * (MESH_DIAMETER + FMath::RandRange(MinDist, MaxDist)); // Get end point of new platform spawn location
+	if ((SpawnLocation.Y > ZeroY + SpawnY) || (SpawnLocation.Y < ZeroY - SpawnY))
+	{
+		SpawnLocation.Y > ZeroY + SpawnY ? SpawnDirection.Yaw = -SpawnAngle : SpawnDirection.Yaw = SpawnAngle;
+		SpawnLocation = GetActorLocation() + (GetActorRotation() + SpawnDirection).Vector() * (MESH_DIAMETER + FMath::RandRange(MinDist, MaxDist)); // Invisible spawn borders
+	}
 	SpawnLocation.Z += SpawnHeight;
+
 	FRotator SpawnRotation = FRotator(0.0f, (GetActorLocation() - SpawnLocation).ToOrientationRotator().Yaw + 180.0f, 0.0f);
 
 	FTransform SpawnTransform(SpawnRotation, SpawnLocation);
 
+	GlobalRotation += SpawnDirection.Yaw;
+
 	ASFPlatform* NewPlatform = World->SpawnActorDeferred<ASFPlatform>(PlatformClass, SpawnTransform);
 	NewPlatform->SelfID = SelfID + 1;
+	NewPlatform->ZeroY = ZeroY;
 	NewPlatform->AssetsIndexes.Append(AssetsIndexes);
 	NewPlatform->FinishSpawning(SpawnTransform);
 	if (!NewPlatform) return;

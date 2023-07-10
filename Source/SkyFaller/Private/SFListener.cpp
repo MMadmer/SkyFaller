@@ -117,7 +117,7 @@ void ASFListener::BackgroundInit()
 			FBackAssets ActorLayer = Actor->GetCurrentLayer();
 			FVector NewLocation = Player->GetActorLocation();
 			NewLocation.Y += ActorLayer.DistY;
-			NewLocation.X += ActorLayer.BetweenX * j;
+			NewLocation.X += ActorLayer.BetweenX * j + ActorLayer.DistX;
 			NewLocation.Z += ActorLayer.DistZ;
 			NewTransform.SetLocation(NewLocation);
 

@@ -41,5 +41,5 @@ void USFGameInstance::CycleAmbient()
 
 	AudioComponent->SetSound(Song);
 	AudioComponent->Play();
-	// UE_LOG(LogGameInstance, Display, TEXT("Ok %s"), *Song->GetName())
+	UE_LOG(LogGameInstance, Display, TEXT("Ok %s"), *Song->GetName())
 }
