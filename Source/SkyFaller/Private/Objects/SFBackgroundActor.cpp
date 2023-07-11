@@ -13,6 +13,7 @@ ASFBackgroundActor::ASFBackgroundActor()
 
 	BackMesh = CreateDefaultSubobject<UStaticMeshComponent>("BackMesh");
 	SetRootComponent(BackMesh);
+	BackMesh->CastShadow = false;
 }
 
 void ASFBackgroundActor::BeginPlay()
@@ -98,13 +99,14 @@ ASFBackgroundActor* ASFBackgroundActor::SpawnNext(TSubclassOf<ASFBackgroundActor
 	FTransform NewTransform;
 	ASFBackgroundActor* NewActor = GetWorld()->SpawnActorDeferred<ASFBackgroundActor>(BackgroundClass, NewTransform);
 
-	FVector NewLocation = GetActorLocation();
-	NewLocation.X += bFront ? BackLayers[Layer].BetweenX : -BackLayers[Layer].BetweenX;
-	NewLocation.Z = ParentZ + BackLayers[Layer].SpawnHeight;
-	NewTransform.SetLocation(NewLocation);
-
 	NewActor->Layer = Layer;
-	NewActor->ParentZ = ParentZ;
+	NewActor->ParentZ = BackLayers[Layer].DistZ + FMath::RandRange(-BackLayers[Layer].OffsetZ, BackLayers[Layer].OffsetZ);
+
+	FVector NewLocation = GetActorLocation();
+	NewLocation.X += FMath::RandRange(-BackLayers[Layer].OffsetX, BackLayers[Layer].OffsetX) + bFront ? BackLayers[Layer].BetweenX : -BackLayers[Layer].BetweenX;
+	NewLocation.Y = FMath::Sign(NewLocation.Y) * (BackLayers[Layer].DistY + FMath::RandRange(-BackLayers[Layer].OffsetY, BackLayers[Layer].OffsetY));
+	NewLocation.Z = NewActor->ParentZ + BackLayers[Layer].SpawnHeight;
+	NewTransform.SetLocation(NewLocation);
 
 	NewActor->FinishSpawning(NewTransform);
 
