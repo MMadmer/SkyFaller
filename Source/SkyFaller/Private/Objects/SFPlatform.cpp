@@ -122,15 +122,8 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	// UE_LOG(LogPlatform, Display, TEXT("Global rotation: %f"), *pGlobalRotation);
 
 	// Set location and rotation of new platform
-	FVector SpawnLocation = GetActorLocation() + (GetActorRotation() + SpawnDirection).Vector() * (MESH_DIAMETER + FMath::RandRange(MinDist, MaxDist)); // Get end point of new platform spawn location
-	if ((SpawnLocation.Y > ZeroY + SpawnY) || (SpawnLocation.Y < ZeroY - SpawnY))
-	{
-		SpawnLocation.Y > ZeroY + SpawnY ? SpawnDirection.Yaw = -SpawnAngle : SpawnDirection.Yaw = SpawnAngle;
-		SpawnLocation = GetActorLocation() + (GetActorRotation() + SpawnDirection).Vector() * (MESH_DIAMETER + FMath::RandRange(MinDist, MaxDist)); // Invisible spawn borders
-	}
-	SpawnLocation.Z += SpawnHeight;
-
-	FRotator SpawnRotation = FRotator(0.0f, (GetActorLocation() - SpawnLocation).ToOrientationRotator().Yaw + 180.0f, 0.0f);
+	FVector SpawnLocation;
+	FRotator SpawnRotation;
 
 	FTransform SpawnTransform(SpawnRotation, SpawnLocation);
 
@@ -138,8 +131,22 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 
 	ASFPlatform* NewPlatform = World->SpawnActorDeferred<ASFPlatform>(PlatformClass, SpawnTransform);
 	NewPlatform->SelfID = SelfID + 1;
+	NewPlatform->bIsHub = (int32)(NewPlatform->SelfID % HubIndentID) == 0;
 	NewPlatform->ZeroY = ZeroY;
 	NewPlatform->AssetsIndexes.Append(AssetsIndexes);
+	
+	// Update spawn transform
+	SpawnLocation = GetActorLocation() + (GetActorRotation() + SpawnDirection).Vector() * (MESH_RADIUS + FMath::RandRange(MinDist, MaxDist) + NewPlatform->MESH_RADIUS); // Get end point of new platform spawn location
+	if ((SpawnLocation.Y > ZeroY + SpawnY) || (SpawnLocation.Y < ZeroY - SpawnY)) // Invisible spawn borders
+	{
+		SpawnLocation.Y > ZeroY + SpawnY ? SpawnDirection.Yaw = -SpawnAngle : SpawnDirection.Yaw = SpawnAngle;
+		SpawnLocation = GetActorLocation() + (GetActorRotation() + SpawnDirection).Vector() * (MESH_RADIUS + FMath::RandRange(MinDist, MaxDist) + NewPlatform->MESH_RADIUS);
+	}
+	SpawnLocation.Z += NewPlatform->SpawnHeight;
+	SpawnRotation = FRotator(0.0f, (GetActorLocation() - SpawnLocation).ToOrientationRotator().Yaw + 180.0f, 0.0f);
+	SpawnTransform.SetLocation(SpawnLocation);
+	SpawnTransform.SetRotation((FQuat)SpawnRotation);
+
 	NewPlatform->FinishSpawning(SpawnTransform);
 	if (!NewPlatform) return;
 

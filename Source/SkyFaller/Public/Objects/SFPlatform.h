@@ -91,6 +91,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn", meta = (ClampMin = "0"))
 	float MinDist = 350.0f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
+	int32 HubIndentID = 20;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	USFTrapComponent* TrapComponent;
 
@@ -111,7 +114,6 @@ protected:
 
 	virtual void BeginPlay() override;
 
-private:
 	bool bTouched = false;
 	float Offset = 0.0f;
 	bool Spawned = true;
@@ -119,10 +121,11 @@ private:
 	float LocalTime = 0.0f;
 	bool bDespawned = false;
 	TArray<int32> AssetsIndexes;
-	const float MESH_DIAMETER = 742.0f * 2; // Platform's "bounds"(not real)
+	const float MESH_RADIUS = 742.0f; // Platform "bounds"(not real)
 	float GlobalRotation = 0.0f;
 	float ZeroY = 0.0f;
 	int32 SelfID = 0;
+	bool bIsHub = false;
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
