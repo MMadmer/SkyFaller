@@ -8,24 +8,24 @@
 
 class ASFPlatformSkin;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SKYFALLER_API USFStaticSkinComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	USFStaticSkinComponent();
 
-	ASFPlatformSkin* GetCurrentSkin() { return CurrentSkin; };
+	ASFPlatformSkin* GetCurrentSkin() const { return CurrentSkin; };
 
 protected:
-
 	UPROPERTY(EditDefaultsOnly, Category = "Skin")
 	TSubclassOf<ASFPlatformSkin> SkinClass;
 
 	virtual void BeginPlay() override;
-		
+
 private:
+	UPROPERTY()
 	ASFPlatformSkin* CurrentSkin;
 
 	void SpawnSkin();

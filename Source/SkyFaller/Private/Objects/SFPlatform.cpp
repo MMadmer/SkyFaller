@@ -9,12 +9,8 @@
 #include "SFListener.h"
 #include "Components/SFProgressComponent.h"
 #include "Objects/SFTarget.h"
-#include "Objects/SFPlatformSkin.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "DrawDebugHelpers.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "Components/SFTrapComponent.h"
-#include "..\..\Public\Objects\SFPlatform.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogPlatform, All, All)
 
@@ -42,7 +38,7 @@ void ASFPlatform::BeginPlay()
 
 	ListenerConnecting();
 
-	LocalTime = (float)FMath::RandHelper(10);
+	LocalTime = static_cast<float>(FMath::RandHelper(10));
 	if (SelfID == 0) ZeroY = GetActorLocation().Y;
 }
 
@@ -60,7 +56,8 @@ void ASFPlatform::Tick(float DeltaTime)
 	}
 }
 
-void ASFPlatform::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ASFPlatform::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+                        FVector NormalImpulse, const FHitResult& Hit)
 {
 	const auto World = GetWorld();
 	if (!World || bTouched) return;
@@ -79,7 +76,6 @@ void ASFPlatform::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 void ASFPlatform::SetTemplate()
 {
 	int32 CurrentIndex;
-	FAssets Asset;
 
 	if (AssetsIndexes.Num() >= Assets.Num()) AssetsIndexes.Empty();
 
@@ -88,11 +84,11 @@ void ASFPlatform::SetTemplate()
 	do
 	{
 		CurrentIndex = FMath::RandRange(0, Assets.Num() - 1);
-
-	} while (AssetsIndexes.Contains(CurrentIndex));
+	}
+	while (AssetsIndexes.Contains(CurrentIndex));
 	AssetsIndexes.Add(CurrentIndex);
 
-	Asset = Assets[CurrentIndex];
+	const FAssets Asset = Assets[CurrentIndex];
 
 	PlatformMesh->SetStaticMesh(Asset.Platform);
 	SkinMesh->SetStaticMesh(Asset.Skin);
@@ -134,18 +130,20 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	NewPlatform->bIsHub = (int32)(NewPlatform->SelfID % HubIndentID) == 0;
 	NewPlatform->ZeroY = ZeroY;
 	NewPlatform->AssetsIndexes.Append(AssetsIndexes);
-	
+
 	// Update spawn transform
-	SpawnLocation = GetActorLocation() + (GetActorRotation() + SpawnDirection).Vector() * (MESH_RADIUS + FMath::RandRange(MinDist, MaxDist) + NewPlatform->MESH_RADIUS); // Get end point of new platform spawn location
+	SpawnLocation = GetActorLocation() + (GetActorRotation() + SpawnDirection).Vector() * (MESH_RADIUS +
+		FMath::RandRange(MinDist, MaxDist) + NewPlatform->MESH_RADIUS); // Get end point of new platform spawn location
 	if ((SpawnLocation.Y > ZeroY + SpawnY) || (SpawnLocation.Y < ZeroY - SpawnY)) // Invisible spawn borders
 	{
 		SpawnLocation.Y > ZeroY + SpawnY ? SpawnDirection.Yaw = -SpawnAngle : SpawnDirection.Yaw = SpawnAngle;
-		SpawnLocation = GetActorLocation() + (GetActorRotation() + SpawnDirection).Vector() * (MESH_RADIUS + FMath::RandRange(MinDist, MaxDist) + NewPlatform->MESH_RADIUS);
+		SpawnLocation = GetActorLocation() + (GetActorRotation() + SpawnDirection).Vector() * (MESH_RADIUS +
+			FMath::RandRange(MinDist, MaxDist) + NewPlatform->MESH_RADIUS);
 	}
 	SpawnLocation.Z += NewPlatform->SpawnHeight;
 	SpawnRotation = FRotator(0.0f, (GetActorLocation() - SpawnLocation).ToOrientationRotator().Yaw + 180.0f, 0.0f);
 	SpawnTransform.SetLocation(SpawnLocation);
-	SpawnTransform.SetRotation((FQuat)SpawnRotation);
+	SpawnTransform.SetRotation(FQuat(SpawnRotation));
 
 	NewPlatform->FinishSpawning(SpawnTransform);
 	if (!NewPlatform) return;
@@ -162,9 +160,10 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	if (FMath::RandBool()) SpawnTarget(World, Player, NewPlatform);
 }
 
-void ASFPlatform::ScoringPoints(ABaseCharacter* Player, float Points)
+void ASFPlatform::ScoringPoints(const ABaseCharacter* Player, const float Points)
 {
-	USFProgressComponent* ProgressComponent = Cast<USFProgressComponent>(Player->GetComponentByClass(USFProgressComponent::StaticClass()));
+	USFProgressComponent* ProgressComponent = Cast<USFProgressComponent>(
+		Player->GetComponentByClass(USFProgressComponent::StaticClass()));
 	if (!ProgressComponent) return;
 
 	ProgressComponent->AddScore(Points);
@@ -181,7 +180,7 @@ void ASFPlatform::Spawner(float DeltaTime)
 	SetActorLocation(GetActorLocation() + FVector(0.0f, 0.0f, SpawnSpeed * DeltaTime));
 }
 
-void ASFPlatform::Despawner(float DeltaTime)
+void ASFPlatform::Despawner(const float DeltaTime)
 {
 	if (!GetWorld()) return;
 	if (GetActorLocation().Z <= GetWorld()->GetWorldSettings()->KillZ)
@@ -205,7 +204,7 @@ void ASFPlatform::Mover(float DeltaTime)
 {
 	if (!GetWorld()) return;
 
-	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	const APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	const auto Player = Cast<ABaseCharacter>(PlayerController->GetPawn());
 	if (Player)
 	{
@@ -217,14 +216,15 @@ void ASFPlatform::Mover(float DeltaTime)
 
 	// Horizontal moving
 	Speed = (Offset >= Threshold || Offset <= -Threshold) ? -Speed : Speed;
-	float CurrentSpeed = Speed * (MinSpeed + (1 - MinSpeed) * (1 - FMath::Abs(Offset) / Threshold)); // Smooth speed
-	float CurrentOffset = CurrentSpeed * DeltaTime;
+	const float CurrentSpeed = Speed * (MinSpeed + (1 - MinSpeed) * (1 - FMath::Abs(Offset) / Threshold));
+	// Smooth speed
+	const float CurrentOffset = CurrentSpeed * DeltaTime;
 
 	// Vertical moving
 	float Time = GetWorld()->GetTimeSeconds() + LocalTime;
 	FVector NewLocation = GetActorLocation();
 	NewLocation.Z = ParentZ + Amplitude * FMath::Sin(Frequency * Time);
-	
+
 	// Set new location
 	SetActorLocation(GetActorRightVector() * CurrentOffset + NewLocation);
 
@@ -233,10 +233,11 @@ void ASFPlatform::Mover(float DeltaTime)
 	// UE_LOG(LogPlatform, Display, TEXT("Offset %f"), Offset);
 }
 
-void ASFPlatform::SpawnTarget(UWorld* World, ABaseCharacter* Player, ASFPlatform* NewPlatform)
+void ASFPlatform::SpawnTarget(UWorld* World, ABaseCharacter* Player, ASFPlatform* NewPlatform) const
 {
 	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+	SpawnParams.SpawnCollisionHandlingOverride =
+		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
 	// Spawn Coords
 	FVector TargetLocation = NewPlatform->GetActorLocation();
@@ -248,7 +249,7 @@ void ASFPlatform::SpawnTarget(UWorld* World, ABaseCharacter* Player, ASFPlatform
 	TargetLocation.Z += FMath::RandRange(150.0f, 700.0f);
 
 	// Rotate to spawned platform
-	FRotator TargetRotation = (NewPlatform->GetActorLocation() - TargetLocation).ToOrientationRotator();
+	const FRotator TargetRotation = (NewPlatform->GetActorLocation() - TargetLocation).ToOrientationRotator();
 
 	// Spawn and attach to spawned platform
 	const auto NewTarget = World->SpawnActor<ASFTarget>(TargetClass, TargetLocation, TargetRotation, SpawnParams);
@@ -262,7 +263,7 @@ void ASFPlatform::ListenerConnecting()
 	if (!GetWorld()) return;
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASFListener::StaticClass(), FoundActors);
-	
+
 	ASFListener* ListenerInst = nullptr;
 
 	for (AActor* Actor : FoundActors)

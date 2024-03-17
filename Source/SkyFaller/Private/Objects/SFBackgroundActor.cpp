@@ -3,7 +3,6 @@
 
 #include "Objects/SFBackgroundActor.h"
 #include "Components/StaticMeshComponent.h"
-#include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBackground, All, All)
 
@@ -20,7 +19,7 @@ void ASFBackgroundActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	LocalTime = (float)FMath::RandHelper(10);
+	LocalTime = static_cast<float>(FMath::RandHelper(10));
 	SetTemplate();
 }
 
@@ -40,15 +39,14 @@ void ASFBackgroundActor::Tick(float DeltaTime)
 
 void ASFBackgroundActor::SetTemplate()
 {
-	int32 CurrentIndex;
 	TArray<UStaticMesh*> LayerAssets = BackLayers[Layer].Assets;
 
-	CurrentIndex = FMath::RandRange(0, LayerAssets.Num() - 1);
+	const int32 CurrentIndex = FMath::RandRange(0, LayerAssets.Num() - 1);
 
 	BackMesh->SetStaticMesh(LayerAssets[CurrentIndex]);
 }
 
-void ASFBackgroundActor::Spawner(float DeltaTime)
+void ASFBackgroundActor::Spawner(const float DeltaTime)
 {
 	if (GetActorLocation().Z >= ParentZ)
 	{
@@ -59,7 +57,7 @@ void ASFBackgroundActor::Spawner(float DeltaTime)
 	SetActorLocation(GetActorLocation() + FVector(0.0f, 0.0f, BackLayers[Layer].SpawnSpeed * DeltaTime));
 }
 
-void ASFBackgroundActor::Despawner(float DeltaTime)
+void ASFBackgroundActor::Despawner(const float DeltaTime)
 {
 	if (!GetWorld()) return;
 
@@ -84,7 +82,7 @@ void ASFBackgroundActor::Mover(float DeltaTime)
 	if (!GetWorld()) return;
 
 	// Vertical moving
-	float Time = GetWorld()->GetTimeSeconds() + LocalTime;
+	const float Time = GetWorld()->GetTimeSeconds() + LocalTime;
 	FVector NewLocation = GetActorLocation();
 	NewLocation.Z = ParentZ + BackLayers[Layer].Amplitude * FMath::Sin(BackLayers[Layer].Frequency * Time);
 
@@ -95,16 +93,20 @@ void ASFBackgroundActor::Mover(float DeltaTime)
 ASFBackgroundActor* ASFBackgroundActor::SpawnNext(TSubclassOf<ASFBackgroundActor> BackgroundClass, bool bFront)
 {
 	if (!GetWorld()) return nullptr;
-	
+
 	FTransform NewTransform;
 	ASFBackgroundActor* NewActor = GetWorld()->SpawnActorDeferred<ASFBackgroundActor>(BackgroundClass, NewTransform);
 
 	NewActor->Layer = Layer;
-	NewActor->ParentZ = BackLayers[Layer].DistZ + FMath::RandRange(-BackLayers[Layer].OffsetZ, BackLayers[Layer].OffsetZ);
+	NewActor->ParentZ = BackLayers[Layer].DistZ + FMath::RandRange(-BackLayers[Layer].OffsetZ,
+	                                                               BackLayers[Layer].OffsetZ);
 
 	FVector NewLocation = GetActorLocation();
-	NewLocation.X += FMath::RandRange(-BackLayers[Layer].OffsetX, BackLayers[Layer].OffsetX) + (bFront ? BackLayers[Layer].BetweenX : -BackLayers[Layer].BetweenX);
-	NewLocation.Y = FMath::Sign(NewLocation.Y) * (BackLayers[Layer].DistY + FMath::RandRange(-BackLayers[Layer].OffsetY, BackLayers[Layer].OffsetY));
+	NewLocation.X += FMath::RandRange(-BackLayers[Layer].OffsetX, BackLayers[Layer].OffsetX) + (bFront
+		? BackLayers[Layer].BetweenX
+		: -BackLayers[Layer].BetweenX);
+	NewLocation.Y = FMath::Sign(NewLocation.Y) * (BackLayers[Layer].DistY + FMath::RandRange(
+		-BackLayers[Layer].OffsetY, BackLayers[Layer].OffsetY));
 	NewLocation.Z = NewActor->ParentZ + BackLayers[Layer].SpawnHeight;
 	NewTransform.SetLocation(NewLocation);
 

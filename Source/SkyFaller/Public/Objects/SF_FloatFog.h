@@ -12,12 +12,11 @@ UCLASS()
 class SKYFALLER_API ASF_FloatFog : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	ASF_FloatFog();
 
 protected:
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* FogMesh;
 

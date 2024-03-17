@@ -33,16 +33,15 @@ UCLASS()
 class SKYFALLER_API ASFPlatform : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	ASFPlatform();
 	virtual void Tick(float DeltaTime) override;
 
 	UStaticMeshComponent* GetMesh() const { return PlatformMesh; };
-	int32 GetSelfID() { return SelfID; };
+	int32 GetSelfID() const { return SelfID; };
 
 protected:
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Assets")
 	TArray<FAssets> Assets;
 
@@ -128,16 +127,16 @@ protected:
 	bool bIsHub = false;
 
 	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	           FVector NormalImpulse, const FHitResult& Hit);
 
 	void SetTemplate();
 	void SpawnNext(UWorld* World, ABaseCharacter* Player);
-	void ScoringPoints(ABaseCharacter* Player, float Points);
+	static void ScoringPoints(const ABaseCharacter* Player, float Points);
 	void Spawner(float DeltaTime);
 	void Despawner(float DeltaTime);
 	void Mover(float DeltaTime);
-	void SpawnTarget(UWorld* World, ABaseCharacter* Player, ASFPlatform* NewTarget);
+	void SpawnTarget(UWorld* World, ABaseCharacter* Player, ASFPlatform* NewTarget) const;
 
 	void ListenerConnecting();
-
 };

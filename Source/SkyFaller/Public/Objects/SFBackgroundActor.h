@@ -78,13 +78,13 @@ public:
 
 	ASFBackgroundActor();
 
-	int32 GetLayer() { return Layer; };
-	void SetLayer(int32 NewLayer) { Layer = NewLayer; };
-	int32 GetBackLayers() { return BackLayers.Num(); };
+	int32 GetLayer() const { return Layer; };
+	void SetLayer(const int32 NewLayer) { Layer = NewLayer; };
+	int32 GetBackLayers() const { return BackLayers.Num(); };
 	FBackAssets GetCurrentLayer() { return BackLayers[Layer]; }; // Layer struct
-	int32 GetObjectsNumOfLayer(int32 LayerNum) { return LayerNum < BackLayers.Num() ? BackLayers[LayerNum].ObjectsNum : -1; };
-	void SetParentZ(float NewZ) { ParentZ = NewZ; };
-	void Despawn(bool Enable = true) { bDespawned = Enable; };
+	int32 GetObjectsNumOfLayer(const int32 LayerNum) { return LayerNum < BackLayers.Num() ? BackLayers[LayerNum].ObjectsNum : -1; };
+	void SetParentZ(const float NewZ) { ParentZ = NewZ; };
+	void Despawn(const bool Enable = true) { bDespawned = Enable; };
 	ASFBackgroundActor* SpawnNext(TSubclassOf<ASFBackgroundActor> BackgroundClass, bool bFront);
 
 protected:

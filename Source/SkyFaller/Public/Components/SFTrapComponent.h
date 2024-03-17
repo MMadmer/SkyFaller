@@ -8,25 +8,23 @@
 
 class ASFTrap;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SKYFALLER_API USFTrapComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	USFTrapComponent();
 
 	void SpawnTraps();
 
 protected:
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Traps")
 	TArray<TSubclassOf<ASFTrap>> Traps;
 
 	virtual void BeginPlay() override;
 
 private:
-	void AttachTrapToSocket(ASFTrap* Trap, USceneComponent* SceneComponent, const FName& SocketName);
-	FName GetRandomSocket(ASFTrap* Trap, TArray<FName> Sockets);
-
+	static void AttachTrapToSocket(ASFTrap* Trap, USceneComponent* SceneComponent, const FName& SocketName);
+	static FName GetRandomSocket(const ASFTrap* Trap, TArray<FName> Sockets);
 };

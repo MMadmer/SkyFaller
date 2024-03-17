@@ -5,7 +5,6 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Pawn.h"
-#include "GameFramework/Character.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(LogFog, All, All)
@@ -22,5 +21,5 @@ void ASF_FloatFog::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FogMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	FogMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 }

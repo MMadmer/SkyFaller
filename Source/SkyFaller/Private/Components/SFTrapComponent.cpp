@@ -4,7 +4,6 @@
 #include "Components/SFTrapComponent.h"
 #include "Objects/SFTrap.h"
 #include "Objects/SFPlatform.h"
-#include <cmath>
 
 DEFINE_LOG_CATEGORY_STATIC(LogTrapComponent, All, All)
 
@@ -29,10 +28,13 @@ void USFTrapComponent::SpawnTraps()
 	for (auto Trap : Traps)
 	{
 		// Sockets check
-		FName Socket = GetRandomSocket(Cast<ASFTrap>(Trap->GetDefaultObject()), Platform->GetMesh()->GetAllSocketNames());
+		FName Socket = GetRandomSocket(Cast<ASFTrap>(Trap->GetDefaultObject()),
+		                               Platform->GetMesh()->GetAllSocketNames());
 		if (!Platform->GetMesh()->DoesSocketExist(Socket)) continue;
 		// Spawn chance
-		if ((std::roundf(FMath::RandRange(0.0f, 100.0f) * 100.0f) / 100.0f) > Cast<ASFTrap>(Trap->GetDefaultObject())->GetSpawnChance()) continue;
+		if (std::roundf(FMath::RandRange(0.0f, 100.0f) * 100.0f) / 100.0f > Cast<ASFTrap>(Trap->GetDefaultObject())->
+			GetSpawnChance())
+			continue;
 
 		const auto NewTrap = World->SpawnActor<ASFTrap>(Trap);
 		if (!NewTrap) return;
@@ -46,13 +48,13 @@ void USFTrapComponent::AttachTrapToSocket(ASFTrap* Trap, USceneComponent* SceneC
 {
 	if (!Trap || !SceneComponent) return;
 
-	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
+	const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
 	Trap->AttachToComponent(SceneComponent, AttachmentRules, SocketName);
 }
 
-FName USFTrapComponent::GetRandomSocket(ASFTrap* Trap, TArray<FName> Sockets)
+FName USFTrapComponent::GetRandomSocket(const ASFTrap* Trap, TArray<FName> Sockets)
 {
-	FString TrapSocket = Trap->GetSocketName().ToString();
+	const FString TrapSocket = Trap->GetSocketName().ToString();
 	TArray<FName> ConfirmedSockets;
 	for (const auto& Socket : Sockets)
 	{
