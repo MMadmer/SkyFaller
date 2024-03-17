@@ -16,7 +16,10 @@ class SKYFALLER_API USFHealthComponent : public UActorComponent
 public:	
 	USFHealthComponent();
 
+	UPROPERTY(BlueprintAssignable)
 	FOnDeathSignature OnDeath;
+
+	UPROPERTY(BlueprintAssignable)
 	FOnHealthChangedSignature OnHealthChanged;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (ClampMin = "0"))
@@ -37,6 +40,6 @@ private:
 	UFUNCTION()
 	void OnTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
-	void SetHealth(float NewHealth);
+	void SetHealth(const float NewHealth);
 		
 };

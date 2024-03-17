@@ -3,10 +3,7 @@
 
 #include "Player/Weapon/SFBowWeapon.h"
 #include "Player/Weapon/SFArrow.h"
-#include "..\..\..\Public\Player\Weapon\SFBowWeapon.h"
-#include "Animation/AnimInstanceProxy.h"
 #include "Animation/AnimInstance.h"
-#include "Animation/AnimSingleNodeInstance.h"
 #include "Sound/SoundCue.h"
 #include "Components/AudioComponent.h"
 #include "Player/BaseCharacter.h"
@@ -29,7 +26,7 @@ void ASFBowWeapon::StartFire()
 	if (Player->GetMovementComponent()->IsFalling()) return; // Don't start if falling
 	// Set weapon aiming BP to player
 	Player->GetMesh()->SetAnimInstanceClass(PlayerAimBP);
-	float MontageTime = ChargeTime / PlayerAimAnimMontage->SequenceLength;
+	const float MontageTime = ChargeTime / PlayerAimAnimMontage->SequenceLength;
 	// UE_LOG(LogBow, Display, TEXT("Speed modifier %f"), MontageTime);
 	// UE_LOG(LogBow, Display, TEXT("Anim length %f"), PlayerAimAnimMontage->SequenceLength);
 	Player->PlayAnimMontage(PlayerAimAnimMontage, MontageTime);
@@ -110,19 +107,22 @@ void ASFBowWeapon::Charging()
 			StopFire();
 		}
 		Charge += ChargeSpeed;
+		OnChargeChanged.Broadcast(
+			FMath::GetMappedRangeValueClamped(FVector2D(0.0f, ChargeTime), FVector2D(0.0f, 1.0f), Charge));
 	}
 }
 
-void ASFBowWeapon::BowstringOffset(float Offset)
+void ASFBowWeapon::BowstringOffset(float Offset) const
 {
 	WeaponMesh->GlobalAnimRateScale = 1.0f;
 }
 
-void ASFBowWeapon::SeriesCalc()
+void ASFBowWeapon::SeriesCalc() const
 {
 	const auto Player = GetPlayer();
 	if (!Player) return;
-	USFProgressComponent* ProgressComponent = Cast<USFProgressComponent>(Player->GetComponentByClass(USFProgressComponent::StaticClass()));
+	USFProgressComponent* ProgressComponent = Cast<USFProgressComponent>(
+		Player->GetComponentByClass(USFProgressComponent::StaticClass()));
 	if (!ProgressComponent) return;
 
 	if (!ProgressComponent->GetSeries()) return;

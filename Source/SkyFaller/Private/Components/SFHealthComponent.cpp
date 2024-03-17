@@ -26,7 +26,8 @@ void USFHealthComponent::BeginPlay()
 	}
 }
 
-void USFHealthComponent::OnTakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+void USFHealthComponent::OnTakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+                                         AController* InstigatedBy, AActor* DamageCauser)
 {
 	if (Damage <= 0.0f || IsDead() || !GetWorld()) return;
 
@@ -35,10 +36,10 @@ void USFHealthComponent::OnTakeAnyDamage(AActor* DamagedActor, float Damage, con
 	if (IsDead()) OnDeath.Broadcast();
 }
 
-void USFHealthComponent::SetHealth(float NewHealth)
+void USFHealthComponent::SetHealth(const float NewHealth)
 {
-	const auto NextHealth = FMath::Clamp(NewHealth, 0.0f, MaxHealth);
-	const auto HealthDelta = NextHealth - Health;
+	const float NextHealth = FMath::Clamp(NewHealth, 0.0f, MaxHealth);
+	const float HealthDelta = NextHealth - Health;
 
 	Health = NextHealth;
 	OnHealthChanged.Broadcast(Health, HealthDelta);

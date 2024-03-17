@@ -6,6 +6,8 @@
 #include "Player/Weapon/SFBaseWeapon.h"
 #include "SFBowWeapon.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChargeChanged, float, ChargeNorm);
+
 class ASFArrow;
 class ABaseCharacter;
 
@@ -15,6 +17,9 @@ class SKYFALLER_API ASFBowWeapon : public ASFBaseWeapon
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(BlueprintAssignable)
+	FOnChargeChanged OnChargeChanged;
+	
 	UFUNCTION(BlueprintCallable, Category = "Animation")
 	float GetCharge() const { return Charge / ChargeTime; };
 
@@ -22,7 +27,6 @@ public:
 	virtual void StopFire() override;
 
 protected:
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	TSubclassOf<ASFArrow> ProjectileClass;
 
@@ -53,6 +57,6 @@ private:
 
 	bool CanFire() const;
 	void Charging();
-	void BowstringOffset(float Offset);
-	void SeriesCalc();
+	void BowstringOffset(float Offset) const;
+	void SeriesCalc() const;
 };

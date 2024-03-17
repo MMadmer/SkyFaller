@@ -4,8 +4,6 @@
 #include "Components/SFWeaponComponent.h"
 #include "Player/Weapon/SFBaseWeapon.h"
 #include "Player/BaseCharacter.h"
-#include "..\..\Public\Components\SFWeaponComponent.h"
-#include "SFCoreTypes.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogWeaponComponent, All, All)
 
@@ -55,25 +53,27 @@ void USFWeaponComponent::SpawnWeapon()
 	const auto Player = Cast<ACharacter>(GetOwner());
 	if (!Player) return;
 
-	auto Weapon = World->SpawnActor<ASFBaseWeapon>(WeaponClass);
+	const auto Weapon = World->SpawnActor<ASFBaseWeapon>(WeaponClass);
 	if (!Weapon) return;
 
 	// All checks done. Set weapon to current
 	Weapon->SetOwner(Player);
 	CurrentWeapon = Weapon;
+	OnWeaponChanged.Broadcast(CurrentWeapon);
 
 	AttachWeaponToSocket(CurrentWeapon, Player->GetMesh(), WeaponEquipSocketName);
 }
 
-void USFWeaponComponent::AttachWeaponToSocket(ASFBaseWeapon* Weapon, USceneComponent* SceneComponent, const FName& SocketName)
+void USFWeaponComponent::AttachWeaponToSocket(ASFBaseWeapon* Weapon, USceneComponent* SceneComponent,
+                                              const FName& SocketName)
 {
 	if (!Weapon || !SceneComponent) return;
 
-	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
+	const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
 	Weapon->AttachToComponent(SceneComponent, AttachmentRules, SocketName);
 }
 
-bool USFWeaponComponent::CanFire()
+bool USFWeaponComponent::CanFire() const
 {
 	return !CurrentWeapon ? false : true;
 }

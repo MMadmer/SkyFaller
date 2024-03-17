@@ -11,20 +11,18 @@ class USoundCue;
 class ABaseCharacter;
 
 
-
 UCLASS()
 class SKYFALLER_API ASFBaseWeapon : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	ASFBaseWeapon();
 
 	virtual void StartFire();
 	virtual void StopFire();
 
 protected:
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USkeletalMeshComponent* WeaponMesh;
 
@@ -48,5 +46,5 @@ protected:
 	FVector GetMuzzleWorldLocation() const;
 	FRotator GetMuzzleWorldRotation() const;
 	void MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd);
-	ABaseCharacter* GetPlayer();
+	ABaseCharacter* GetPlayer() const;
 };

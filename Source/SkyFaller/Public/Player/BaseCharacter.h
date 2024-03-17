@@ -24,7 +24,6 @@ public:
 	ABaseCharacter();
 
 protected:
-
 	UPROPERTY(EditDefaultsOnly, Category = "Damage", meta = (ClapMin = "0"))
 	float LifeSpanOnDeath = 5.0f;
 
@@ -54,7 +53,7 @@ protected:
 	void MoveForward(float Amount);
 	void MoveRight(float Amount);
 
-public:	
+public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -65,5 +64,6 @@ public:
 	float GetMovementDirection() const;
 
 private:
+	UFUNCTION()
 	void OnDeath();
 };

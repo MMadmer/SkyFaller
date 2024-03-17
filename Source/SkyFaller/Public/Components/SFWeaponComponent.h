@@ -4,20 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "SFCoreTypes.h"
 #include "SFWeaponComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStartFire);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStopFire);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponChanged, ASFBaseWeapon*, CurrentWeapon);
 
 class ASFBaseWeapon;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SKYFALLER_API USFWeaponComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	USFWeaponComponent();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
@@ -29,11 +31,13 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnStopFire OnStopFire;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnWeaponChanged OnWeaponChanged;
+
 	void StartFire();
 	void StopFire();
 
 protected:
-
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<ASFBaseWeapon> WeaponClass;
 
@@ -48,6 +52,6 @@ private:
 	ASFBaseWeapon* CurrentWeapon = nullptr;
 
 	void SpawnWeapon();
-	void AttachWeaponToSocket(ASFBaseWeapon* Weapon, USceneComponent* SceneComponent, const FName& SocketName);
-	bool CanFire();
+	static void AttachWeaponToSocket(ASFBaseWeapon* Weapon, USceneComponent* SceneComponent, const FName& SocketName);
+	bool CanFire() const;
 };

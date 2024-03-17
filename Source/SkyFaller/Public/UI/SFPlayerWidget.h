@@ -14,22 +14,11 @@ class SKYFALLER_API USFPlayerWidget : public UUserWidget
 	GENERATED_BODY()
 
 protected:
-	virtual bool Initialize() override;
-
-	UFUNCTION(BlueprintCallable, Category = "UI")
-	int32 GetPlayerScore() const;
-
-	UFUNCTION(BlueprintCallable, Category = "UI")
-	float GetPlayerHealth() const;
-
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	float GetWeaponCharge() const;
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void OnScoreChanged(const int32 Value);
-
-	UFUNCTION(BlueprintCallable, Category = "Utils")
-	USFProgressComponent* GetProgressComponent() const;
 
 	UPROPERTY(BlueprintReadWrite)
 	int32 CachedScore = 0;

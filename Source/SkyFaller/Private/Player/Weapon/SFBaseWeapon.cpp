@@ -4,8 +4,6 @@
 #include "Player/Weapon/SFBaseWeapon.h"
 #include "GameFramework/Controller.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "Sound/SoundCue.h"
-#include "..\..\..\Public\Player\Weapon\SFBaseWeapon.h"
 #include "Player/BaseCharacter.h"
 
 ASFBaseWeapon::ASFBaseWeapon()
@@ -84,11 +82,10 @@ void ASFBaseWeapon::MakeHit(FHitResult& HitResult, const FVector& TraceStart, co
 	CollisionParams.AddIgnoredActor(GetOwner());
 	CollisionParams.bReturnPhysicalMaterial = true;
 
-	// Выстрел
 	GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, CollisionParams);
 }
 
-ABaseCharacter* ASFBaseWeapon::GetPlayer()
+ABaseCharacter* ASFBaseWeapon::GetPlayer() const
 {
 	const auto Player = Cast<ABaseCharacter>(GetOwner());
 

@@ -2,7 +2,6 @@
 
 
 #include "Player/BaseCharacter.h"
-#include "Player/Weapon/SFBaseWeapon.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/SFHealthComponent.h"
@@ -11,7 +10,6 @@
 #include "Components/SFWeaponComponent.h"
 #include "Components/SFProgressComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "..\..\Public\Player\BaseCharacter.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBaseCharacter, All, All)
 
@@ -36,10 +34,10 @@ ABaseCharacter::ABaseCharacter()
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	check(HealthComponent);
 
-	HealthComponent->OnDeath.AddUObject(this, &ABaseCharacter::OnDeath);
+	HealthComponent->OnDeath.AddDynamic(this, &ABaseCharacter::OnDeath);
 }
 
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -92,7 +90,6 @@ void ABaseCharacter::OnDeath()
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetSimulatePhysics(true);
-	
 }
 
 void ABaseCharacter::MoveForward(float Amount)
