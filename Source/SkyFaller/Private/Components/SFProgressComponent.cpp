@@ -8,16 +8,13 @@ USFProgressComponent::USFProgressComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-
-// Called when the game starts
 void USFProgressComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
-void USFProgressComponent::AddScore(int32 Value)
-{ 
+void USFProgressComponent::AddScore(const int32 Value)
+{
 	Score += Value;
 	OnScoreChanged.Broadcast(Value);
 }

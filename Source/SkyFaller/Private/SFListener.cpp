@@ -7,8 +7,6 @@
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "Objects/SFBackgroundActor.h"
-#include "Engine/Engine.h"
-#include "Engine/GameInstance.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogListener, All, All)
 
