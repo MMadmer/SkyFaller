@@ -25,15 +25,12 @@ ABaseCharacter::ABaseCharacter()
 	CameraComponent->SetupAttachment(SpringArmComponent);
 
 	HealthComponent = CreateDefaultSubobject<USFHealthComponent>("HealthComponent");
-
 	WeaponComponent = CreateDefaultSubobject<USFWeaponComponent>("WeaponComponent");
 }
 
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	check(HealthComponent);
 
 	HealthComponent->OnDeath.AddDynamic(this, &ABaseCharacter::OnDeath);
 }
@@ -73,9 +70,6 @@ void ABaseCharacter::OnDeath()
 {
 	// UE_LOG(LogBaseCharacter, Display, TEXT("Player %s is dead"), *GetName());
 
-	/*USkeletalMeshComponent* SkeletalMeshComponent = GetMesh();
-	if (SkeletalMeshComponent) SkeletalMeshComponent->SetSkeletalMesh(DeathMesh);*/
-
 	GetCharacterMovement()->DisableMovement();
 
 	SetLifeSpan(LifeSpanOnDeath);
@@ -84,7 +78,7 @@ void ABaseCharacter::OnDeath()
 	{
 		Controller->ChangeState(NAME_Spectating);
 	}
-	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetSimulatePhysics(true);

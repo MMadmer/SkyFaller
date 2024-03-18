@@ -12,6 +12,8 @@ ASFTrap::ASFTrap()
 
 	TrapMesh = CreateDefaultSubobject<UStaticMeshComponent>("TrapMesh");
 	SetRootComponent(TrapMesh);
+
+	TrapSound = nullptr;
 }
 
 void ASFTrap::BeginPlay()

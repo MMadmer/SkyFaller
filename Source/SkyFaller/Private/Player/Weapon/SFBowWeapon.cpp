@@ -13,6 +13,11 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogBow, All, All)
 
+ASFBowWeapon::ASFBowWeapon(): PlayerAimAnimMontage(nullptr)
+{
+	
+}
+
 void ASFBowWeapon::BeginPlay()
 {
 	Super::BeginPlay();
@@ -23,10 +28,17 @@ void ASFBowWeapon::BeginPlay()
 void ASFBowWeapon::StartFire()
 {
 	const auto Player = GetPlayer();
+	if (!Player) return;
+
 	CachedPlayerBP = Player->GetMesh()->AnimClass; // Caching original(last) player anim BP
+
 	if (Player->GetMovementComponent()->IsFalling()) return; // Don't start if falling
+
 	// Set weapon aiming BP to player
 	Player->GetMesh()->SetAnimInstanceClass(PlayerAimBP);
+
+	if (!PlayerAimAnimMontage) return;
+	
 	const float MontageTime = ChargeTime / PlayerAimAnimMontage->SequenceLength;
 	// UE_LOG(LogBow, Display, TEXT("Speed modifier %f"), MontageTime);
 	// UE_LOG(LogBow, Display, TEXT("Anim length %f"), PlayerAimAnimMontage->SequenceLength);

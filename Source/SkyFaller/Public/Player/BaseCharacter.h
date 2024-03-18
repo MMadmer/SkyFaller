@@ -39,9 +39,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USFWeaponComponent* WeaponComponent;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
-	USkeletalMesh* DeathMesh;
-
 	virtual void BeginPlay() override;
 
 	void MoveForward(float Amount);

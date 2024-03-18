@@ -20,6 +20,8 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnChargeChanged OnChargeChanged;
 
+	ASFBowWeapon();
+
 	UFUNCTION(BlueprintCallable, Category = "Animation")
 	float GetCharge() const { return Charge / ChargeTime; };
 
@@ -40,10 +42,10 @@ protected:
 	TSubclassOf<UAnimInstance> AnimationInst;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation", meta = (ClampMin = "0"))
-	float ChargeTime = 3.0f;
+	float ChargeTime = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation", meta = (ClampMin = "0.01"))
-	float ChargeSpeed = 0.1f;
+	float ChargeSpeed = 0.17f;
 
 	virtual void MakeShot() override;
 

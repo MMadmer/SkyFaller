@@ -6,7 +6,7 @@
 
 ASFSpikesTrap::ASFSpikesTrap()
 {
-	TrapMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+	TrapMesh->SetCollisionResponseToAllChannels(ECR_Overlap);
 }
 
 void ASFSpikesTrap::BeginPlay()
@@ -14,7 +14,6 @@ void ASFSpikesTrap::BeginPlay()
 	Super::BeginPlay();
 
 	TrapMesh->OnComponentBeginOverlap.AddDynamic(this, &ASFSpikesTrap::OnBeginOverlap);
-
 }
 
 void ASFSpikesTrap::DealingDamage()
@@ -29,14 +28,18 @@ void ASFSpikesTrap::DealingDamage()
 		return;
 	}
 
-	for (const auto& Pawn : OverlappedPawns) Pawn->TakeDamage(Damage, FDamageEvent::FDamageEvent(), nullptr, this);
+	for (const auto& Pawn : OverlappedPawns) Pawn->TakeDamage(Damage, FDamageEvent(), nullptr, this);
 
 	PlayTrapSound();
 }
 
-void ASFSpikesTrap::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ASFSpikesTrap::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                   UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                                   const FHitResult& SweepResult)
 {
 	if (!GetWorld()) return;
 
-	if (Cast<APawn>(OtherActor)) GetWorld()->GetTimerManager().SetTimer(DamageTimerHandle, this, &ASFSpikesTrap::DealingDamage, TimerTick, true, 0.0f);
+	if (Cast<APawn>(OtherActor))
+		GetWorld()->GetTimerManager().SetTimer(
+			DamageTimerHandle, this, &ASFSpikesTrap::DealingDamage, TimerTick, true, 0.0f);
 }

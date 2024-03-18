@@ -11,9 +11,6 @@ class SKYFALLER_API ASFGameHUD : public AHUD
 {
 	GENERATED_BODY()
 
-public:
-	virtual void DrawHUD() override;
-
 protected:
 	virtual void BeginPlay() override;
 };

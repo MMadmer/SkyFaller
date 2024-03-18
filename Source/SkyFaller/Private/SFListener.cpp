@@ -47,21 +47,10 @@ void ASFListener::FogMoving(const ACharacter* Player) const
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASF_FloatFog::StaticClass(), FoundActors);
 
-	ASF_FloatFog* FogInst = nullptr;
-
+	const FVector PlayerLocation = Player->GetActorLocation();
 	for (AActor* Actor : FoundActors)
 	{
-		ASF_FloatFog* FoundFog = Cast<ASF_FloatFog>(Actor);
-		if (FoundFog)
-		{
-			FogInst = FoundFog;
-			break;
-		}
-	}
-	if (FogInst)
-	{
-		const FVector PlayerLocation = Player->GetActorLocation();
-		FogInst->SetActorLocation(FVector(PlayerLocation.X, PlayerLocation.Y, -1500.0f));
+		Actor->SetActorLocation(FVector(PlayerLocation.X, PlayerLocation.Y, -1500.0f));
 	}
 }
 

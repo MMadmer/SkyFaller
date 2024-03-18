@@ -12,6 +12,7 @@ ASFBaseWeapon::ASFBaseWeapon()
 
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("WeaponMesh");
 	SetRootComponent(WeaponMesh);
+	ShotSound = nullptr;
 }
 
 void ASFBaseWeapon::BeginPlay()

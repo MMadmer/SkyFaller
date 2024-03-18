@@ -25,6 +25,8 @@ ASFArrow::ASFArrow()
 	MovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("MovementComponent");
 	MovementComponent->InitialSpeed = 2000.0f;
 	MovementComponent->ProjectileGravityScale = 1.0f;
+
+	HitSound = nullptr;
 }
 
 void ASFArrow::Tick(float DeltaTime)
