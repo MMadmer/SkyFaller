@@ -42,9 +42,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USFWeaponComponent* WeaponComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-	USFProgressComponent* ProgressComponent;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	USkeletalMesh* DeathMesh;
 

@@ -12,17 +12,15 @@ UCLASS()
 class SKYFALLER_API ASFPlatformSkin : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	ASFPlatformSkin();
 
-	void SetSckinMesh(UStaticMesh* NewMesh) { SkinMesh->SetStaticMesh(NewMesh); };
+	void SetSkinMesh(UStaticMesh* NewMesh) const { SkinMesh->SetStaticMesh(NewMesh); };
 
 protected:
-
 	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* SkinMesh;
 
 	virtual void BeginPlay() override;
-
 };

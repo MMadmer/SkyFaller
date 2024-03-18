@@ -13,5 +13,4 @@ UCLASS()
 class SKYFALLER_API ABasePlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
 };

@@ -5,11 +5,8 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "CoreTypes.h"
-#include "GameFramework/Character.h"
 #include "Sound/SoundCue.h"
 #include "Components/AudioComponent.h"
-#include "Objects/SFTarget.h"
-#include "NiagaraSystem.h"
 #include "NiagaraComponent.h"
 #include "Player/BaseCharacter.h"
 #include "Objects/SFTrap.h"
@@ -45,10 +42,10 @@ FVector ASFArrow::GetVelocity() const
 void ASFArrow::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	const auto Player = Cast<ABaseCharacter>(GetOwner());
 	if (!Player) return;
-	
+
 	MovementComponent->Velocity = ShotDirection * MovementComponent->InitialSpeed + Player->GetVelocity();
 
 	ArrowMesh->IgnoreActorWhenMoving(GetOwner(), true);
@@ -60,17 +57,18 @@ void ASFArrow::BeginPlay()
 	ArrowMesh->OnComponentHit.AddDynamic(this, &ASFArrow::OnHit);
 }
 
-void ASFArrow::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ASFArrow::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+                     FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (bAttached) return;
 	bAttached = true;
 
 	// Penetration imitation
 	PercentagePenetration = 1 - PercentagePenetration;
-	float ArrowLenght = (GetComponentsBoundingBox().GetExtent() * 2.0f).Size();
-	float PenetrationOffset = ArrowLenght * PercentagePenetration;
-	float PercentageOffset = PenetrationOffset / MovementComponent->Velocity.Size();
-	// UE_LOG(LogArrow, Display, TEXT("Percentage offset: %f"), ArrowLenght);
+	const float ArrowLength = (GetComponentsBoundingBox().GetExtent() * 2.0f).Size();
+	const float PenetrationOffset = ArrowLength * PercentagePenetration;
+	const float PercentageOffset = PenetrationOffset / MovementComponent->Velocity.Size();
+	// UE_LOG(LogArrow, Display, TEXT("Percentage offset: %f"), ArrowLength);
 	SetActorLocation(GetActorLocation() - MovementComponent->Velocity * PercentageOffset);
 
 	// Attach
@@ -80,7 +78,7 @@ void ASFArrow::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPri
 	if (OtherComp->IsSimulatingPhysics())
 	{
 		OtherComp->CalculateMass();
-		FVector Force = MovementComponent->Velocity * ArrowMesh->GetMass() * ImpactForceMultiplier;
+		const FVector Force = MovementComponent->Velocity * ArrowMesh->GetMass() * ImpactForceMultiplier;
 		OtherComp->AddForceAtLocation(Force, Hit.ImpactPoint);
 	}
 
@@ -108,7 +106,6 @@ void ASFArrow::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPri
 	// Delete niagara FX
 	UNiagaraComponent* NiagaraComponent = FindComponentByClass<UNiagaraComponent>();
 	if (NiagaraComponent || !GetWorld()) NiagaraComponent->Deactivate();
-	
 }
 
 void ASFArrow::PhysicsFalling()

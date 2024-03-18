@@ -14,15 +14,14 @@ UCLASS()
 class SKYFALLER_API ASFTrap : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	ASFTrap();
 
 	FName GetSocketName() const { return SocketName; };
 	float GetSpawnChance() const { return std::roundf(SpawnChance * 100.0f) / 100.0f; };
 
 protected:
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* TrapMesh;
 
@@ -43,5 +42,4 @@ protected:
 
 	virtual void BeginPlay() override;
 	void PlayTrapSound();
-
 };

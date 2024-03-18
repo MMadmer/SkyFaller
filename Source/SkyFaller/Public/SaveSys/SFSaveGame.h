@@ -13,5 +13,4 @@ class SKYFALLER_API USFSaveGame : public USaveGame
 
 public:
 	int32 Skills;
-	
 };

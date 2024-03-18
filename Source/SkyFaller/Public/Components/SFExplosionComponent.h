@@ -11,12 +11,12 @@ class USphereComponent;
 class UNiagaraSystem;
 class USoundCue;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SKYFALLER_API USFExplosionComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	USFExplosionComponent();
 
 	void Explode(const FVector& ImpactLocation);
@@ -24,7 +24,6 @@ public:
 	float GetOuterRadius() const { return OuterRad; };
 
 protected:
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	URadialForceComponent* RadialForceComponent;
 
@@ -61,11 +60,11 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-
 	UFUNCTION()
-	void OnExplosionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OnExplosionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+	                        const FHitResult& SweepResult);
 
 
 	void RadialDamage();
-
 };

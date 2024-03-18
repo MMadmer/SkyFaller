@@ -12,7 +12,7 @@ UCLASS()
 class SKYFALLER_API ASFBearTrap : public ASFTrap
 {
 	GENERATED_BODY()
-	
+
 public:
 	ASFBearTrap();
 
@@ -33,7 +33,8 @@ private:
 	float Offset = 86.0f * (AnimTick / AnimTime);
 
 	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	           FVector NormalImpulse, const FHitResult& Hit);
 
 	void Animation();
 };

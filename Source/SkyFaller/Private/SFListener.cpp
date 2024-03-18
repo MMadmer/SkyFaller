@@ -185,11 +185,13 @@ bool ASFListener::BackgroundSpawner(TArray<ASFBackgroundActor*>& Layer, const AC
 	const float ActorX = Layer[Index]->GetActorLocation().X;
 
 	if (!((PlayerX - (LayerStruct.SpawnDist + LayerStruct.BetweenX + LayerStruct.OffsetX) <= ActorX) && (ActorX <=
-		PlayerX + (LayerStruct.SpawnDist + LayerStruct.BetweenX + LayerStruct.OffsetX)))) return false;
+		PlayerX + (LayerStruct.SpawnDist + LayerStruct.BetweenX + LayerStruct.OffsetX))))
+		return false;
 	const float BetweenX = bFront ? LayerStruct.BetweenX : -LayerStruct.BetweenX;
 	if (!((PlayerX - (LayerStruct.SpawnDist + LayerStruct.BetweenX + LayerStruct.OffsetX) <= ActorX + BetweenX +
 		LayerStruct.OffsetX) && (ActorX + BetweenX + LayerStruct.OffsetX <= PlayerX + (LayerStruct.SpawnDist +
-		LayerStruct.BetweenX + LayerStruct.OffsetX)))) return false;
+		LayerStruct.BetweenX + LayerStruct.OffsetX))))
+		return false;
 
 	const auto Origin = Layer[Index]->SpawnNext(BackgroundClass, bFront);
 	const auto Mirror = Layer[Index + 1]->SpawnNext(BackgroundClass, bFront);
@@ -223,7 +225,8 @@ bool ASFListener::BackgroundDespawner(TArray<ASFBackgroundActor*>& Layer, const 
 	const float ActorX = Layer[Index]->GetActorLocation().X;
 
 	if ((PlayerX - (LayerStruct.SpawnDist + LayerStruct.BetweenX + LayerStruct.OffsetX) <= ActorX) && (ActorX <= PlayerX
-		+ (LayerStruct.SpawnDist + LayerStruct.BetweenX + LayerStruct.OffsetX))) return false;
+		+ (LayerStruct.SpawnDist + LayerStruct.BetweenX + LayerStruct.OffsetX)))
+		return false;
 
 	Layer[Index]->Despawn();
 	Layer[Index + 1]->Despawn();

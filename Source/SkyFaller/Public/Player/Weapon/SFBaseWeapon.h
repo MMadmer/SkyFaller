@@ -35,7 +35,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon", meta = (ClapMin = "0.0"))
 	float TraceMaxDistance = 1500.0f;
 
-	TSubclassOf<UAnimInstance> ChachedPlayerBP;
+	TSubclassOf<UAnimInstance> CachedPlayerBP;
 
 	virtual void BeginPlay() override;
 

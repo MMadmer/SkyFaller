@@ -132,7 +132,7 @@ protected:
 
 	void SetTemplate();
 	void SpawnNext(UWorld* World, ABaseCharacter* Player);
-	static void ScoringPoints(const ABaseCharacter* Player, float Points);
+	static void ScoringPoints(APlayerState* PlayerState, float Points);
 	void Spawner(float DeltaTime);
 	void Despawner(float DeltaTime);
 	void Mover(float DeltaTime);

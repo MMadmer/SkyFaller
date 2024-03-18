@@ -8,12 +8,12 @@
 #include "SFHealthComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SKYFALLER_API USFHealthComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	USFHealthComponent();
 
 	UPROPERTY(BlueprintAssignable)
@@ -31,15 +31,14 @@ public:
 	float GetHealth() const { return Health; };
 
 protected:
-
 	virtual void BeginPlay() override;
 
 private:
 	float Health = 0.0f;
 
 	UFUNCTION()
-	void OnTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+	void OnTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,
+	                     class AController* InstigatedBy, AActor* DamageCauser);
 
 	void SetHealth(const float NewHealth);
-		
 };

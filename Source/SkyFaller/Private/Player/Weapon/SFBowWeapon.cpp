@@ -2,13 +2,14 @@
 
 
 #include "Player/Weapon/SFBowWeapon.h"
+
+#include "SFPlayerState.h"
 #include "Player/Weapon/SFArrow.h"
 #include "Animation/AnimInstance.h"
 #include "Sound/SoundCue.h"
 #include "Components/AudioComponent.h"
 #include "Player/BaseCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Components/SFProgressComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBow, All, All)
 
@@ -22,7 +23,7 @@ void ASFBowWeapon::BeginPlay()
 void ASFBowWeapon::StartFire()
 {
 	const auto Player = GetPlayer();
-	ChachedPlayerBP = Player->GetMesh()->AnimClass; // Caching original(last) player anim BP
+	CachedPlayerBP = Player->GetMesh()->AnimClass; // Caching original(last) player anim BP
 	if (Player->GetMovementComponent()->IsFalling()) return; // Don't start if falling
 	// Set weapon aiming BP to player
 	Player->GetMesh()->SetAnimInstanceClass(PlayerAimBP);
@@ -42,7 +43,7 @@ void ASFBowWeapon::StopFire()
 
 	Charge = 0.0f;
 	const auto Player = GetPlayer();
-	Player->GetMesh()->SetAnimInstanceClass(ChachedPlayerBP); // Returning back player cached anim BP
+	Player->GetMesh()->SetAnimInstanceClass(CachedPlayerBP); // Returning back player cached anim BP
 
 	if (!CanFire()) return;
 	bCharged = false;
@@ -121,19 +122,18 @@ void ASFBowWeapon::SeriesCalc() const
 {
 	const auto Player = GetPlayer();
 	if (!Player) return;
-	USFProgressComponent* ProgressComponent = Cast<USFProgressComponent>(
-		Player->GetComponentByClass(USFProgressComponent::StaticClass()));
-	if (!ProgressComponent) return;
+	ASFPlayerState* PlayerState = Cast<ASFPlayerState>(GetPlayer()->GetPlayerState());
+	if (!PlayerState) return;
 
-	if (!ProgressComponent->GetSeries()) return;
+	if (!PlayerState->GetSeries()) return;
 
-	if (ProgressComponent->bInSeries)
+	if (PlayerState->bInSeries)
 	{
-		ProgressComponent->SetSeries(0);
-		ProgressComponent->bInSeries = false;
+		PlayerState->SetSeries(0);
+		PlayerState->bInSeries = false;
 	}
 	else
 	{
-		ProgressComponent->bInSeries = true;
+		PlayerState->bInSeries = true;
 	}
 }

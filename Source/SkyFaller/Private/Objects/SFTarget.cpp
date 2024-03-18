@@ -2,12 +2,11 @@
 
 
 #include "Objects/SFTarget.h"
+
+#include "SFPlayerState.h"
 #include "Components/StaticMeshComponent.h"
 #include "Player/Weapon/SFArrow.h"
-#include "Components/SFProgressComponent.h"
 #include "Player/BaseCharacter.h"
-#include "GameFramework/ProjectileMovementComponent.h"
-#include "PhysicsEngine/PhysicsConstraintComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTarget, All, All)
 
@@ -22,7 +21,7 @@ ASFTarget::ASFTarget()
 void ASFTarget::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	StaticMeshComponent->OnComponentHit.AddDynamic(this, &ASFTarget::OnHit);
 }
 
@@ -31,7 +30,8 @@ void ASFTarget::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ASFTarget::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ASFTarget::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+                      FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (bHitted) return;
 	bHitted = true;
@@ -39,19 +39,19 @@ void ASFTarget::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPr
 	const auto Arrow = Cast<ASFArrow>(OtherActor);
 	if (!Arrow) return;
 
-	const auto Player = Cast<ABaseCharacter>(Arrow->GetOwner());
+	const auto Player = Cast<ACharacter>(Arrow->GetOwner());
 	if (!Player) return;
 
-	USFProgressComponent* ProgressComponent = Cast<USFProgressComponent>(Player->GetComponentByClass(USFProgressComponent::StaticClass()));
-	if (!ProgressComponent) return;
+	ASFPlayerState* PlayerState = Cast<ASFPlayerState>(Player->GetPlayerState());
+	if (!PlayerState) return;
 
-	ProgressComponent->AddScore(RewardPoints + ProgressComponent->GetSeries() * SeriesPoints);
-	ProgressComponent->SetSeries(ProgressComponent->GetSeries() + 1);
-	ProgressComponent->bInSeries = false;
+	PlayerState->AddScore(RewardPoints + PlayerState->GetSeries() * SeriesPoints);
+	PlayerState->SetSeries(PlayerState->GetSeries() + 1);
+	PlayerState->bInSeries = false;
 
 	// Physics
 	StaticMeshComponent->SetSimulatePhysics(true);
-	FVector Force = Arrow->GetVelocity() * Arrow->GetMesh()->GetMass() * Arrow->ImpactForceMultiplier;
+	const FVector Force = Arrow->GetVelocity() * Arrow->GetMesh()->GetMass() * Arrow->ImpactForceMultiplier;
 	StaticMeshComponent->AddForceAtLocation(Force, Hit.ImpactPoint);
 
 	SetLifeSpan(LifeSpan);

@@ -47,7 +47,7 @@ struct FBackAssets
 	float Frequency = 0.5f;
 
 	/** Swing amplitude */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,  meta = (ClampMin = "0"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = "0"))
 	float Amplitude = 300.0f;
 
 	/** Distance that adds to the layer object Z pos for spawn */
@@ -72,7 +72,7 @@ UCLASS()
 class SKYFALLER_API ASFBackgroundActor : public AActor
 {
 	GENERATED_BODY()
-	
+
 public:
 	bool bMain = false; // Background actor is main or not
 
@@ -82,13 +82,15 @@ public:
 	void SetLayer(const int32 NewLayer) { Layer = NewLayer; };
 	int32 GetBackLayers() const { return BackLayers.Num(); };
 	FBackAssets GetCurrentLayer() { return BackLayers[Layer]; }; // Layer struct
-	int32 GetObjectsNumOfLayer(const int32 LayerNum) { return LayerNum < BackLayers.Num() ? BackLayers[LayerNum].ObjectsNum : -1; };
+	int32 GetObjectsNumOfLayer(const int32 LayerNum)
+	{
+		return LayerNum < BackLayers.Num() ? BackLayers[LayerNum].ObjectsNum : -1;
+	};
 	void SetParentZ(const float NewZ) { ParentZ = NewZ; };
 	void Despawn(const bool Enable = true) { bDespawned = Enable; };
 	ASFBackgroundActor* SpawnNext(TSubclassOf<ASFBackgroundActor> BackgroundClass, bool bFront);
 
 protected:
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Assets")
 	TArray<FBackAssets> BackLayers;
 
@@ -97,7 +99,7 @@ protected:
 
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
@@ -111,5 +113,4 @@ private:
 	void Mover(float DeltaTime);
 	void Spawner(float DeltaTime);
 	void Despawner(float DeltaTime);
-
 };

@@ -14,8 +14,8 @@ UCLASS()
 class SKYFALLER_API ASFArrow : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	ASFArrow();
 
 	virtual void Tick(float DeltaTime) override;
@@ -28,7 +28,6 @@ public:
 	USkeletalMeshComponent* GetMesh() const { return ArrowMesh; };
 
 protected:
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USkeletalMeshComponent* ArrowMesh;
 
@@ -50,13 +49,12 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-
 	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	           FVector NormalImpulse, const FHitResult& Hit);
 
 	FVector ShotDirection;
 	bool bAttached = false;
 
 	void PhysicsFalling();
-
 };

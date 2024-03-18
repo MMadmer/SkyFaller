@@ -27,8 +27,6 @@ ABaseCharacter::ABaseCharacter()
 	HealthComponent = CreateDefaultSubobject<USFHealthComponent>("HealthComponent");
 
 	WeaponComponent = CreateDefaultSubobject<USFWeaponComponent>("WeaponComponent");
-
-	ProgressComponent = CreateDefaultSubobject<USFProgressComponent>("ProgressComponent");
 }
 
 void ABaseCharacter::BeginPlay()

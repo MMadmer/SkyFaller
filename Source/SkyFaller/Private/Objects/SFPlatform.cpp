@@ -7,7 +7,7 @@
 #include "Player/BaseCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "SFListener.h"
-#include "Components/SFProgressComponent.h"
+#include "SFPlayerState.h"
 #include "Objects/SFTarget.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SFTrapComponent.h"
@@ -69,7 +69,7 @@ void ASFPlatform::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 
 	bTouched = true;
 
-	ScoringPoints(Player, RewardPoints);
+	ScoringPoints(Player->GetPlayerState(), RewardPoints);
 	SpawnNext(World, Player);
 }
 
@@ -96,11 +96,8 @@ void ASFPlatform::SetTemplate()
 
 void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 {
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
 	// Set new platform spawn location and rotation
-	float NextAngle = 0.0f;
+	float NextAngle;
 	if (GlobalRotation > 75.0f)
 	{
 		NextAngle = -SpawnAngle;
@@ -160,13 +157,12 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	if (FMath::RandBool()) SpawnTarget(World, Player, NewPlatform);
 }
 
-void ASFPlatform::ScoringPoints(const ABaseCharacter* Player, const float Points)
+void ASFPlatform::ScoringPoints(APlayerState* PlayerState, const float Points)
 {
-	USFProgressComponent* ProgressComponent = Cast<USFProgressComponent>(
-		Player->GetComponentByClass(USFProgressComponent::StaticClass()));
-	if (!ProgressComponent) return;
+	ASFPlayerState* CurrentPlayerState = Cast<ASFPlayerState>(PlayerState);
+	if (!CurrentPlayerState) return;
 
-	ProgressComponent->AddScore(Points);
+	CurrentPlayerState->AddScore(Points);
 }
 
 void ASFPlatform::Spawner(float DeltaTime)
@@ -221,7 +217,7 @@ void ASFPlatform::Mover(float DeltaTime)
 	const float CurrentOffset = CurrentSpeed * DeltaTime;
 
 	// Vertical moving
-	float Time = GetWorld()->GetTimeSeconds() + LocalTime;
+	const float Time = GetWorld()->GetTimeSeconds() + LocalTime;
 	FVector NewLocation = GetActorLocation();
 	NewLocation.Z = ParentZ + Amplitude * FMath::Sin(Frequency * Time);
 

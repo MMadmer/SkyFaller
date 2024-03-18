@@ -19,7 +19,7 @@ class SKYFALLER_API ASFBowWeapon : public ASFBaseWeapon
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnChargeChanged OnChargeChanged;
-	
+
 	UFUNCTION(BlueprintCallable, Category = "Animation")
 	float GetCharge() const { return Charge / ChargeTime; };
 

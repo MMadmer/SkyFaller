@@ -12,12 +12,11 @@ UCLASS()
 class SKYFALLER_API ASFTarget : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	ASFTarget();
 
 protected:
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	UStaticMeshComponent* StaticMeshComponent;
 
@@ -35,13 +34,13 @@ protected:
 
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-
 	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	           FVector NormalImpulse, const FHitResult& Hit);
 
 	bool bHitted = false;
 };
