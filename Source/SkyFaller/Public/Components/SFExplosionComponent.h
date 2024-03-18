@@ -3,13 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NiagaraSystem.h"
 #include "Components/ActorComponent.h"
+#include "Components/SphereComponent.h"
+#include "PhysicsEngine/RadialForceComponent.h"
+#include "Sound/SoundCue.h"
 #include "SFExplosionComponent.generated.h"
-
-class URadialForceComponent;
-class USphereComponent;
-class UNiagaraSystem;
-class USoundCue;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SKYFALLER_API USFExplosionComponent : public UActorComponent

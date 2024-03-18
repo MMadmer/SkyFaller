@@ -103,8 +103,8 @@ ASFBackgroundActor* ASFBackgroundActor::SpawnNext(TSubclassOf<ASFBackgroundActor
 
 	FVector NewLocation = GetActorLocation();
 	NewLocation.X += FMath::RandRange(-BackLayers[Layer].OffsetX, BackLayers[Layer].OffsetX) + (bFront
-		? BackLayers[Layer].BetweenX
-		: -BackLayers[Layer].BetweenX);
+			? BackLayers[Layer].BetweenX
+			: -BackLayers[Layer].BetweenX);
 	NewLocation.Y = FMath::Sign(NewLocation.Y) * (BackLayers[Layer].DistY + FMath::RandRange(
 		-BackLayers[Layer].OffsetY, BackLayers[Layer].OffsetY));
 	NewLocation.Z = NewActor->ParentZ + BackLayers[Layer].SpawnHeight;

@@ -15,14 +15,16 @@ ASFMineTrap::ASFMineTrap()
 	ExplosionComponent = CreateDefaultSubobject<USFExplosionComponent>("ExplosionComponent");
 	InnerSphere = CreateDefaultSubobject<USphereComponent>("InnerSphere");
 	OuterSphere = CreateDefaultSubobject<USphereComponent>("OuterSphere");
+	
+	TickSound = nullptr;
 }
 
 void ASFMineTrap::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InnerSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
-	OuterSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+	InnerSphere->SetCollisionResponseToAllChannels(ECR_Overlap);
+	OuterSphere->SetCollisionResponseToAllChannels(ECR_Overlap);
 
 	InnerSphere->SetSphereRadius(ExplosionComponent->GetInnerRadius());
 	OuterSphere->SetSphereRadius(ExplosionComponent->GetOuterRadius());
@@ -34,19 +36,24 @@ void ASFMineTrap::BeginPlay()
 	OuterSphere->OnComponentBeginOverlap.AddDynamic(this, &ASFMineTrap::OnOuterOverlap);
 }
 
-void ASFMineTrap::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ASFMineTrap::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+                        FVector NormalImpulse, const FHitResult& Hit)
 {
 	Explosion();
 }
 
-void ASFMineTrap::OnInnerOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ASFMineTrap::OnInnerOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                                 const FHitResult& SweepResult)
 {
 	if (!Cast<ABaseCharacter>(OtherActor)) return;
 
 	Explosion();
 }
 
-void ASFMineTrap::OnOuterOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ASFMineTrap::OnOuterOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                                 const FHitResult& SweepResult)
 {
 	if (!(GetWorld() && Cast<ABaseCharacter>(OtherActor))) return;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ASFMineTrap::Timer, TimerTick, true);

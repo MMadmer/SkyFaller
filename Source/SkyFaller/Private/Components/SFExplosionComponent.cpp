@@ -2,13 +2,11 @@
 
 
 #include "Components/SFExplosionComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "CollisionQueryParams.h"
 #include "Components/SphereComponent.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "Engine/World.h"
 #include "NiagaraSystem.h"
-#include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Sound/SoundCue.h"
 #include "Components/AudioComponent.h"
@@ -18,13 +16,16 @@ DEFINE_LOG_CATEGORY_STATIC(LogExplosionComp, All, All)
 USFExplosionComponent::USFExplosionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+
+	RadialForceComponent = CreateDefaultSubobject<URadialForceComponent>("RadialForce");
+	SphereComponent = CreateDefaultSubobject<USphereComponent>("DamageSphere");
+	NiagaraSystem = nullptr;
+	ExplosionSound = nullptr;
 }
 
 void USFExplosionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	
 }
 
 void USFExplosionComponent::Explode(const FVector& ImpactLocation)
@@ -33,7 +34,7 @@ void USFExplosionComponent::Explode(const FVector& ImpactLocation)
 
 	TArray<AActor*> AttachedActors;
 	GetOwner()->GetAttachedActors(AttachedActors);
-	for (auto Actor : AttachedActors)
+	for (const auto& Actor : AttachedActors)
 	{
 		Actor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 		UPrimitiveComponent* PrimitiveComponent = Cast<UPrimitiveComponent>(Actor->GetRootComponent());
@@ -69,7 +70,7 @@ void USFExplosionComponent::Explode(const FVector& ImpactLocation)
 		AudioComponent->SetWorldLocation(GetOwner()->GetActorLocation());
 		AudioComponent->Play();
 	}
-	
+
 	RadialForceComponent = NewObject<URadialForceComponent>(GetOwner());
 	RadialForceComponent->RegisterComponent();
 	RadialForceComponent->SetWorldLocation(GetOwner()->GetActorLocation());
@@ -92,11 +93,15 @@ void USFExplosionComponent::RadialDamage()
 	SphereComponent->DestroyComponent();
 }
 
-void USFExplosionComponent::OnExplosionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void USFExplosionComponent::OnExplosionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                               UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                                               const FHitResult& SweepResult)
 {
-	float Distance = (OtherActor->GetActorLocation() - GetOwner()->GetActorLocation()).Size() - InnerRad;
-	
-	float DamageToTake = FMath::Clamp(Damage * (MinDamage + (1 - MinDamage) * (1 - Distance / (OuterRad - InnerRad))), Damage * MinDamage, Damage); // Modifyed parabolic interpolation
+	const float Distance = (OtherActor->GetActorLocation() - GetOwner()->GetActorLocation()).Size() - InnerRad;
+
+	const float DamageToTake = FMath::Clamp(
+		Damage * (MinDamage + (1 - MinDamage) * (1 - Distance / (OuterRad - InnerRad))),
+		Damage * MinDamage, Damage); // Modified parabolic interpolation
 
 	OtherActor->TakeDamage(DamageToTake, FDamageEvent::FDamageEvent(), nullptr, GetOwner());
 }

@@ -24,11 +24,8 @@ public:
 	ABaseCharacter();
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Damage", meta = (ClapMin = "0"))
+	UPROPERTY(EditDefaultsOnly, Category = "Death", meta = (ClapMin = "0"))
 	float LifeSpanOnDeath = 5.0f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Damage")
-	float KillHeight = -1000.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	UCameraComponent* CameraComponent;
@@ -51,7 +48,6 @@ protected:
 	void MoveRight(float Amount);
 
 public:
-	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")

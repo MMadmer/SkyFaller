@@ -4,7 +4,6 @@
 #include "Objects/SFPlatformSkin.h"
 #include "Components/StaticMeshComponent.h"
 
-// Sets default values
 ASFPlatformSkin::ASFPlatformSkin()
 {
 	PrimaryActorTick.bCanEverTick = false;

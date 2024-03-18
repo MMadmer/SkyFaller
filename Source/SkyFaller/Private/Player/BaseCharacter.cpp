@@ -8,14 +8,14 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SFWeaponComponent.h"
-#include "Components/SFProgressComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBaseCharacter, All, All)
 
 ABaseCharacter::ABaseCharacter()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
 	SpringArmComponent->SetupAttachment(GetMesh());
@@ -98,15 +98,4 @@ void ABaseCharacter::MoveForward(float Amount)
 void ABaseCharacter::MoveRight(float Amount)
 {
 	AddMovementInput(GetActorRightVector(), Amount);
-}
-
-void ABaseCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	// If under kill height
-	if (GetActorTransform().GetLocation().Z <= KillHeight && !HealthComponent->IsDead())
-	{
-		TakeDamage(HealthComponent->MaxHealth, FDamageEvent(), GetController(), this);
-	}
 }
