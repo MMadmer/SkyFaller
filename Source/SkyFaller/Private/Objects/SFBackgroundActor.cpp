@@ -3,6 +3,7 @@
 
 #include "Objects/SFBackgroundActor.h"
 #include "Components/StaticMeshComponent.h"
+#include "GameFramework/WorldSettings.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBackground, All, All)
 

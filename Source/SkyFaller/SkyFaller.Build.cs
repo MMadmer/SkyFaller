@@ -14,7 +14,11 @@ public class SkyFaller : ModuleRules
 			"CoreUObject", 
 			"Engine", 
 			"InputCore",
-			"Niagara"
+			"Niagara",
+			"Kismet",
+			"UnrealEd",
+			"AssetTools",
+			"AssetRegistry"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

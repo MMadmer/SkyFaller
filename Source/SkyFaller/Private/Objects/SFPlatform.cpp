@@ -11,6 +11,7 @@
 #include "Objects/SFTarget.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SFTrapComponent.h"
+#include "GameFramework/WorldSettings.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogPlatform, All, All)
 
