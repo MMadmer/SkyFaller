@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SFPlatformMesh.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/Actor.h"
 #include "SFPlatformCreator.generated.h"
@@ -16,9 +17,9 @@ public:
 	ASFPlatformCreator();
 
 protected:
-	/** Platform's static mesh actor tag. */
-	UPROPERTY(EditAnywhere, Category="Editor Tools")
-	FName PlatformTag;
+	/** Template of generated platforms class. */
+	UPROPERTY(EditDefaultsOnly, Category="Editor Tools")
+	TSubclassOf<ASFPlatformMesh> ParentClass;
 
 	/** Working radius. */
 	UPROPERTY(EditAnywhere, Category="Editor Tools")
@@ -26,7 +27,7 @@ protected:
 
 	/** Convert all actors to platform's static mesh sockets(set PlatformTag to target platform static mesh actor). */
 	UFUNCTION(CallInEditor, Category="Editor Tools")
-	void ConvertToPlatform();
+	void CreatePlatform();
 
 	/** Clear all platform sockets(set PlatformTag to target platform static mesh actor). */
 	UFUNCTION(CallInEditor, Category="Editor Tools")
@@ -34,5 +35,5 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	void FindAndRemoveActorByTag(TArray<AActor*>& Actors, AActor*& Platform) const;
+	ASFPlatformMesh* FindAndRemovePlatform(TArray<AActor*>& Actors) const;
 };

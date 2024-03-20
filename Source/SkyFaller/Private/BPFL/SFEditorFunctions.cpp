@@ -6,7 +6,8 @@
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Kismet2/KismetEditorUtilities.h"
 
-UBlueprint* USFEditorFunctions::CreateBlueprintFromActorInstance(AActor* ActorInstance, const FString& Path,
+UBlueprint* USFEditorFunctions::CreateBlueprintFromActorInstance(AActor* ActorInstance,
+                                                                 const FString& Path,
                                                                  const FString& Name)
 {
 	UBlueprint* NewActorBlueprint = nullptr;

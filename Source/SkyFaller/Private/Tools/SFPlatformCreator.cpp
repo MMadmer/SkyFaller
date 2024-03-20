@@ -4,11 +4,11 @@
 #include "Tools/SFPlatformCreator.h"
 
 #include "BPFL/SFEditorFunctions.h"
-#include "BPFL/SFGeneralFunctions.h"
+#include "Engine/StaticMeshActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-ASFPlatformCreator::ASFPlatformCreator(): PlatformTag(TEXT("platform"))
+ASFPlatformCreator::ASFPlatformCreator()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
@@ -23,37 +23,86 @@ void ASFPlatformCreator::BeginPlay()
 	Destroy();
 }
 
-void ASFPlatformCreator::ConvertToPlatform()
+void ASFPlatformCreator::CreatePlatform()
 {
 #if WITH_EDITORONLY_DATA
-	ClearPlatform();
-
 	TArray<AActor*> Actors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), Actors);
 
 	// Platform finding
-	AActor* Platform;
+	const ASFPlatformMesh* Platform = FindAndRemovePlatform(Actors);
+	if (!Platform)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Platform not found."));
+		return;
+	}
+
+	// Remove self from found actors.
 	Actors.Remove(this);
-	FindAndRemoveActorByTag(Actors, Platform);
-	// if (!Platform) return;
 
-	/*const UStaticMesh* PlatformMesh = Cast<UStaticMeshComponent>(
-		Platform->GetComponentByClass(UStaticMeshComponent::StaticClass()))->GetStaticMesh();*/
-	// if (!PlatformMesh) return;
+	// Validate parent class.
+	if (!Platform->GetClass()->IsChildOf(ParentClass))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Parent class not valid."));
+		return;
+	}
 
+	// Create actor from parent class to transfer platform params.
+	ASFPlatformMesh* ParentActor = Cast<ASFPlatformMesh>(GetWorld()->SpawnActor(ParentClass));
+	if (!ParentActor)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Parent actor not spawned."));
+		return;
+	}
+	ParentActor->StaticMesh->SetStaticMesh(Platform->StaticMesh->GetStaticMesh());
+
+	// Copy actors information to parent actor with scene components creating
 	for (const auto& Actor : Actors)
 	{
 		if ((Actor->GetActorLocation() - GetActorLocation()).Size() > Handler->GetCollisionShape().GetSphereRadius())
 			continue;
 
-		// USFGeneralFunctions::SpawnActorByClassName(GetWorld(), Actor->GetClass()->GetPathName(), FVector(), FRotator());
-		USFEditorFunctions::CreateBlueprintFromActorInstance(
-			Actor, "/Game/SkyFaller/GameLogic/Blueprints/Objects/MeshVariations/", Actor->GetClass()->GetName());
+		USceneComponent* NewSceneComponent = NewObject<USceneComponent>(ParentActor, Actor->GetFName());
+		if (!NewSceneComponent) continue;
+		NewSceneComponent->SetRelativeTransform(
+			Actor->GetActorTransform().GetRelativeTransform(Platform->GetActorTransform()));
+		ParentActor->AttachToComponent(ParentActor->GetRootComponent(),
+		                               FAttachmentTransformRules::KeepRelativeTransform);
+		NewSceneComponent->RegisterComponent();
+		ParentActor->AddInstanceComponent(NewSceneComponent);
 
-		UKismetSystemLibrary::PrintString(GetWorld(), FString::Printf(TEXT("%s"), *Actor->GetClass()->GetPathName()));
+		if (Actor->IsA(AStaticMeshActor::StaticClass()))
+		{
+			const auto& MeshComp = Cast<UStaticMeshComponent>(Actor->GetRootComponent());
+			if (!(MeshComp && MeshComp->GetStaticMesh())) continue;
+
+			ParentActor->SpawnObjects.Add(Actor->GetFName(),
+			                              FPlatformInfo(Actor->GetClass(), MeshComp->GetStaticMesh()));
+		}
+		else
+		{
+			ParentActor->SpawnObjects.Add(Actor->GetFName(), FPlatformInfo(Actor->GetClass()));
+		}
 	}
 
-	UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Platform static mesh updated."));
+	// Create blueprint asset
+	const UBlueprint* PlatformBlueprint = USFEditorFunctions::CreateBlueprintFromActorInstance(
+		ParentActor, "/Game/SkyFaller/GameLogic/Blueprints/Objects/MeshVariations/",
+		FString::Printf(TEXT("%s"), *ParentActor->GetClass()->GetName()));
+
+	// Parent actor now needn't
+	ParentActor->Destroy();
+
+	if (!PlatformBlueprint)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Platform not created."));
+		return;
+	}
+
+	UKismetSystemLibrary::PrintString(GetWorld(), FString::Printf(TEXT("%s"), *PlatformBlueprint->GetPathName()));
+	UKismetSystemLibrary::PrintString(GetWorld(), FString::Printf(TEXT("%s"), *Platform->GetClass()->GetPathName()));
+
+	UKismetSystemLibrary::PrintString(GetWorld(), TEXT("New platform created."));
 #endif
 }
 
@@ -64,33 +113,33 @@ void ASFPlatformCreator::ClearPlatform() const
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), Actors);
 
 	// Platform finding
-	AActor* Platform;
-	FindAndRemoveActorByTag(Actors, Platform);
-	if (!Platform) return;
+	const ASFPlatformMesh* Platform = FindAndRemovePlatform(Actors);
+	if (!Platform)
+	{
+		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Platform not found."));
+		return;
+	}
 
-	// Platform static mesh editing
-	const UStaticMeshComponent* MeshComp = Cast<UStaticMeshComponent>(
-		Platform->GetComponentByClass(UStaticMeshComponent::StaticClass()));
-
-	if (!MeshComp) return;
-	MeshComp->GetStaticMesh()->Sockets.Empty();
-
-	UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Platform static mesh cleared."));
+	UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Platform was cleared."));
 #endif
 }
 
-void ASFPlatformCreator::FindAndRemoveActorByTag(TArray<AActor*>& Actors, AActor*& Platform) const
+ASFPlatformMesh* ASFPlatformCreator::FindAndRemovePlatform(TArray<AActor*>& Actors) const
 {
+	ASFPlatformMesh* Platform = nullptr;
+
 	for (const auto& Actor : Actors)
 	{
 		if ((Actor->GetActorLocation() - GetActorLocation()).Size() > Handler->GetCollisionShape().GetSphereRadius())
 			continue;
 
-		if (Actor->Tags.Find(PlatformTag) >= 0)
+		if (Cast<ASFPlatformMesh>(Actor))
 		{
-			Platform = Actor;
+			Platform = Cast<ASFPlatformMesh>(Actor);
 			break;
 		}
 	}
 	Actors.Remove(Platform);
+
+	return Platform;
 }
