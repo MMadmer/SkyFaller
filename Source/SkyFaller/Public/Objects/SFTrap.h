@@ -18,8 +18,10 @@ class SKYFALLER_API ASFTrap : public AActor
 public:
 	ASFTrap();
 
-	FName GetSocketName() const { return SocketName; };
-	float GetSpawnChance() const { return std::roundf(SpawnChance * 100.0f) / 100.0f; };
+	float GetSpawnChanceNorm() const
+	{
+		return FMath::GetMappedRangeValueClamped(FVector2D(0.0f, 100.0f), FVector2D(0.0f, 1.0f), SpawnChance);
+	};
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
@@ -28,11 +30,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Data")
 	float Damage;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Data", meta = (ClampMin = "0", ClampMax = "100"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Data",
+		meta = (ClampMin="0", ClampMax="100", UIMin="0", UIMax="100"))
 	float SpawnChance;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Data")
-	FName SocketName;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sounds")
 	USoundCue* TrapSound;

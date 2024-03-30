@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "ExtendedEditorTools",
+	"Description": "Editor tools plugin.",
+	"Category": "Other",
+	"CreatedBy": "Madmer",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "ExtendedEditorTools",
+			"Type": "EditorAndProgram",
+			"LoadingPhase": "Default"
+		}
+	]
+}

@@ -2,8 +2,6 @@
 
 
 #include "Components/SFTrapComponent.h"
-#include "Objects/SFTrap.h"
-#include "Objects/SFPlatform.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTrapComponent, All, All)
 
@@ -20,46 +18,39 @@ void USFTrapComponent::BeginPlay()
 
 void USFTrapComponent::SpawnTraps()
 {
-	const auto World = GetWorld();
-	if (!World) return;
-	const auto Platform = Cast<ASFPlatform>(GetOwner());
-	if (!Platform) return;
+	TMap<TSubclassOf<ASFTrap>, uint8> SpawnedTraps;
+	TArray<AActor*> AttachedActors{};
+	GetOwner()->GetAttachedActors(AttachedActors);
 
-	for (auto Trap : Traps)
+	for (const auto& AttachedActor : AttachedActors)
 	{
-		// Sockets check
-		FName Socket = GetRandomSocket(Cast<ASFTrap>(Trap->GetDefaultObject()),
-		                               Platform->GetMesh()->GetAllSocketNames());
-		if (!Platform->GetMesh()->DoesSocketExist(Socket)) continue;
-		// Spawn chance
-		if (std::roundf(FMath::RandRange(0.0f, 100.0f) * 100.0f) / 100.0f > Cast<ASFTrap>(Trap->GetDefaultObject())->
-			GetSpawnChance())
+		// Is trap
+		const ASFTrap* Trap = Cast<ASFTrap>(AttachedActor);
+		if (!Trap) continue;
+
+		// Get max traps of type if trap can be spawned
+		const uint8* MaxTypeTraps = Traps.Find(Trap->GetClass()->StaticClass());
+		if (!MaxTypeTraps)
+		{
+			AttachedActor->Destroy();
 			continue;
+		}
 
-		const auto NewTrap = World->SpawnActor<ASFTrap>(Trap);
-		if (!NewTrap) return;
+		// Get already "spawned" traps by type
+		uint8& TypeSpawnedCount = SpawnedTraps.FindOrAdd(Trap->GetClass()->StaticClass());
+		if (TypeSpawnedCount >= *MaxTypeTraps)
+		{
+			AttachedActor->Destroy();
+			continue;
+		}
 
-		NewTrap->SetOwner(Platform);
-		AttachTrapToSocket(NewTrap, Platform->GetMesh(), Socket);
+		// "Spawn" trap
+		if (Trap->GetSpawnChanceNorm() >= FMath::FRandRange(0.0f, 1.0f))
+		{
+			TypeSpawnedCount++;
+			continue;
+		}
+
+		AttachedActor->Destroy();
 	}
-}
-
-void USFTrapComponent::AttachTrapToSocket(ASFTrap* Trap, USceneComponent* SceneComponent, const FName& SocketName)
-{
-	if (!Trap || !SceneComponent) return;
-
-	const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
-	Trap->AttachToComponent(SceneComponent, AttachmentRules, SocketName);
-}
-
-FName USFTrapComponent::GetRandomSocket(const ASFTrap* Trap, TArray<FName> Sockets)
-{
-	const FString TrapSocket = Trap->GetSocketName().ToString();
-	TArray<FName> ConfirmedSockets;
-	for (const auto& Socket : Sockets)
-	{
-		if (Socket.ToString().StartsWith(TrapSocket)) ConfirmedSockets.Add(Socket);
-	}
-
-	return ConfirmedSockets.Num() > 0 ? ConfirmedSockets[FMath::RandRange(0, ConfirmedSockets.Num() - 1)] : "";
 }

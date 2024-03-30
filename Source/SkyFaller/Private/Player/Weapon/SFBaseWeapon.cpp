@@ -4,6 +4,7 @@
 #include "Player/Weapon/SFBaseWeapon.h"
 #include "GameFramework/Controller.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/PlayerController.h"
 #include "Player/BaseCharacter.h"
 
 ASFBaseWeapon::ASFBaseWeapon()

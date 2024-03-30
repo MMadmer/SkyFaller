@@ -1,27 +1,27 @@
 // Sky Faller. All rights reserved.
 
 
-#include "Objects/SFPlatformMesh.h"
+#include "Prefab/EXPrefab.h"
 
 #include "Engine/StaticMeshActor.h"
 
-ASFPlatformMesh::ASFPlatformMesh()
+AEXPrefab::AEXPrefab()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	SetRootComponent(StaticMesh);
+
 }
 
-void ASFPlatformMesh::BeginPlay()
+void AEXPrefab::BeginPlay()
 {
 	Super::BeginPlay();
-
-	SpawnAllObjects();
+	
 }
 
-void ASFPlatformMesh::SpawnAllObjects()
+void AEXPrefab::SpawnAllObjects()
 {
 	// Get all scene components
 	TArray<UActorComponent*> SceneComponents;
@@ -52,7 +52,7 @@ void ASFPlatformMesh::SpawnAllObjects()
 		{
 			Cast<USceneComponent>(Component)->SetMobility(EComponentMobility::Movable);
 		}
-		
+
 		SpawnedActor->AttachToComponent(SceneComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
 
 		// If static mesh actor
@@ -73,5 +73,16 @@ void ASFPlatformMesh::SpawnAllObjects()
 			}
 			MeshComp->SetStaticMesh(Mesh);
 		}
+	}
+}
+
+void AEXPrefab::ClearSpawnedObjects() const
+{
+	TArray<AActor*> AttachedActors;
+	GetAttachedActors(AttachedActors);
+
+	for (const auto& AttachedActor : AttachedActors)
+	{
+		AttachedActor->Destroy();
 	}
 }
