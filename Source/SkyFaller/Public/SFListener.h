@@ -29,17 +29,13 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	UPROPERTY()
-	ASFPlatform* MainPlatform;
-
 	TArray<TArray<ASFBackgroundActor*>> BackgroundActors;
 	int32 CachedId = -1;
 
 	void FogMoving(const ACharacter* Player) const;
-	void PlatformConnecting(int32 Index);
 	void BackgroundInit();
 	void BackgroundManage(const ACharacter* Player);
 	bool BackgroundSpawner(TArray<ASFBackgroundActor*>& Layer, const ACharacter* Player, const int32 Index,
 	                       bool bFront) const;
-	bool BackgroundDespawner(TArray<ASFBackgroundActor*>& Layer, const ACharacter* Player, const int32 Index);
+	static bool BackgroundDespawner(TArray<ASFBackgroundActor*>& Layer, const ACharacter* Player, const int32 Index);
 };

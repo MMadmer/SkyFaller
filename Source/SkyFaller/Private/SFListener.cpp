@@ -10,7 +10,7 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogListener, All, All)
 
-ASFListener::ASFListener(): MainPlatform(nullptr)
+ASFListener::ASFListener()
 {
 	PrimaryActorTick.bCanEverTick = false;
 }
@@ -19,7 +19,6 @@ void ASFListener::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PlatformConnecting(0);
 	BackgroundInit();
 }
 
@@ -52,29 +51,6 @@ void ASFListener::FogMoving(const ACharacter* Player) const
 	{
 		Actor->SetActorLocation(FVector(PlayerLocation.X, PlayerLocation.Y, -1500.0f));
 	}
-}
-
-void ASFListener::PlatformConnecting(int32 Index)
-{
-	if (!GetWorld()) return;
-
-	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASFPlatform::StaticClass(), FoundActors);
-
-	ASFPlatform* PlatformInst = nullptr;
-
-	for (AActor* Actor : FoundActors)
-	{
-		ASFPlatform* FoundPlatform = Cast<ASFPlatform>(Actor);
-		if (FoundPlatform)
-		{
-			PlatformInst = FoundPlatform;
-			break;
-		}
-	}
-	if (!PlatformInst) return;
-
-	MainPlatform = PlatformInst;
 }
 
 void ASFListener::BackgroundInit()

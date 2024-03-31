@@ -10,7 +10,6 @@ USFTrapComponent::USFTrapComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-
 void USFTrapComponent::BeginPlay()
 {
 	Super::BeginPlay();
