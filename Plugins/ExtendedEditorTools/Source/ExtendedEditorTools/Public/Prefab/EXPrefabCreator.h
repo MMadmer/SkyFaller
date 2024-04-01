@@ -17,14 +17,13 @@ public:
 	AEXPrefabCreator();
 
 protected:
-	
 	/** Template of generated platforms class. */
 	UPROPERTY(EditAnywhere, Category="Editor Tools")
 	TSubclassOf<AEXPrefab> ParentClass;
 
 	UPROPERTY(EditAnywhere, Category="Editor Tools")
 	FString NewPrefabBaseName = TEXT("Prefab");
-	
+
 	/** Path to new prefab asset. Already contains /Game/ */
 	UPROPERTY(EditAnywhere, Category="Editor Tools")
 	FString NewPrefabPath = TEXT("");

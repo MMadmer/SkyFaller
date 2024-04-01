@@ -6,7 +6,6 @@
 #include "BPFL/EXEditorFunctions.h"
 #include "Engine/StaticMeshActor.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetSystemLibrary.h"
 
 AEXPrefabCreator::AEXPrefabCreator()
 {
@@ -35,7 +34,7 @@ void AEXPrefabCreator::CreatePrefab()
 	const AEXPrefab* Prefab = FindAndRemovePrefab(Actors);
 	if (!Prefab)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Prefab not found."));
+		UEXEditorFunctions::NotifyWithLog(TEXT("Prefab not found"), ELogVerbosity::Warning, 3.0f);
 		return;
 	}
 
@@ -45,7 +44,7 @@ void AEXPrefabCreator::CreatePrefab()
 	// Validate parent class.
 	if (!Prefab->GetClass()->IsChildOf(ParentClass))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Parent class not valid."));
+		UEXEditorFunctions::NotifyWithLog(TEXT("Parent class not valid"), ELogVerbosity::Warning, 3.0f);
 		return;
 	}
 
@@ -53,7 +52,7 @@ void AEXPrefabCreator::CreatePrefab()
 	AEXPrefab* ParentActor = Cast<AEXPrefab>(GetWorld()->SpawnActor(ParentClass));
 	if (!ParentActor)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Parent actor not spawned."));
+		UEXEditorFunctions::NotifyWithLog(TEXT("Parent actor not spawned"), ELogVerbosity::Warning, 3.0f);
 		return;
 	}
 	ParentActor->StaticMesh->SetStaticMesh(Prefab->StaticMesh->GetStaticMesh());
@@ -68,8 +67,8 @@ void AEXPrefabCreator::CreatePrefab()
 		if (!NewSceneComponent) continue;
 		NewSceneComponent->SetRelativeTransform(
 			Actor->GetActorTransform().GetRelativeTransform(Prefab->GetActorTransform()));
-		ParentActor->AttachToComponent(ParentActor->GetRootComponent(),
-		                               FAttachmentTransformRules::KeepRelativeTransform);
+		NewSceneComponent->AttachToComponent(ParentActor->GetRootComponent(),
+		                                     FAttachmentTransformRules::KeepRelativeTransform);
 		NewSceneComponent->RegisterComponent();
 		ParentActor->AddInstanceComponent(NewSceneComponent);
 
@@ -98,14 +97,13 @@ void AEXPrefabCreator::CreatePrefab()
 
 	if (!PrefabBlueprint)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Prefab not created."));
+		UEXEditorFunctions::NotifyWithLog(TEXT("Prefab not created"), ELogVerbosity::Warning, 3.0f);
 		return;
 	}
 
-	UKismetSystemLibrary::PrintString(GetWorld(), FString::Printf(TEXT("%s"), *PrefabBlueprint->GetPathName()));
-	UKismetSystemLibrary::PrintString(GetWorld(), FString::Printf(TEXT("%s"), *Prefab->GetClass()->GetPathName()));
-
-	UKismetSystemLibrary::PrintString(GetWorld(), TEXT("New prefab created."));
+	UEXEditorFunctions::NotifyWithLog(TEXT("New prefab created"), ELogVerbosity::Display, 3.0f);
+	UEXEditorFunctions::NotifyWithLog(FString::Printf(TEXT("%s"), *PrefabBlueprint->GetPathName()),
+	                                  ELogVerbosity::Display, 3.0f);
 #endif
 }
 

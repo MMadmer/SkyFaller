@@ -4,11 +4,14 @@
 #include "BPFL/EXEditorFunctions.h"
 
 #include "AssetRegistry/AssetRegistryModule.h"
+#include "Framework/Notifications/NotificationManager.h"
 #include "Kismet2/KismetEditorUtilities.h"
+#include "Logging/MessageLog.h"
+#include "Widgets/Notifications/SNotificationList.h"
 
 UBlueprint* UEXEditorFunctions::CreateBlueprintFromActorInstance(AActor* ActorInstance,
-	const FString& Path,
-	const FString& Name)
+                                                                 const FString& Path,
+                                                                 const FString& Name)
 {
 	UBlueprint* NewActorBlueprint = nullptr;
 #if WITH_EDITORONLY_DATA
@@ -39,7 +42,7 @@ UBlueprint* UEXEditorFunctions::CreateBlueprintFromActorInstance(AActor* ActorIn
 			// Validate asset name
 			int32 NameCounter = 2;
 			while (AssetRegistry.GetAssetByObjectPath(FName(*(PackageName + TEXT(".") + BlueprintName)), true).
-				IsValid())
+			                     IsValid())
 			{
 				TArray<FString> Substrings;
 				BlueprintName.ParseIntoArray(Substrings, TEXT("_"));
@@ -77,3 +80,35 @@ UBlueprint* UEXEditorFunctions::CreateBlueprintFromActorInstance(AActor* ActorIn
 	return NewActorBlueprint;
 }
 
+void UEXEditorFunctions::NotifyWithLog(const FString Message, const uint8& LogVerbosity, const float Duration)
+{
+#if WITH_EDITORONLY_DATA
+	// Log message
+	FMessageLog MessageLog(FName(TEXT("EXEditorTools")));
+
+	FString VerbosityText = TEXT("Display: ");
+	EMessageSeverity::Type Level = EMessageSeverity::Info;
+	switch (LogVerbosity)
+	{
+	case 4:
+		Level = EMessageSeverity::Info;
+		VerbosityText = TEXT("Display: ");
+		break;
+	case 3:
+		Level = EMessageSeverity::Warning;
+		VerbosityText = TEXT("Warning: ");
+		break;
+	case 2:
+		Level = EMessageSeverity::Error;
+		VerbosityText = TEXT("Error: ");
+		break;
+	default: ;
+	}
+	MessageLog.Message(Level, FText::FromString(VerbosityText + Message));
+
+	// Notify message
+	FNotificationInfo Notification(FText::FromString(VerbosityText + Message));
+	Notification.ExpireDuration = Duration;
+	FSlateNotificationManager::Get().AddNotification(Notification);
+#endif
+}

@@ -136,7 +136,7 @@ void AEXPrefab::ConvertMeshToHism()
 	{
 		// Check by minimum allowed the same static mesh actors count
 		if (UniqueMesh.Value.Num() < MinMeshesToHism) continue;
-		
+
 		// Create new HISM
 		UHierarchicalInstancedStaticMeshComponent* NewHism = NewObject<UHierarchicalInstancedStaticMeshComponent>(
 			this, FName(FString::Printf(TEXT("HISM_%i"), Counter++)));
