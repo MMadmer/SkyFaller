@@ -13,19 +13,31 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogExplosionComp, All, All)
 
-USFExplosionComponent::USFExplosionComponent()
+USFExplosionComponent::USFExplosionComponent() : NiagaraSystem(nullptr), ExplosionSound(nullptr)
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
 	RadialForceComponent = CreateDefaultSubobject<URadialForceComponent>("RadialForce");
+	RadialForceComponent->Radius = OuterRad;
+	
 	SphereComponent = CreateDefaultSubobject<USphereComponent>("DamageSphere");
-	NiagaraSystem = nullptr;
-	ExplosionSound = nullptr;
+	SphereComponent->SetSphereRadius(OuterRad);
+	SphereComponent->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	if (!GetOwner()) return;
+
+	RadialForceComponent->SetupAttachment(GetOwner()->GetRootComponent());
+	SphereComponent->SetupAttachment(GetOwner()->GetRootComponent());
 }
 
 void USFExplosionComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	RadialForceComponent->Radius = 0.0f;
+	
+	SphereComponent->SetSphereRadius(0.0f);
+	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &USFExplosionComponent::OnExplosionOverlap);
 }
 
 void USFExplosionComponent::Explode(const FVector& ImpactLocation)
@@ -70,27 +82,18 @@ void USFExplosionComponent::Explode(const FVector& ImpactLocation)
 		AudioComponent->SetWorldLocation(GetOwner()->GetActorLocation());
 		AudioComponent->Play();
 	}
+}
 
-	RadialForceComponent = NewObject<URadialForceComponent>(GetOwner());
-	RadialForceComponent->RegisterComponent();
-	RadialForceComponent->SetWorldLocation(GetOwner()->GetActorLocation());
+void USFExplosionComponent::RadialDamage() const
+{
+	SphereComponent->SetSphereRadius(OuterRad);
+	SphereComponent->SetSphereRadius(0.0f, false);
+
 	RadialForceComponent->Radius = OuterRad;
 	RadialForceComponent->ForceStrength = ExplosionForce;
 	RadialForceComponent->ImpulseStrength = ExplosionImpulse;
-
 	RadialForceComponent->FireImpulse();
-}
-
-void USFExplosionComponent::RadialDamage()
-{
-	SphereComponent = NewObject<USphereComponent>(GetOwner());
-	SphereComponent->RegisterComponent();
-	SphereComponent->SetWorldLocation(GetOwner()->GetActorLocation());
-	SphereComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
-	SphereComponent->SetSphereRadius(0.0f);
-	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &USFExplosionComponent::OnExplosionOverlap);
-	SphereComponent->SetSphereRadius(OuterRad);
-	SphereComponent->DestroyComponent();
+	RadialForceComponent->Radius = 0.0f;
 }
 
 void USFExplosionComponent::OnExplosionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,

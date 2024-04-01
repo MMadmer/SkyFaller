@@ -98,8 +98,7 @@ void AEXPrefab::ConvertMeshToHism()
 {
 	ClearAllHism();
 
-	TSet<FUniqueMesh> UniqueMeshes;
-	TSet<AStaticMeshActor*> MeshActors;
+	TMap<FUniqueMesh, TArray<AStaticMeshActor*>> UniqueMeshes;
 
 	TArray<AActor*> Actors;
 	GetAttachedActors(Actors);
@@ -110,8 +109,6 @@ void AEXPrefab::ConvertMeshToHism()
 		// Check to static mesh actor
 		const auto& MeshActor = Cast<AStaticMeshActor>(Actor);
 		if (!MeshActor) continue;
-
-		MeshActors.Add(MeshActor);
 
 		// Check static mesh component and static mesh
 		const UStaticMeshComponent* MeshComp = Cast<UStaticMeshComponent>(
@@ -130,13 +127,17 @@ void AEXPrefab::ConvertMeshToHism()
 
 		// Add unique mesh by static mesh and component materials
 		FUniqueMesh Mesh{MeshComp->GetStaticMesh(), MeshComp->GetMaterials()};
-		UniqueMeshes.Add(Mesh);
+		UniqueMeshes.FindOrAdd(Mesh).Add(MeshActor);
 	}
 
 	// Replace unique meshes with HISM
 	int32 Counter = 0;
 	for (const auto& UniqueMesh : UniqueMeshes)
 	{
+		// Check by minimum allowed the same static mesh actors count
+		if (UniqueMesh.Value.Num() < MinMeshesToHism) continue;
+		
+		// Create new HISM
 		UHierarchicalInstancedStaticMeshComponent* NewHism = NewObject<UHierarchicalInstancedStaticMeshComponent>(
 			this, FName(FString::Printf(TEXT("HISM_%i"), Counter++)));
 		if (!NewHism) continue;
@@ -145,18 +146,20 @@ void AEXPrefab::ConvertMeshToHism()
 		NewHism->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
 		NewHism->UpdateCollisionProfile();
 
-		NewHism->SetStaticMesh(UniqueMesh.StaticMesh);
-		for (int32 MatIndex = 0; MatIndex < UniqueMesh.Materials.Num(); MatIndex++)
+		// Update HISM params
+		NewHism->SetStaticMesh(UniqueMesh.Key.StaticMesh);
+		for (int32 MatIndex = 0; MatIndex < UniqueMesh.Key.Materials.Num(); MatIndex++)
 		{
-			NewHism->SetMaterial(MatIndex, UniqueMesh.Materials[MatIndex]);
+			NewHism->SetMaterial(MatIndex, UniqueMesh.Key.Materials[MatIndex]);
 		}
 
+		// Replace static mesh actors with HISM
 		bool bFirstActor = true;
-
-		for (const auto& MeshActor : MeshActors)
+		for (const auto& MeshActor : UniqueMesh.Value)
 		{
 			const auto& MeshComp = MeshActor->GetStaticMeshComponent();
-			if (!MeshComp || !MeshComp->GetStaticMesh() || MeshComp->GetStaticMesh() != UniqueMesh.StaticMesh) continue;
+			if (!MeshComp || !MeshComp->GetStaticMesh() || MeshComp->GetStaticMesh() != UniqueMesh.Key.StaticMesh)
+				continue;
 
 			FTransform RelativeTransform = MeshActor->GetActorTransform().GetRelativeTransform(GetActorTransform());
 			if (bFirstActor)

@@ -13,10 +13,26 @@ DEFINE_LOG_CATEGORY_STATIC(LogMineTrap, All, All)
 ASFMineTrap::ASFMineTrap()
 {
 	ExplosionComponent = CreateDefaultSubobject<USFExplosionComponent>("ExplosionComponent");
-	InnerSphere = CreateDefaultSubobject<USphereComponent>("InnerSphere");
-	OuterSphere = CreateDefaultSubobject<USphereComponent>("OuterSphere");
+	Damage = ExplosionComponent->GetDamage();
 	
+	InnerSphere = CreateDefaultSubobject<USphereComponent>("InnerSphere");
+	InnerSphere->SetupAttachment(TrapMesh);
+	
+	OuterSphere = CreateDefaultSubobject<USphereComponent>("OuterSphere");
+	OuterSphere->SetupAttachment(InnerSphere);
+
 	TickSound = nullptr;
+}
+
+void ASFMineTrap::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+
+	if (!ExplosionComponent) return;
+
+	Damage = ExplosionComponent->GetDamage();
+	if (InnerSphere) InnerSphere->SetSphereRadius(ExplosionComponent->GetInnerRadius());
+	if (OuterSphere) OuterSphere->SetSphereRadius(ExplosionComponent->GetOuterRadius());
 }
 
 void ASFMineTrap::BeginPlay()
@@ -28,8 +44,8 @@ void ASFMineTrap::BeginPlay()
 
 	InnerSphere->SetSphereRadius(ExplosionComponent->GetInnerRadius());
 	OuterSphere->SetSphereRadius(ExplosionComponent->GetOuterRadius());
-	InnerSphere->AttachToComponent(TrapMesh, FAttachmentTransformRules::KeepRelativeTransform);
-	OuterSphere->AttachToComponent(TrapMesh, FAttachmentTransformRules::KeepRelativeTransform);
+	// InnerSphere->AttachToComponent(TrapMesh, FAttachmentTransformRules::KeepRelativeTransform);
+	// OuterSphere->AttachToComponent(TrapMesh, FAttachmentTransformRules::KeepRelativeTransform);
 
 	TrapMesh->OnComponentHit.AddDynamic(this, &ASFMineTrap::OnHit);
 	InnerSphere->OnComponentBeginOverlap.AddDynamic(this, &ASFMineTrap::OnInnerOverlap);

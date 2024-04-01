@@ -20,24 +20,25 @@ public:
 	ASFMineTrap();
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Components")
 	USFExplosionComponent* ExplosionComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	USphereComponent* InnerSphere;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	USphereComponent* OuterSphere;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sounds")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Sounds")
 	USoundCue* TickSound;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sounds", meta = (ClampMin = "0"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Sounds", meta = (ClampMin="0", UIMin="0"))
 	float TimerTime = 0.5f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sounds", meta = (ClampMin = "0"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Sounds", meta = (ClampMin="0", UIMin="0"))
 	float TimerTick = 0.1f;
 
+	virtual void OnConstruction(const FTransform& Transform) override;
 	virtual void BeginPlay() override;
 
 private:
