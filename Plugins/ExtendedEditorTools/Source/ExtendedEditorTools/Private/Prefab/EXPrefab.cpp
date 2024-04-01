@@ -3,7 +3,9 @@
 
 #include "Prefab/EXPrefab.h"
 
+#include "Components/HierarchicalInstancedStaticMeshComponent.h"
 #include "Engine/StaticMeshActor.h"
+#include "ExtendedEditorTools/EXCoreTypes.h"
 
 AEXPrefab::AEXPrefab()
 {
@@ -12,29 +14,30 @@ AEXPrefab::AEXPrefab()
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	SetRootComponent(StaticMesh);
-
 }
 
 void AEXPrefab::BeginPlay()
 {
 	Super::BeginPlay();
-	
+}
+
+void AEXPrefab::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	ClearAttachedObjects();
 }
 
 void AEXPrefab::SpawnAllObjects()
 {
 	// Get all scene components
-	TArray<UActorComponent*> SceneComponents;
-	GetComponents(USceneComponent::StaticClass(), SceneComponents);
+	TArray<USceneComponent*> SceneComponents;
+	GetComponents<USceneComponent>(SceneComponents);
 
-	for (const auto& ActorComponent : SceneComponents)
+	for (const auto& SceneComponent : SceneComponents)
 	{
-		// Get scene component
-		const auto& SceneComponent = Cast<USceneComponent>(ActorComponent);
-		if (!SceneComponent) continue;
-
 		// Get info structure
-		const auto& Info = SpawnObjects.Find(ActorComponent->GetFName());
+		const auto& Info = SpawnObjects.Find(SceneComponent->GetFName());
 		if (!Info) continue;
 
 		// Get hard spawn class reference
@@ -72,11 +75,13 @@ void AEXPrefab::SpawnAllObjects()
 				continue;
 			}
 			MeshComp->SetStaticMesh(Mesh);
+			MeshComp->SetCollisionProfileName(Info->CollisionPreset);
+			MeshComp->UpdateCollisionProfile();
 		}
 	}
 }
 
-void AEXPrefab::ClearSpawnedObjects() const
+void AEXPrefab::ClearAttachedObjects()
 {
 	TArray<AActor*> AttachedActors;
 	GetAttachedActors(AttachedActors);
@@ -84,5 +89,94 @@ void AEXPrefab::ClearSpawnedObjects() const
 	for (const auto& AttachedActor : AttachedActors)
 	{
 		AttachedActor->Destroy();
+	}
+
+	ClearAllHism();
+}
+
+void AEXPrefab::ConvertMeshToHism()
+{
+	ClearAllHism();
+
+	TSet<FUniqueMesh> UniqueMeshes;
+	TSet<AStaticMeshActor*> MeshActors;
+
+	TArray<AActor*> Actors;
+	GetAttachedActors(Actors);
+
+	// Get unique meshes
+	for (const auto& Actor : Actors)
+	{
+		// Check to static mesh actor
+		const auto& MeshActor = Cast<AStaticMeshActor>(Actor);
+		if (!MeshActor) continue;
+
+		MeshActors.Add(MeshActor);
+
+		// Check static mesh component and static mesh
+		const UStaticMeshComponent* MeshComp = Cast<UStaticMeshComponent>(
+			Actor->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+		if (!(MeshComp && MeshComp->GetStaticMesh())) continue;
+
+		bool IsValidMaterial = true;
+		for (const auto& Material : MeshComp->GetMaterials())
+		{
+			if (!Material->GetBaseMaterial()->bUsedWithInstancedStaticMeshes)
+			{
+				IsValidMaterial = false;
+			}
+		}
+		if (!IsValidMaterial) continue;
+
+		// Add unique mesh by static mesh and component materials
+		FUniqueMesh Mesh{MeshComp->GetStaticMesh(), MeshComp->GetMaterials()};
+		UniqueMeshes.Add(Mesh);
+	}
+
+	// Replace unique meshes with HISM
+	int32 Counter = 0;
+	for (const auto& UniqueMesh : UniqueMeshes)
+	{
+		UHierarchicalInstancedStaticMeshComponent* NewHism = NewObject<UHierarchicalInstancedStaticMeshComponent>(
+			this, FName(FString::Printf(TEXT("HISM_%i"), Counter++)));
+		if (!NewHism) continue;
+		NewHism->RegisterComponent();
+		AddInstanceComponent(NewHism);
+		NewHism->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
+		NewHism->UpdateCollisionProfile();
+
+		NewHism->SetStaticMesh(UniqueMesh.StaticMesh);
+		for (int32 MatIndex = 0; MatIndex < UniqueMesh.Materials.Num(); MatIndex++)
+		{
+			NewHism->SetMaterial(MatIndex, UniqueMesh.Materials[MatIndex]);
+		}
+
+		bool bFirstActor = true;
+
+		for (const auto& MeshActor : MeshActors)
+		{
+			const auto& MeshComp = MeshActor->GetStaticMeshComponent();
+			if (!MeshComp || !MeshComp->GetStaticMesh() || MeshComp->GetStaticMesh() != UniqueMesh.StaticMesh) continue;
+
+			FTransform RelativeTransform = MeshActor->GetActorTransform().GetRelativeTransform(GetActorTransform());
+			if (bFirstActor)
+			{
+				NewHism->SetCollisionProfileName(MeshComp->GetCollisionProfileName());
+				bFirstActor = false;
+			}
+			NewHism->AddInstance(RelativeTransform);
+			MeshActor->Destroy();
+		}
+	}
+}
+
+void AEXPrefab::ClearAllHism() const
+{
+	TArray<UHierarchicalInstancedStaticMeshComponent*> Components;
+	GetComponents<UHierarchicalInstancedStaticMeshComponent>(Components);
+
+	for (const auto& Component : Components)
+	{
+		Component->DestroyComponent();
 	}
 }

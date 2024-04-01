@@ -4,30 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Prefab/EXPrefab.h"
 #include "SFPlatform.generated.h"
 
 class UStaticMeshComponent;
-class ABaseCharacter;
 class ASFTarget;
-class USFTrapComponent;
-
-USTRUCT(BlueprintType)
-struct FAssets
-{
-	GENERATED_USTRUCT_BODY()
-
-	FAssets()
-	{
-		Platform = nullptr;
-		Skin = nullptr;
-	}
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UStaticMesh* Platform;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UStaticMesh* Skin;
-};
 
 UCLASS()
 class SKYFALLER_API ASFPlatform : public AActor
@@ -38,12 +19,14 @@ public:
 	ASFPlatform();
 	virtual void Tick(float DeltaTime) override;
 
-	UStaticMeshComponent* GetMesh() const { return PlatformMesh; };
 	int32 GetSelfID() const { return SelfID; };
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Assets")
-	TArray<FAssets> Assets;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Variation")
+	TArray<TSoftClassPtr<AEXPrefab>> Assets;
+
+	UPROPERTY(BlueprintReadOnly, Category="Variation")
+	AActor* PlatformVariation;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement")
 	float Threshold = 750.0f;
@@ -64,7 +47,7 @@ protected:
 	float Amplitude = 10.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn", meta = (ClampMin = "0", ClampMax = "180"))
-	float SpawnAngle = 40.0f;
+	float SpawnAngle = 30.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
 	float SpawnY = 5000.0f;
@@ -91,24 +74,15 @@ protected:
 	float MinDist = 350.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
-	int32 HubIndentID = 20;
+	uint8 HubIndentID = 20;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
-	USFTrapComponent* TrapComponent;
-
-	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite, Category = "Components")
-	UStaticMeshComponent* PlatformMesh;
-
-	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite, Category = "Components")
-	UStaticMeshComponent* SkinMesh;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Spawn")
 	TSubclassOf<ASFPlatform> PlatformClass;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Points System")
 	TSubclassOf<ASFTarget> TargetClass;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Points system")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Points System")
 	float RewardPoints = 5.0f;
 
 	virtual void BeginPlay() override;
@@ -120,7 +94,7 @@ protected:
 	float LocalTime = 0.0f;
 	bool bDespawned = false;
 	TArray<int32> AssetsIndexes;
-	const float MESH_RADIUS = 742.0f; // Platform "bounds"(not real)
+	const float PLATFORM_RADIUS = 742.0f; // Platform "bounds"(not real)
 	float GlobalRotation = 0.0f;
 	float ZeroY = 0.0f;
 	int32 SelfID = 0;
@@ -131,12 +105,12 @@ protected:
 	           FVector NormalImpulse, const FHitResult& Hit);
 
 	void SetTemplate();
-	void SpawnNext(UWorld* World, ABaseCharacter* Player);
+	void SpawnNext();
 	static void ScoringPoints(APlayerState* PlayerState, float Points);
 	void Spawner(float DeltaTime);
 	void Despawner(float DeltaTime);
 	void Mover(float DeltaTime);
-	void SpawnTarget(UWorld* World, ABaseCharacter* Player, ASFPlatform* NewTarget) const;
+	void SpawnTarget() ;
 
 	void ListenerConnecting();
 };

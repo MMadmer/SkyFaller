@@ -18,7 +18,8 @@ public class SkyFaller : ModuleRules
 			"Kismet",
 			"UnrealEd",
 			"AssetTools",
-			"AssetRegistry"
+			"AssetRegistry",
+			"ExtendedEditorTools"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

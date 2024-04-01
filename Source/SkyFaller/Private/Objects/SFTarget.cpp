@@ -55,8 +55,4 @@ void ASFTarget::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPr
 	StaticMeshComponent->AddForceAtLocation(Force, Hit.ImpactPoint);
 
 	SetLifeSpan(LifeSpan);
-	// UE_LOG(LogTarget, Display, TEXT("ArrowSpeed: %f"), Arrow->GetVelocity().Size());
-	// Arrow->SetActorHiddenInGame(true);
-	// Arrow->SetLifeSpan(Arrow->GetLifeHitTrace() + 0.1f);
-	// Destroy();
 }

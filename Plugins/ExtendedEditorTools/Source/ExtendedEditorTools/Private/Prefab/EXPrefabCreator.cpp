@@ -73,13 +73,14 @@ void AEXPrefabCreator::CreatePrefab()
 		NewSceneComponent->RegisterComponent();
 		ParentActor->AddInstanceComponent(NewSceneComponent);
 
-		if (Actor->IsA(AStaticMeshActor::StaticClass()))
+		if (Cast<AStaticMeshActor>(Actor))
 		{
 			const auto& MeshComp = Cast<UStaticMeshComponent>(Actor->GetRootComponent());
 			if (!(MeshComp && MeshComp->GetStaticMesh())) continue;
 
 			ParentActor->SpawnObjects.Add(Actor->GetFName(),
-			                              FPrefabInfo(Actor->GetClass(), MeshComp->GetStaticMesh()));
+			                              FPrefabInfo(Actor->GetClass(), MeshComp->GetStaticMesh(),
+			                                          MeshComp->GetCollisionProfileName()));
 		}
 		else
 		{

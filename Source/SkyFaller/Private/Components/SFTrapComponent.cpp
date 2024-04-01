@@ -27,29 +27,42 @@ void USFTrapComponent::SpawnTraps()
 		const ASFTrap* Trap = Cast<ASFTrap>(AttachedActor);
 		if (!Trap) continue;
 
-		// Get max traps of type if trap can be spawned
-		const uint8* MaxTypeTraps = Traps.Find(Trap->GetClass()->StaticClass());
-		if (!MaxTypeTraps)
+		if (bHasLimit)
 		{
+			// Get max traps of type if trap can be spawned
+			const uint8* MaxTypeTraps = Traps.Find(Trap->GetClass()->StaticClass());
+			if (!MaxTypeTraps)
+			{
+				AttachedActor->Destroy();
+				continue;
+			}
+
+			// Get already "spawned" traps by type
+			uint8& TypeSpawnedCount = SpawnedTraps.FindOrAdd(Trap->GetClass()->StaticClass());
+			if (TypeSpawnedCount >= *MaxTypeTraps)
+			{
+				AttachedActor->Destroy();
+				continue;
+			}
+
+			// "Spawn" trap
+			if (Trap->GetSpawnChanceNorm() >= FMath::FRandRange(0.0f, 1.0f))
+			{
+				TypeSpawnedCount++;
+				continue;
+			}
+
 			AttachedActor->Destroy();
-			continue;
 		}
-
-		// Get already "spawned" traps by type
-		uint8& TypeSpawnedCount = SpawnedTraps.FindOrAdd(Trap->GetClass()->StaticClass());
-		if (TypeSpawnedCount >= *MaxTypeTraps)
+		else
 		{
+			// "Spawn" trap
+			if (Trap->GetSpawnChanceNorm() >= FMath::FRandRange(0.0f, 1.0f))
+			{
+				continue;
+			}
+
 			AttachedActor->Destroy();
-			continue;
 		}
-
-		// "Spawn" trap
-		if (Trap->GetSpawnChanceNorm() >= FMath::FRandRange(0.0f, 1.0f))
-		{
-			TypeSpawnedCount++;
-			continue;
-		}
-
-		AttachedActor->Destroy();
 	}
 }

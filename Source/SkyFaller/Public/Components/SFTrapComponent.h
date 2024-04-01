@@ -15,10 +15,14 @@ class SKYFALLER_API USFTrapComponent : public UActorComponent
 public:
 	USFTrapComponent();
 
+	UFUNCTION(BlueprintCallable, Category="Traps", meta=(Keywords="Spawn Traps"))
 	void SpawnTraps();
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Traps")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Traps")
+	bool bHasLimit = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traps", meta=(EditCondition="bHasLimit"))
 	TMap<TSubclassOf<ASFTrap>, uint8> Traps;
 
 	virtual void BeginPlay() override;

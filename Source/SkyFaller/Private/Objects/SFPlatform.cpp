@@ -4,27 +4,18 @@
 #include "Objects/SFPlatform.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/Character.h"
-#include "Player/BaseCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "SFListener.h"
 #include "SFPlayerState.h"
 #include "Objects/SFTarget.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Components/SFTrapComponent.h"
 #include "GameFramework/WorldSettings.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogPlatform, All, All)
 
-ASFPlatform::ASFPlatform()
+ASFPlatform::ASFPlatform() : PlatformVariation(nullptr)
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	PlatformMesh = CreateDefaultSubobject<UStaticMeshComponent>("PlatformMesh");
-	SkinMesh = CreateDefaultSubobject<UStaticMeshComponent>("SkinMesh");
-	SetRootComponent(PlatformMesh);
-	SkinMesh->SetupAttachment(PlatformMesh);
-
-	TrapComponent = CreateDefaultSubobject<USFTrapComponent>("TrapComponent");
 }
 
 void ASFPlatform::BeginPlay()
@@ -33,9 +24,7 @@ void ASFPlatform::BeginPlay()
 
 	SetTemplate();
 
-	TrapComponent->SpawnTraps();
-
-	PlatformMesh->OnComponentHit.AddDynamic(this, &ASFPlatform::OnHit);
+	if (FMath::RandBool()) SpawnTarget();
 
 	ListenerConnecting();
 
@@ -60,10 +49,9 @@ void ASFPlatform::Tick(float DeltaTime)
 void ASFPlatform::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                         FVector NormalImpulse, const FHitResult& Hit)
 {
-	const auto World = GetWorld();
-	if (!World || bTouched) return;
+	if (bTouched) return;
 
-	const auto Player = Cast<ABaseCharacter>(OtherActor);
+	const auto Player = Cast<ACharacter>(OtherActor);
 	if (!Player) return;
 
 	if (Player->GetCharacterMovement()->IsFalling()) return;
@@ -71,7 +59,7 @@ void ASFPlatform::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 	bTouched = true;
 
 	ScoringPoints(Player->GetPlayerState(), RewardPoints);
-	SpawnNext(World, Player);
+	SpawnNext();
 }
 
 void ASFPlatform::SetTemplate()
@@ -89,13 +77,47 @@ void ASFPlatform::SetTemplate()
 	while (AssetsIndexes.Contains(CurrentIndex));
 	AssetsIndexes.Add(CurrentIndex);
 
-	const FAssets Asset = Assets[CurrentIndex];
+	const auto Asset = Assets[CurrentIndex];
+	const auto& AssetClass = Asset.LoadSynchronous();
+	if (!AssetClass)
+	{
+		UE_LOG(LogPlatform, Warning, TEXT("Platform variation class not loaded."));
+		return;
+	}
 
-	PlatformMesh->SetStaticMesh(Asset.Platform);
-	SkinMesh->SetStaticMesh(Asset.Skin);
+	if (PlatformVariation)
+	{
+		TArray<AActor*> Actors;
+		PlatformVariation->GetAttachedActors(Actors);
+		for (const auto& Actor : Actors)
+		{
+			Actor->Destroy();
+		}
+
+		PlatformVariation->Destroy();
+	}
+
+	PlatformVariation = GetWorld()->SpawnActor(AssetClass, &GetActorTransform());
+	if (!PlatformVariation)
+	{
+		UE_LOG(LogPlatform, Warning, TEXT("Platform variation instance not loaded."));
+		return;
+	}
+
+	PlatformVariation->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale);
+
+	UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(
+		PlatformVariation->GetComponentByClass(UPrimitiveComponent::StaticClass()));
+	if (!PrimComp)
+	{
+		UE_LOG(LogPlatform, Warning, TEXT("Platform variation instance doesn't have a primitive component."));
+		return;
+	}
+
+	PrimComp->OnComponentHit.AddDynamic(this, &ASFPlatform::OnHit);
 }
 
-void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
+void ASFPlatform::SpawnNext()
 {
 	// Set new platform spawn location and rotation
 	float NextAngle;
@@ -123,20 +145,21 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 
 	GlobalRotation += SpawnDirection.Yaw;
 
-	ASFPlatform* NewPlatform = World->SpawnActorDeferred<ASFPlatform>(PlatformClass, SpawnTransform);
+	ASFPlatform* NewPlatform = GetWorld()->SpawnActorDeferred<ASFPlatform>(PlatformClass, SpawnTransform);
 	NewPlatform->SelfID = SelfID + 1;
-	NewPlatform->bIsHub = (int32)(NewPlatform->SelfID % HubIndentID) == 0;
+	NewPlatform->bIsHub = NewPlatform->SelfID % HubIndentID == 0;
 	NewPlatform->ZeroY = ZeroY;
 	NewPlatform->AssetsIndexes.Append(AssetsIndexes);
 
 	// Update spawn transform
-	SpawnLocation = GetActorLocation() + (GetActorRotation() + SpawnDirection).Vector() * (MESH_RADIUS +
-		FMath::RandRange(MinDist, MaxDist) + NewPlatform->MESH_RADIUS); // Get end point of new platform spawn location
+	SpawnLocation = GetActorLocation() + (GetActorRotation() + SpawnDirection).Vector() * (PLATFORM_RADIUS +
+		FMath::RandRange(MinDist, MaxDist) + NewPlatform->PLATFORM_RADIUS);
+	// Get end point of new platform spawn location
 	if ((SpawnLocation.Y > ZeroY + SpawnY) || (SpawnLocation.Y < ZeroY - SpawnY)) // Invisible spawn borders
 	{
 		SpawnLocation.Y > ZeroY + SpawnY ? SpawnDirection.Yaw = -SpawnAngle : SpawnDirection.Yaw = SpawnAngle;
-		SpawnLocation = GetActorLocation() + (GetActorRotation() + SpawnDirection).Vector() * (MESH_RADIUS +
-			FMath::RandRange(MinDist, MaxDist) + NewPlatform->MESH_RADIUS);
+		SpawnLocation = GetActorLocation() + (GetActorRotation() + SpawnDirection).Vector() * (PLATFORM_RADIUS +
+			FMath::RandRange(MinDist, MaxDist) + NewPlatform->PLATFORM_RADIUS);
 	}
 	SpawnLocation.Z += NewPlatform->SpawnHeight;
 	SpawnRotation = FRotator(0.0f, (GetActorLocation() - SpawnLocation).ToOrientationRotator().Yaw + 180.0f, 0.0f);
@@ -153,9 +176,6 @@ void ASFPlatform::SpawnNext(UWorld* World, ABaseCharacter* Player)
 	NewPlatform->GlobalRotation = GlobalRotation;
 
 	// UE_LOG(LogPlatform, Display, TEXT("Global rotation:  %f"), GlobalRotation);
-
-	// Target
-	if (FMath::RandBool()) SpawnTarget(World, Player, NewPlatform);
 }
 
 void ASFPlatform::ScoringPoints(APlayerState* PlayerState, const float Points)
@@ -199,10 +219,8 @@ void ASFPlatform::Despawner(const float DeltaTime)
 
 void ASFPlatform::Mover(float DeltaTime)
 {
-	if (!GetWorld()) return;
-
 	const APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	const auto Player = Cast<ABaseCharacter>(PlayerController->GetPawn());
+	const auto Player = PlayerController->GetPawn();
 	if (Player)
 	{
 		if (FMath::Abs((Player->GetActorLocation() - GetActorLocation()).Size()) > DespawnDist && bTouched)
@@ -226,32 +244,45 @@ void ASFPlatform::Mover(float DeltaTime)
 	SetActorLocation(GetActorRightVector() * CurrentOffset + NewLocation);
 
 	Offset += CurrentOffset;
-	// UE_LOG(LogPlatform, Display, TEXT("Speed %f"), CurrentSpeed);
-	// UE_LOG(LogPlatform, Display, TEXT("Offset %f"), Offset);
 }
 
-void ASFPlatform::SpawnTarget(UWorld* World, ABaseCharacter* Player, ASFPlatform* NewPlatform) const
+void ASFPlatform::SpawnTarget()
 {
+	if (!PlatformVariation)
+	{
+		UE_LOG(LogPlatform, Warning, TEXT("Can't spawn target. Platform variation doesn't exists."));
+		return;
+	}
+
+	const UPrimitiveComponent* PlatformPrim = Cast<UPrimitiveComponent>(
+		PlatformVariation->GetComponentByClass(UPrimitiveComponent::StaticClass()));
+	if (!PlatformPrim)
+	{
+		UE_LOG(LogPlatform, Warning, TEXT("Can't spawn target. Platform variation doesn't have primitive component."));
+		return;
+	}
+
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride =
 		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
-	// Spawn Coords
-	FVector TargetLocation = NewPlatform->GetActorLocation();
-	TargetLocation.X += NewPlatform->PlatformMesh->Bounds.BoxExtent.X + FMath::RandRange(50.0f, 75.0f);
+	// Spawn coords
+	FVector TargetLocation = GetActorLocation();
+	TargetLocation.X += PlatformPrim->Bounds.BoxExtent.X + FMath::RandRange(50.0f, 75.0f);
 	TargetLocation.Y += FMath::RandRange(
-		-NewPlatform->PlatformMesh->Bounds.BoxExtent.Y - FMath::RandRange(50.0f, 75.0f),
-		NewPlatform->PlatformMesh->Bounds.BoxExtent.Y + FMath::RandRange(50.0f, 75.0f)
+		-PlatformPrim->Bounds.BoxExtent.Y - FMath::RandRange(50.0f, 75.0f),
+		PlatformPrim->Bounds.BoxExtent.Y + FMath::RandRange(50.0f, 75.0f)
 	);
 	TargetLocation.Z += FMath::RandRange(150.0f, 700.0f);
 
 	// Rotate to spawned platform
-	const FRotator TargetRotation = (NewPlatform->GetActorLocation() - TargetLocation).ToOrientationRotator();
+	const FRotator TargetRotation = (GetActorLocation() - TargetLocation).ToOrientationRotator();
 
 	// Spawn and attach to spawned platform
-	const auto NewTarget = World->SpawnActor<ASFTarget>(TargetClass, TargetLocation, TargetRotation, SpawnParams);
+	const auto NewTarget = GetWorld()->SpawnActor<ASFTarget>(TargetClass, TargetLocation, TargetRotation, SpawnParams);
 	if (!NewTarget) return;
-	NewTarget->AttachToActor(NewPlatform, FAttachmentTransformRules::KeepWorldTransform);
+
+	NewTarget->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
 }
 
 // Move fog to player after step on platform
@@ -272,9 +303,26 @@ void ASFPlatform::ListenerConnecting()
 			break;
 		}
 	}
-	if (ListenerInst)
+	if (!ListenerInst)
 	{
-		// UE_LOG(LogPlatform, Display, TEXT("Listener added"));
-		PlatformMesh->OnComponentHit.AddDynamic(ListenerInst, &ASFListener::OnPlatformHit);
+		UE_LOG(LogPlatform, Warning, TEXT("Can't connect listener. Listener not found."));
+		return;
 	}
+
+	if (!PlatformVariation)
+	{
+		UE_LOG(LogPlatform, Warning, TEXT("Can't connect listener. Platform variation instance doesn't exists."));
+		return;
+	}
+
+	UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(
+		PlatformVariation->GetComponentByClass(UPrimitiveComponent::StaticClass()));
+	if (!PrimComp)
+	{
+		UE_LOG(LogPlatform, Warning,
+		       TEXT("Can't connect listener. Platform variation instance doesn't have a primitive component."));
+		return;
+	}
+
+	PrimComp->OnComponentHit.AddDynamic(ListenerInst, &ASFListener::OnPlatformHit);
 }
