@@ -21,9 +21,14 @@ public:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Traps")
 	bool bHasLimit = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traps", meta=(EditCondition="bHasLimit"))
+	bool bWhiteList = true;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traps", meta=(EditCondition="bHasLimit"))
 	TMap<TSubclassOf<ASFTrap>, uint8> Traps;
 
 	virtual void BeginPlay() override;
+
+	static void SpawnTrap(ASFTrap* Trap, uint8* TypeSpawnedCount = nullptr, const uint8* MaxTypeTraps = nullptr);
 };

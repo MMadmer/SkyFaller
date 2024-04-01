@@ -24,45 +24,60 @@ void USFTrapComponent::SpawnTraps()
 	for (const auto& AttachedActor : AttachedActors)
 	{
 		// Is trap
-		const ASFTrap* Trap = Cast<ASFTrap>(AttachedActor);
+		ASFTrap* Trap = Cast<ASFTrap>(AttachedActor);
 		if (!Trap) continue;
 
 		if (bHasLimit)
 		{
-			// Get max traps of type if trap can be spawned
-			const uint8* MaxTypeTraps = Traps.Find(Trap->GetClass()->StaticClass());
-			if (!MaxTypeTraps)
+			if (bWhiteList)
 			{
-				AttachedActor->Destroy();
-				continue;
-			}
+				// Get max traps of type if trap can be spawned
+				const uint8* MaxTypeTraps = Traps.Find(Trap->GetClass());
+				if (!MaxTypeTraps)
+				{
+					Trap->Destroy();
+					continue;
+				}
 
-			// Get already "spawned" traps by type
-			uint8& TypeSpawnedCount = SpawnedTraps.FindOrAdd(Trap->GetClass()->StaticClass());
-			if (TypeSpawnedCount >= *MaxTypeTraps)
+				SpawnTrap(Trap, &SpawnedTraps.FindOrAdd(Trap->GetClass()->StaticClass()), MaxTypeTraps);
+			}
+			else
 			{
-				AttachedActor->Destroy();
-				continue;
+				// Get traps from blacklist
+				const uint8* MaxTypeTraps = Traps.Find(Trap->GetClass());
+				if (MaxTypeTraps)
+				{
+					SpawnTrap(Trap, &SpawnedTraps.FindOrAdd(Trap->GetClass()->StaticClass()), MaxTypeTraps);
+				}
+				else
+				{
+					SpawnTrap(Trap);
+				}
 			}
-
-			// "Spawn" trap
-			if (Trap->GetSpawnChanceNorm() >= FMath::FRandRange(0.0f, 1.0f))
-			{
-				TypeSpawnedCount++;
-				continue;
-			}
-
-			AttachedActor->Destroy();
 		}
 		else
 		{
-			// "Spawn" trap
-			if (Trap->GetSpawnChanceNorm() >= FMath::FRandRange(0.0f, 1.0f))
-			{
-				continue;
-			}
-
-			AttachedActor->Destroy();
+			SpawnTrap(Trap);
 		}
 	}
+}
+
+void USFTrapComponent::SpawnTrap(ASFTrap* Trap, uint8* TypeSpawnedCount, const uint8* MaxTypeTraps)
+{
+	if (TypeSpawnedCount && MaxTypeTraps)
+	{
+		if (*TypeSpawnedCount >= *MaxTypeTraps)
+		{
+			Trap->Destroy();
+			return;
+		}
+	}
+
+	if (Trap->GetSpawnChanceNorm() >= FMath::FRandRange(0.0f, 1.0f))
+	{
+		if (TypeSpawnedCount) (*TypeSpawnedCount)++;
+		return;
+	}
+
+	Trap->Destroy();
 }

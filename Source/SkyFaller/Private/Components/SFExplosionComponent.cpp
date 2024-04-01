@@ -19,7 +19,9 @@ USFExplosionComponent::USFExplosionComponent() : NiagaraSystem(nullptr), Explosi
 
 	RadialForceComponent = CreateDefaultSubobject<URadialForceComponent>("RadialForce");
 	RadialForceComponent->Radius = OuterRad;
-	
+	RadialForceComponent->ForceStrength = ExplosionForce;
+	RadialForceComponent->ImpulseStrength = ExplosionImpulse;
+
 	SphereComponent = CreateDefaultSubobject<USphereComponent>("DamageSphere");
 	SphereComponent->SetSphereRadius(OuterRad);
 	SphereComponent->SetCollisionResponseToAllChannels(ECR_Overlap);
@@ -28,16 +30,6 @@ USFExplosionComponent::USFExplosionComponent() : NiagaraSystem(nullptr), Explosi
 
 	RadialForceComponent->SetupAttachment(GetOwner()->GetRootComponent());
 	SphereComponent->SetupAttachment(GetOwner()->GetRootComponent());
-}
-
-void USFExplosionComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	RadialForceComponent->Radius = 0.0f;
-	
-	SphereComponent->SetSphereRadius(0.0f);
-	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &USFExplosionComponent::OnExplosionOverlap);
 }
 
 void USFExplosionComponent::Explode(const FVector& ImpactLocation)
@@ -86,25 +78,19 @@ void USFExplosionComponent::Explode(const FVector& ImpactLocation)
 
 void USFExplosionComponent::RadialDamage() const
 {
-	SphereComponent->SetSphereRadius(OuterRad);
-	SphereComponent->SetSphereRadius(0.0f, false);
+	TArray<AActor*> Actors;
+	SphereComponent->GetOverlappingActors(Actors);
 
-	RadialForceComponent->Radius = OuterRad;
-	RadialForceComponent->ForceStrength = ExplosionForce;
-	RadialForceComponent->ImpulseStrength = ExplosionImpulse;
+	for (const auto& Actor : Actors)
+	{
+		const float Distance = (Actor->GetActorLocation() - GetOwner()->GetActorLocation()).Size() - InnerRad;
+
+		const float DamageToTake = FMath::Clamp(
+			Damage * (MinDamage + (1 - MinDamage) * (1 - Distance / (OuterRad - InnerRad))),
+			Damage * MinDamage, Damage); // Modified parabolic interpolation
+
+		Actor->TakeDamage(DamageToTake, FDamageEvent::FDamageEvent(), nullptr, GetOwner());
+	}
+
 	RadialForceComponent->FireImpulse();
-	RadialForceComponent->Radius = 0.0f;
-}
-
-void USFExplosionComponent::OnExplosionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-                                               UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-                                               const FHitResult& SweepResult)
-{
-	const float Distance = (OtherActor->GetActorLocation() - GetOwner()->GetActorLocation()).Size() - InnerRad;
-
-	const float DamageToTake = FMath::Clamp(
-		Damage * (MinDamage + (1 - MinDamage) * (1 - Distance / (OuterRad - InnerRad))),
-		Damage * MinDamage, Damage); // Modified parabolic interpolation
-
-	OtherActor->TakeDamage(DamageToTake, FDamageEvent::FDamageEvent(), nullptr, GetOwner());
 }
