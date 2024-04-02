@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ExtendedEditorTools/EXCoreTypes.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Logging/LogVerbosity.h"
 #include "EXEditorFunctions.generated.h"
@@ -25,9 +26,8 @@ public:
 	CreateBlueprintFromActorInstance(AActor* ActorInstance, const FString& Path = "/Game/",
 	                                 const FString& Name = "BP_ActorBlueprint");
 
-	/** Send message notify to editor window and into output log.
-	 *  LogVerbosity: 4 is Display, 3 is Warning, 2 is Error. Default Info. Out of range is info.
-	 */
+	/** Send message notify to editor window and into output log. */
 	UFUNCTION(BlueprintCallable, Category="Extended Editor Tools", meta=(Keywords="Notify With Log"))
-	static void NotifyWithLog(const FString Message, const uint8& LogVerbosity = 4, const float Duration = 1.0f);
+	static void NotifyWithLog(const FString Message, const EEXLogVerbosity LogVerbosity = Display,
+	                          const float Duration = 1.0f);
 };

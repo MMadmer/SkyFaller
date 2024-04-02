@@ -80,29 +80,31 @@ UBlueprint* UEXEditorFunctions::CreateBlueprintFromActorInstance(AActor* ActorIn
 	return NewActorBlueprint;
 }
 
-void UEXEditorFunctions::NotifyWithLog(const FString Message, const uint8& LogVerbosity, const float Duration)
+void UEXEditorFunctions::NotifyWithLog(const FString Message, const EEXLogVerbosity LogVerbosity, const float Duration)
 {
 #if WITH_EDITORONLY_DATA
 	// Log message
 	FMessageLog MessageLog(FName(TEXT("EXEditorTools")));
 
 	FString VerbosityText = TEXT("Display: ");
-	EMessageSeverity::Type Level = EMessageSeverity::Info;
+	EMessageSeverity::Type Level;
 	switch (LogVerbosity)
 	{
-	case 4:
+	case Display:
 		Level = EMessageSeverity::Info;
 		VerbosityText = TEXT("Display: ");
 		break;
-	case 3:
+	case Warning:
 		Level = EMessageSeverity::Warning;
 		VerbosityText = TEXT("Warning: ");
 		break;
-	case 2:
+	case Error:
 		Level = EMessageSeverity::Error;
 		VerbosityText = TEXT("Error: ");
 		break;
-	default: ;
+	default:
+		Level = EMessageSeverity::Info;
+		VerbosityText = TEXT("Display: ");
 	}
 	MessageLog.Message(Level, FText::FromString(VerbosityText + Message));
 

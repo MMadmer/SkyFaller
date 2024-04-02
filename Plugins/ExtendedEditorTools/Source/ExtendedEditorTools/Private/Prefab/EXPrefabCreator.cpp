@@ -34,7 +34,7 @@ void AEXPrefabCreator::CreatePrefab()
 	const AEXPrefab* Prefab = FindAndRemovePrefab(Actors);
 	if (!Prefab)
 	{
-		UEXEditorFunctions::NotifyWithLog(TEXT("Prefab not found"), ELogVerbosity::Warning, 3.0f);
+		UEXEditorFunctions::NotifyWithLog(TEXT("Prefab not found"), Warning, 3.0f);
 		return;
 	}
 
@@ -44,7 +44,7 @@ void AEXPrefabCreator::CreatePrefab()
 	// Validate parent class.
 	if (!Prefab->GetClass()->IsChildOf(ParentClass))
 	{
-		UEXEditorFunctions::NotifyWithLog(TEXT("Parent class not valid"), ELogVerbosity::Warning, 3.0f);
+		UEXEditorFunctions::NotifyWithLog(TEXT("Parent class not valid"), Warning, 3.0f);
 		return;
 	}
 
@@ -52,7 +52,7 @@ void AEXPrefabCreator::CreatePrefab()
 	AEXPrefab* ParentActor = Cast<AEXPrefab>(GetWorld()->SpawnActor(ParentClass));
 	if (!ParentActor)
 	{
-		UEXEditorFunctions::NotifyWithLog(TEXT("Parent actor not spawned"), ELogVerbosity::Warning, 3.0f);
+		UEXEditorFunctions::NotifyWithLog(TEXT("Parent actor not spawned"), Warning, 3.0f);
 		return;
 	}
 	ParentActor->StaticMesh->SetStaticMesh(Prefab->StaticMesh->GetStaticMesh());
@@ -97,13 +97,13 @@ void AEXPrefabCreator::CreatePrefab()
 
 	if (!PrefabBlueprint)
 	{
-		UEXEditorFunctions::NotifyWithLog(TEXT("Prefab not created"), ELogVerbosity::Warning, 3.0f);
+		UEXEditorFunctions::NotifyWithLog(TEXT("Prefab not created"), Warning, 3.0f);
 		return;
 	}
 
-	UEXEditorFunctions::NotifyWithLog(TEXT("New prefab created"), ELogVerbosity::Display, 3.0f);
+	UEXEditorFunctions::NotifyWithLog(TEXT("New prefab created"), Display, 3.0f);
 	UEXEditorFunctions::NotifyWithLog(FString::Printf(TEXT("%s"), *PrefabBlueprint->GetPathName()),
-	                                  ELogVerbosity::Display, 3.0f);
+	                                  Display, 3.0f);
 #endif
 }
 
