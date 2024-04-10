@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ExtendedEditorTools/EXCoreTypes.h"
 #include "GameFramework/Actor.h"
 #include "EXPrefab.generated.h"
 
@@ -17,7 +18,7 @@ struct FPrefabInfo
 
 	/** Mesh to replace if spawn class is static mesh actor only. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Prefab Info")
-	TSoftObjectPtr<UStaticMesh> ClassMesh;
+	FUniqueMesh ClassMesh;
 
 	/** Mesh to replace if spawn class is static mesh actor only. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Prefab Info")
@@ -26,7 +27,7 @@ struct FPrefabInfo
 	FPrefabInfo()
 	{
 		SpawnClass = nullptr;
-		ClassMesh = nullptr;
+		ClassMesh = {};
 		CollisionPreset = TEXT("");
 	}
 
@@ -36,7 +37,7 @@ struct FPrefabInfo
 	}
 
 	FPrefabInfo(const TSoftClassPtr<AActor>& NewSpawnClass,
-	            const TSoftObjectPtr<UStaticMesh>& NewClassMesh,
+	            const FUniqueMesh& NewClassMesh,
 	            const FName& NewCollisionPreset) : FPrefabInfo(NewSpawnClass)
 	{
 		ClassMesh = NewClassMesh;

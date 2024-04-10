@@ -68,13 +68,21 @@ void AEXPrefab::SpawnAllObjects()
 				continue;
 			}
 
-			UStaticMesh* Mesh = Info->ClassMesh.LoadSynchronous();
+			UStaticMesh* Mesh = Info->ClassMesh.StaticMesh.LoadSynchronous();
 			if (!Mesh)
 			{
 				SpawnedActor->Destroy();
 				continue;
 			}
+
+			// Set saved static mesh and materials
 			MeshComp->SetStaticMesh(Mesh);
+			int32 MatIndex = 0;
+			for (const auto& SoftMaterial : Info->ClassMesh.Materials)
+			{
+				MeshComp->SetMaterial(MatIndex, SoftMaterial.LoadSynchronous());
+				MatIndex++;
+			}
 			MeshComp->SetCollisionProfileName(Info->CollisionPreset);
 			MeshComp->UpdateCollisionProfile();
 		}
@@ -98,7 +106,7 @@ void AEXPrefab::ConvertMeshToHism()
 {
 	ClearAllHism();
 
-	TMap<FUniqueMesh, TArray<AStaticMeshActor*>> UniqueMeshes;
+	TMap<FUniqueMesh, TSet<AStaticMeshActor*>> UniqueMeshes;
 
 	TArray<AActor*> Actors;
 	GetAttachedActors(Actors);
@@ -121,14 +129,21 @@ void AEXPrefab::ConvertMeshToHism()
 			if (!Material->GetBaseMaterial()->bUsedWithInstancedStaticMeshes)
 			{
 				IsValidMaterial = false;
+				break;
 			}
 		}
 		if (!IsValidMaterial) continue;
 
 		// Add unique mesh by static mesh and component materials
-		FUniqueMesh Mesh{MeshComp->GetStaticMesh(), MeshComp->GetMaterials()};
+		TArray<TSoftObjectPtr<UMaterialInterface>> SoftMaterials;
+		for (const auto& Material : MeshComp->GetMaterials())
+		{
+			SoftMaterials.Add(Material);
+		}
+		FUniqueMesh Mesh{MeshComp->GetStaticMesh(), SoftMaterials};
 		UniqueMeshes.FindOrAdd(Mesh).Add(MeshActor);
 	}
+	Actors.Empty();
 
 	// Replace unique meshes with HISM
 	int32 Counter = 0;
@@ -147,10 +162,10 @@ void AEXPrefab::ConvertMeshToHism()
 		NewHism->UpdateCollisionProfile();
 
 		// Update HISM params
-		NewHism->SetStaticMesh(UniqueMesh.Key.StaticMesh);
+		NewHism->SetStaticMesh(UniqueMesh.Key.StaticMesh.LoadSynchronous());
 		for (int32 MatIndex = 0; MatIndex < UniqueMesh.Key.Materials.Num(); MatIndex++)
 		{
-			NewHism->SetMaterial(MatIndex, UniqueMesh.Key.Materials[MatIndex]);
+			NewHism->SetMaterial(MatIndex, UniqueMesh.Key.Materials[MatIndex].LoadSynchronous());
 		}
 
 		// Replace static mesh actors with HISM

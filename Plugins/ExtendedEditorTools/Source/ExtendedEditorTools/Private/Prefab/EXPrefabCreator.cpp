@@ -77,8 +77,17 @@ void AEXPrefabCreator::CreatePrefab()
 			const auto& MeshComp = Cast<UStaticMeshComponent>(Actor->GetRootComponent());
 			if (!(MeshComp && MeshComp->GetStaticMesh())) continue;
 
+			// Save unique materials for prefab's static mesh
+			TArray<TSoftObjectPtr<UMaterialInterface>> SoftMaterials;
+			for (const auto& Material : MeshComp->GetMaterials())
+			{
+				SoftMaterials.Add(Material);
+			}
+
+			// Save prefab info
 			ParentActor->SpawnObjects.Add(Actor->GetFName(),
-			                              FPrefabInfo(Actor->GetClass(), MeshComp->GetStaticMesh(),
+			                              FPrefabInfo(Actor->GetClass(),
+			                                          {MeshComp->GetStaticMesh(), SoftMaterials},
 			                                          MeshComp->GetCollisionProfileName()));
 		}
 		else
@@ -101,8 +110,7 @@ void AEXPrefabCreator::CreatePrefab()
 		return;
 	}
 
-	UEXEditorFunctions::NotifyWithLog(TEXT("New prefab created"), Display, 3.0f);
-	UEXEditorFunctions::NotifyWithLog(FString::Printf(TEXT("%s"), *PrefabBlueprint->GetPathName()),
+	UEXEditorFunctions::NotifyWithLog(FString::Printf(TEXT("New prefab created: %s"), *PrefabBlueprint->GetPathName()),
 	                                  Display, 3.0f);
 #endif
 }
