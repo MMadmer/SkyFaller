@@ -89,7 +89,7 @@ void USFExplosionComponent::RadialDamage() const
 			Damage * (MinDamage + (1 - MinDamage) * (1 - Distance / (OuterRad - InnerRad))),
 			Damage * MinDamage, Damage); // Modified parabolic interpolation
 
-		Actor->TakeDamage(DamageToTake, FDamageEvent::FDamageEvent(), nullptr, GetOwner());
+		Actor->TakeDamage(DamageToTake, FDamageEvent(), nullptr, GetOwner());
 	}
 
 	RadialForceComponent->FireImpulse();

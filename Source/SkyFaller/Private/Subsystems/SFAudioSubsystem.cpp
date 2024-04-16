@@ -2,18 +2,34 @@
 
 
 #include "Subsystems/SFAudioSubsystem.h"
-#include "Sound/SoundCue.h"
 #include "Components/AudioComponent.h"
 
-void USFAudioSubsystem::PlayLevelAmbient(UAudioComponent* WorldAmbient, const TArray<USoundCue*> CurrentLevelAmbient)
+DEFINE_LOG_CATEGORY_STATIC(LogAudioSys, All, All);
+
+void USFAudioSubsystem::PlayLevelAmbient(UAudioComponent* WorldAmbient,
+                                         const TSet<TSoftObjectPtr<USoundBase>> CurrentLevelAmbient,
+                                         const float VolumeNorm)
 {
 	AudioComponent = WorldAmbient;
 	if (!AudioComponent) return;
 
+	// Volume settings
+	BaseAudioVolume = AudioComponent->VolumeMultiplier;
+	SetAmbientVolume(VolumeNorm);
+
 	AudioComponent->OnAudioFinished.AddDynamic(this, &USFAudioSubsystem::CycleAmbient);
+
 	if (LevelAmbient.Num() > 0) LevelAmbient.Empty();
+
 	LevelAmbient.Append(CurrentLevelAmbient);
 	CycleAmbient();
+}
+
+void USFAudioSubsystem::SetAmbientVolume(const float VolumeNorm) const
+{
+	if (!AudioComponent) return;
+
+	AudioComponent->SetVolumeMultiplier(FMath::Clamp(BaseAudioVolume * VolumeNorm, 0.001f, 1.0f));
 }
 
 void USFAudioSubsystem::CycleAmbient()
@@ -24,7 +40,11 @@ void USFAudioSubsystem::CycleAmbient()
 
 	if (Indexes.Num() >= LevelAmbient.Num()) Indexes.Empty();
 
-	if (!LevelAmbient.IsValidIndex(0)) return;
+	if (LevelAmbient.Num() == 0)
+	{
+		UE_LOG(LogAudioSys, Warning, TEXT("Ambient not found"));
+		return;
+	}
 
 	do
 	{
@@ -33,10 +53,16 @@ void USFAudioSubsystem::CycleAmbient()
 	while (Indexes.Contains(CurrentIndex));
 	Indexes.Add(CurrentIndex);
 
-	USoundCue* Song = LevelAmbient[CurrentIndex];
+	auto SoundIt = LevelAmbient.CreateIterator();
+	for (int32 i = 0; i < CurrentIndex; ++i)
+	{
+		++SoundIt;
+	}
+
+	USoundBase* Song = SoundIt->LoadSynchronous();
 	if (!Song) return;
 
 	AudioComponent->SetSound(Song);
 	AudioComponent->Play();
-	// UE_LOG(LogGameInstance, Display, TEXT("Ok %s"), *Song->GetName())
+	// UE_LOG(LogAudioSys, Display, TEXT("Ok %s"), *Song->GetName())
 }

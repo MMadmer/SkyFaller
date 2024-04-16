@@ -68,7 +68,11 @@ void ASFPlatform::SetTemplate()
 
 	if (AssetsIndexes.Num() >= Assets.Num()) AssetsIndexes.Empty();
 
-	if (!Assets.IsValidIndex(0)) return;
+	if (Assets.Num() == 0)
+	{
+		UE_LOG(LogPlatform, Warning, TEXT("Platform variations not found. Set is empty."));
+		return;
+	}
 
 	do
 	{
@@ -77,8 +81,13 @@ void ASFPlatform::SetTemplate()
 	while (AssetsIndexes.Contains(CurrentIndex));
 	AssetsIndexes.Add(CurrentIndex);
 
-	const auto Asset = Assets[CurrentIndex];
-	const auto& AssetClass = Asset.LoadSynchronous();
+	auto AssetIt = Assets.CreateIterator();
+	for (int32 i = 0; i < CurrentIndex; ++i)
+	{
+		++AssetIt;
+	}
+
+	const auto AssetClass = AssetIt->LoadSynchronous();
 	if (!AssetClass)
 	{
 		UE_LOG(LogPlatform, Warning, TEXT("Platform variation class not loaded."));
@@ -114,6 +123,7 @@ void ASFPlatform::SetTemplate()
 		return;
 	}
 
+	PlatformVariation->SetOwner(this);
 	PrimComp->OnComponentHit.AddDynamic(this, &ASFPlatform::OnHit);
 }
 

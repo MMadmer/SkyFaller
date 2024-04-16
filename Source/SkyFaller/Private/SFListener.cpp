@@ -28,7 +28,7 @@ void ASFListener::OnPlatformHit(UPrimitiveComponent* HitComponent, AActor* Other
 	const auto Player = Cast<ACharacter>(OtherActor);
 	if (!Player) return;
 
-	const auto Platform = Cast<ASFPlatform>(HitComponent->GetOwner());
+	const auto Platform = Cast<ASFPlatform>(HitComponent->GetOwner()->GetOwner());
 	if (!Platform) return;
 
 	if (Platform->GetSelfID() == CachedId) return;
@@ -41,7 +41,7 @@ void ASFListener::OnPlatformHit(UPrimitiveComponent* HitComponent, AActor* Other
 // Move fog to player after step on platform
 void ASFListener::FogMoving(const ACharacter* Player) const
 {
-	if (!GetWorld()) return;
+	if (!GetWorld() || !Player) return;
 
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASF_FloatFog::StaticClass(), FoundActors);

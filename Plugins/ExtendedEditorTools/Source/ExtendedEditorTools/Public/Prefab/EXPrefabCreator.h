@@ -17,24 +17,28 @@ public:
 	AEXPrefabCreator();
 
 protected:
-	/** Template of generated platforms class. */
+	/** Template of generated platforms class.*/
 	UPROPERTY(EditAnywhere, Category="Editor Tools")
 	TSubclassOf<AEXPrefab> ParentClass;
 
 	UPROPERTY(EditAnywhere, Category="Editor Tools")
 	FString NewPrefabBaseName = TEXT("Prefab");
 
-	/** Path to new prefab asset. Already contains /Game/ */
+	/** Path to new prefab asset. Already contains /Game/*/
 	UPROPERTY(EditAnywhere, Category="Editor Tools")
 	FString NewPrefabPath = TEXT("");
 
-	/** Working radius. */
+	/** Working radius.*/
 	UPROPERTY(EditAnywhere, Category="Editor Tools")
 	USphereComponent* Handler;
 
-	/** Convert all actors to platform's static mesh sockets(set PlatformTag to target platform static mesh actor). */
+	/** Convert all actors to platform's static mesh sockets(set PlatformTag to target platform static mesh actor).*/
 	UFUNCTION(CallInEditor, Category="Editor Tools")
 	void CreatePrefab();
+
+	/** Destroy all actors apart from prefab.*/
+	UFUNCTION(CallInEditor, Category="Editor Tools")
+	void ClearPrefab();
 
 	virtual void BeginPlay() override;
 

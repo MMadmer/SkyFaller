@@ -23,7 +23,8 @@ public:
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Variation")
-	TArray<TSoftClassPtr<AEXPrefab>> Assets;
+	TSet<TSoftClassPtr<AEXPrefab>> Assets;
+	TSet<int32> AssetsIndexes;
 
 	UPROPERTY(BlueprintReadOnly, Category="Variation")
 	AActor* PlatformVariation;
@@ -93,7 +94,6 @@ protected:
 	float ParentZ = 0.0f;
 	float LocalTime = 0.0f;
 	bool bDespawned = false;
-	TArray<int32> AssetsIndexes;
 	const float PLATFORM_RADIUS = 742.0f; // Platform "bounds"(not real)
 	float GlobalRotation = 0.0f;
 	float ZeroY = 0.0f;

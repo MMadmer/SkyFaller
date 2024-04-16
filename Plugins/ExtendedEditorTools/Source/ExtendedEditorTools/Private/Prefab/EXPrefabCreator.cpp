@@ -115,6 +115,33 @@ void AEXPrefabCreator::CreatePrefab()
 #endif
 }
 
+void AEXPrefabCreator::ClearPrefab()
+{
+#if WITH_EDITORONLY_DATA
+	TArray<AActor*> Actors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), Actors);
+
+	// Platform finding
+	const AEXPrefab* Prefab = FindAndRemovePrefab(Actors);
+	if (!Prefab)
+	{
+		UEXEditorFunctions::NotifyWithLog(TEXT("Prefab not found"), Warning, 3.0f);
+		return;
+	}
+
+	// Remove self from found actors.
+	Actors.Remove(this);
+
+	for (const auto& Actor : Actors)
+	{
+		if ((Actor->GetActorLocation() - GetActorLocation()).Size() > Handler->GetCollisionShape().GetSphereRadius())
+			continue;
+
+		Actor->Destroy();
+	}
+#endif
+}
+
 AEXPrefab* AEXPrefabCreator::FindAndRemovePrefab(TArray<AActor*>& Actors) const
 {
 	AEXPrefab* Prefab = nullptr;

@@ -5,6 +5,8 @@
 
 #include "SFHealthComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Damage/SFPureDamage.h"
+#include "Kismet/GameplayStatics.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(LogFog, All, All)
@@ -33,5 +35,5 @@ void ASF_FloatFog::KillActor(UPrimitiveComponent* OverlappedComponent, AActor* O
 		OtherActor->GetComponentByClass(USFHealthComponent::StaticClass()));
 	if (!HealthComp) return;
 
-	OtherActor->TakeDamage(HealthComp->MaxHealth, FDamageEvent(), nullptr, this);
+	UGameplayStatics::ApplyDamage(OtherActor, HealthComp->MaxHealth, nullptr, this, USFPureDamage::StaticClass());
 }

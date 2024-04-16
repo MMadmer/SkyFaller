@@ -11,8 +11,6 @@
 #include "Player/BaseCharacter.h"
 #include "Objects/SFTrap.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogArrow, All, All)
-
 ASFArrow::ASFArrow()
 {
 	PrimaryActorTick.bCanEverTick = true;
