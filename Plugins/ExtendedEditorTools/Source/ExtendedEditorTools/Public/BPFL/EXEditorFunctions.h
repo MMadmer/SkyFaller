@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "ExtendedEditorTools/EXCoreTypes.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "Logging/LogVerbosity.h"
 #include "EXEditorFunctions.generated.h"
 
 /**
@@ -17,8 +16,9 @@ class EXTENDEDEDITORTOOLS_API UEXEditorFunctions : public UBlueprintFunctionLibr
 	GENERATED_BODY()
 
 public:
-	/** Create blueprint asset based on level actor instance. Auto-rename if asset name already exists.
-	 *  Do nothing and print to log if directory path doesn't exist.
+	/**
+	 * Create blueprint asset based on level actor instance. Auto-rename if asset name already exists.
+	 * Do nothing and print to log if directory path doesn't exist.
 	 */
 	UFUNCTION(BlueprintCallable, Category="Extended Editor Tools",
 		meta=(Keywords="Create Blueprint From Actor Instance"))
@@ -30,7 +30,4 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Extended Editor Tools", meta=(Keywords="Notify With Log"))
 	static void NotifyWithLog(const FString Message, const EEXLogVerbosity LogVerbosity = Display,
 	                          const float Duration = 1.0f);
-
-	UFUNCTION(BlueprintCallable)
-	static void TestFunction();
 };
