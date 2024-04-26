@@ -31,11 +31,9 @@ private:
 	UPROPERTY()
 	UAudioComponent* AudioComponent;
 
-	UPROPERTY()
-	TSet<TSoftObjectPtr<USoundBase>> LevelAmbient;
-
 	float BaseAudioVolume;
-	TSet<int32> Indexes;
+	TSet<TSoftObjectPtr<USoundBase>> LevelAmbient;
+	TBitArray<> Indexes;
 
 	UFUNCTION()
 	void CycleAmbient();

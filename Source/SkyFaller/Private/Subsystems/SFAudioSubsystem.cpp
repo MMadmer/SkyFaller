@@ -19,9 +19,14 @@ void USFAudioSubsystem::PlayLevelAmbient(UAudioComponent* WorldAmbient,
 
 	AudioComponent->OnAudioFinished.AddDynamic(this, &USFAudioSubsystem::CycleAmbient);
 
-	if (LevelAmbient.Num() > 0) LevelAmbient.Empty();
+	if (LevelAmbient.Num() > 0)
+	{
+		LevelAmbient.Empty();
+		Indexes.Init(false, LevelAmbient.Num());
+	}
 
-	LevelAmbient.Append(CurrentLevelAmbient);
+	LevelAmbient = CurrentLevelAmbient;
+
 	CycleAmbient();
 }
 
@@ -38,7 +43,9 @@ void USFAudioSubsystem::CycleAmbient()
 
 	int32 CurrentIndex;
 
-	if (Indexes.Num() >= LevelAmbient.Num()) Indexes.Empty();
+	if (Indexes.Num() != LevelAmbient.Num() || Indexes.CountSetBits() == Indexes.Num())
+		Indexes.Init(
+			false, LevelAmbient.Num());
 
 	if (LevelAmbient.Num() == 0)
 	{
@@ -50,8 +57,8 @@ void USFAudioSubsystem::CycleAmbient()
 	{
 		CurrentIndex = FMath::RandRange(0, LevelAmbient.Num() - 1);
 	}
-	while (Indexes.Contains(CurrentIndex));
-	Indexes.Add(CurrentIndex);
+	while (Indexes[CurrentIndex]);
+	Indexes[CurrentIndex] = true;
 
 	auto SoundIt = LevelAmbient.CreateIterator();
 	for (int32 i = 0; i < CurrentIndex; ++i)
