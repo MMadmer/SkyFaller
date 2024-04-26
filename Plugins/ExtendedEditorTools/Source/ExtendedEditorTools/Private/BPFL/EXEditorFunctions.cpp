@@ -114,3 +114,7 @@ void UEXEditorFunctions::NotifyWithLog(const FString Message, const EEXLogVerbos
 	FSlateNotificationManager::Get().AddNotification(Notification);
 #endif
 }
+
+void UEXEditorFunctions::TestFunction()
+{
+}

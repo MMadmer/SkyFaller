@@ -44,11 +44,11 @@ void AUIWSCustomBody::CreateMeshSurface()
 	CustomMeshComp->SetMaterial(0, WaterMID);
 	CustomMeshComp->SetMaterial(1, WaterMIDLOD1);
 
-	if (bCustomCollisionProfile)
+	if (bUseCustomCollisionProfile)
 	{
 		CustomMeshComp->SetCollisionProfileName(CustomCollisionProfile.Name);
 	}
-	else if (WaterVolume && MyManager.IsValid() && MyManager->bCustomCollisionProfile)
+	else if (WaterVolume && MyManager.IsValid() && MyManager->bUseCustomCollisionProfile)
 	{
 		CustomMeshComp->SetCollisionProfileName(MyManager->CustomCollisionProfile.Name);
 	}

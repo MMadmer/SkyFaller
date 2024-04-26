@@ -25,8 +25,15 @@ AUIWSManager::AUIWSManager()
 	PostProcessComp = CreateDefaultSubobject<UPostProcessComponent>(TEXT("PPComp"));
 	PostProcessComp->Priority = -1.0f;
 	PostProcessComp->bUnbound = false;
-	SetReplicates(false);
 
+	bReplicates = false;
+
+	// Setup bool
+	UpdateLightInfo = false;
+	bShouldSpawnGlobalPostProcess = true;
+	ContinuousLightUpdate = false;
+	CenterSimOnPawn = true;
+	bUseCustomCollisionProfile = false;
 
 	//get material param collection
 	static ConstructorHelpers::FObjectFinder<UMaterialParameterCollection> MPC_BodiesAsset(

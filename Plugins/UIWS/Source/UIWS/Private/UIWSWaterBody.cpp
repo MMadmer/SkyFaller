@@ -35,7 +35,9 @@ AUIWSWaterBody::AUIWSWaterBody()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	SetReplicates(false);
+
+	bReplicates = false;
+
 	// Box comp that might come in handy later for more aggressive culling/lodding
 	BoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("ActivationCollision"));
 	SetRootComponent(BoxComp);
@@ -61,6 +63,26 @@ AUIWSWaterBody::AUIWSWaterBody()
 	PostProcessComp->Settings.bOverride_DepthOfFieldFocalDistance = 1;
 	PostProcessComp->Settings.DepthOfFieldFstop = 1.0;
 	PostProcessComp->Settings.DepthOfFieldFocalDistance = 50;
+
+	/** Setup bool*/
+	bUseCustomCollisionProfile = false;
+	bNoLocationSet = false;
+	bLowFps = false;
+	OverrideWaterMaterials = false;
+	bGeneratesInteractiveCaustics = false;
+	F = false;
+	bIsInteractive = true;
+	bDisableAutomaticInteraction = false;
+	bDisableAutomaticInteractionNintendoSwitch = true;
+	bDisableAutomaticInteractionAndroid = true;
+	bDisableAutomaticInteractionIOS = true;
+	bTieSimToFPS = false;
+	InteractOnDamage = true;
+	bLimitTickRate = false;
+	bSupportsEdgeReflection = true;
+	bEnableParticleOnDamage = true;
+	bEnableParticleOnCollision = true;
+	bOverrideParticleSettings = false;
 
 #if ENGINE_MINOR_VERSION < 23 && ENGINE_MAJOR_VERSION < 5
 	PostProcessComp->Settings.bOverride_DepthOfFieldMethod = 1;
@@ -291,11 +313,11 @@ void AUIWSWaterBody::BeginPlay()
 		}
 	}
 
-	if (bCustomCollisionProfile)
+	if (bUseCustomCollisionProfile)
 	{
 		WaterVolume->SetCollisionProfileName(CustomCollisionProfile.Name);
 	}
-	else if (WaterVolume && MyManager.IsValid() && MyManager->bCustomCollisionProfile)
+	else if (WaterVolume && MyManager.IsValid() && MyManager->bUseCustomCollisionProfile)
 	{
 		WaterVolume->SetCollisionProfileName(MyManager->CustomCollisionProfile.Name);
 	}
@@ -1137,11 +1159,11 @@ void AUIWSWaterBody::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	if (bCustomCollisionProfile)
+	if (bUseCustomCollisionProfile)
 	{
 		WaterVolume->SetCollisionProfileName(CustomCollisionProfile.Name);
 	}
-	else if (WaterVolume && MyManager.IsValid() && MyManager->bCustomCollisionProfile)
+	else if (WaterVolume && MyManager.IsValid() && MyManager->bUseCustomCollisionProfile)
 	{
 		WaterVolume->SetCollisionProfileName(MyManager->CustomCollisionProfile.Name);
 	}
@@ -1338,11 +1360,11 @@ UStaticMeshComponent* AUIWSWaterBody::CreateSurfaceComponent()
 	//comp->SetMaterial(0, WaterMID);
 	//comp->SetMaterial(1, WaterMIDLOD1);
 	//WaterMeshComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-	if (bCustomCollisionProfile)
+	if (bUseCustomCollisionProfile)
 	{
 		Comp->SetCollisionProfileName(CustomCollisionProfile.Name);
 	}
-	else if (WaterVolume && MyManager.IsValid() && MyManager->bCustomCollisionProfile)
+	else if (WaterVolume && MyManager.IsValid() && MyManager->bUseCustomCollisionProfile)
 	{
 		Comp->SetCollisionProfileName(MyManager->CustomCollisionProfile.Name);
 	}

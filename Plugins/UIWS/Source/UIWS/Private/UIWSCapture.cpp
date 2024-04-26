@@ -17,7 +17,8 @@
 // Sets default values
 AUIWSCapture::AUIWSCapture()
 {
-	SetReplicates(false);
+	bReplicates = false;
+
 	//get material param collection
 	static ConstructorHelpers::FObjectFinder<UMaterialParameterCollection> MPC_BodiesAsset(
 		TEXT("/UIWS/MPC_UIWSWaterBodies.MPC_UIWSWaterBodies"));

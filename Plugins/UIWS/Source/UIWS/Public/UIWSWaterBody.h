@@ -48,8 +48,8 @@ public:
 	TWeakObjectPtr<AUIWSManager> MyManager = nullptr;
 
 
-	bool bNoLocationSet = false;
-	bool bLowFps = false;
+	uint8 bNoLocationSet : 1;
+	uint8 bLowFps : 1;
 
 	/** Override base actor take damage functionality to apply effects and ripples automatically.
 	 *  Calls parent functionality
@@ -167,7 +167,7 @@ public:
 	/** Enable if you want to override the water material with your own.
 	 *  Simply add MF_UIWS to your material to get access dynamic interaction*/
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "UIWS Material")
-	bool OverrideWaterMaterials = false;
+	uint8 OverrideWaterMaterials : 1;
 
 	/** Material for Lod 0 and 1*/
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (EditCondition = "OverrideWaterMaterials"),
@@ -184,14 +184,14 @@ public:
 	/** Only one body can have this enabled at a time.  Enabling will disable on all other bodies.
 	 *  Setting modified at runtime (eventually this will be 100% transparent) */
 	//UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Water Simulation")
-	bool bGeneratesInteractiveCaustics = false;
+	uint8 bGeneratesInteractiveCaustics : 1;
 
 	//UPROPERTY()
-	bool F = false;
+	uint8 F : 1;
 
 	/** Disable ripple interaction if you want*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UIWS Water Simulation")
-	bool bIsInteractive = true;
+	uint8 bIsInteractive : 1;
 
 	/** Enable this to only support manual ripple creation.
 	 *  Saves cost of rendering a scene capture each frame and drawing that to the interactivity
@@ -200,7 +200,7 @@ public:
 	//UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UIWS Water Simulation\|Advanced Performance Options", AdvancedDisplay)
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (EditCondition = "!BDisableAutomaticInteraction"),
 		Category = "UIWS Water Simulation|Advanced Performance Options|Platform Specific")
-	bool bDisableAutomaticInteraction = false;
+	uint8 bDisableAutomaticInteraction : 1;
 
 	/** Disable Auto Interaction on Xbox*/
 	//	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (EditCondition = "!BDisableAutomaticInteraction"), Category = "UIWS Water Simulation\|Advanced Performance Options\|Platform Specific")
@@ -213,17 +213,17 @@ public:
 	/** Disable Auto Interaction on Nintendo Switch*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (EditCondition = "!BDisableAutomaticInteraction"),
 		Category = "UIWS Water Simulation|Advanced Performance Options|Platform Specific")
-	bool bDisableAutomaticInteractionNintendoSwitch = true;
+	uint8 bDisableAutomaticInteractionNintendoSwitch : 1;
 
 	/** Disable Auto Interaction on Android*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (EditCondition = "!BDisableAutomaticInteraction"),
 		Category = "UIWS Water Simulation|Advanced Performance Options|Platform Specific")
-	bool bDisableAutomaticInteractionAndroid = true;
+	uint8 bDisableAutomaticInteractionAndroid : 1;
 
 	/** Disable Auto Interaction on IOS*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (EditCondition = "!BDisableAutomaticInteraction"),
 		Category = "UIWS Water Simulation|Advanced Performance Options|Platform Specific")
-	bool bDisableAutomaticInteractionIOS = true;
+	uint8 bDisableAutomaticInteractionIOS : 1;
 
 	/** Resolution of this water's automatic interaction scene capture.  Lower res is usually better quality.
 	 *  Don't recommend higher values*/
@@ -249,19 +249,19 @@ public:
 	 *  Only enable if you're desperate for better performance and are willing to faff with sim settings
 	 *  to get it to look ok around target res*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UIWS Water Simulation|Advanced Performance Options")
-	bool bTieSimToFPS = false;
+	uint8 bTieSimToFPS : 1;
 
 	/** Whether or not to use default plugin damage handling.
 	 *  Disable if you don't want to use unreal engine damage systems.
 	 *  To manually ripple the body call ApplyForceManual() from c++ or bp*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UIWS Water Simulation",
 		meta = (EditCondition = "bIsInteractive"))
-	bool InteractOnDamage = true;
+	uint8 InteractOnDamage : 1;
 	/** Enable this to manually set tick rate.
 	 *  Seems to have a negligible performance effect but might be useful of low spec hardware*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UIWS Water Simulation",
 		meta = (EditCondition = "bIsInteractive"))
-	bool bLimitTickRate = false;
+	uint8 bLimitTickRate : 1;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UIWS Water Simulation",
 		meta = (EditCondition = "bLimitTickRate"))
 	float TickRate = 60;
@@ -279,7 +279,7 @@ public:
 	/** Whether the body supports ripple reflections.
 	 *  Only supported on flat bodies with auto interaction enabled (not supported on rivers)*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UIWS Water Simulation|Ripple Reflection")
-	bool bSupportsEdgeReflection = true;
+	uint8 bSupportsEdgeReflection : 1;
 
 	/* Depth we capture water edge intersections over.
 	 * If you have extremely shallow water you may want to lower this value, at cost of edge consistency*/
@@ -322,26 +322,25 @@ public:
 
 	/** Set to true to assign your own collision preset for this water body*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UIWS Water Body Settings")
-	bool bCustomCollisionProfile = false;
+	uint8 bUseCustomCollisionProfile : 1;
 
 	/** Custom collision preset */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "bCustomCollisionProfile"),
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "bUseCustomCollisionProfile"),
 		Category = "UIWS Water Body Settings")
 	FCollisionProfileName CustomCollisionProfile;
 
-	/** Whether or not to spawn particle effects when receiving damage.  If disabled water will still ripple*/
+	/** Whether to spawn particle effects when receiving damage.  If disabled water will still ripple*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UIWS Interaction Particles")
-	bool bEnableParticleOnDamage = true;
+	uint8 bEnableParticleOnDamage : 1;
 
 	/** Still experimental and bare bones.  It works but doesn't look great for most overlaps.*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UIWS Interaction Particles")
-	bool bEnableParticleOnCollision = true;
-
+	uint8 bEnableParticleOnCollision : 1;
 
 	/** When enabled, you can replace default interaction and damage particle effects as well
 	 *  as the damage effect min and max scale (scaled with damage amount) */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UIWS Interaction Particles")
-	bool bOverrideParticleSettings = false;
+	uint8 bOverrideParticleSettings : 1;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere,
 		Category = "UIWS Interaction Particles|Particle Overrides|Interaction",

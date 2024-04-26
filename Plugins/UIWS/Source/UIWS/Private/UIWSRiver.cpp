@@ -99,11 +99,11 @@ USplineMeshComponent* AUIWSRiver::CreateSplineMeshComp()
 	Comp->SetRelativeLocation(FVector(0, 0, 0));
 	Comp->SetRelativeScale3D(FVector(1, 1, 1));
 
-	if (bCustomCollisionProfile)
+	if (bUseCustomCollisionProfile)
 	{
 		Comp->SetCollisionProfileName(CustomCollisionProfile.Name);
 	}
-	else if (WaterVolume && MyManager.IsValid() && MyManager->bCustomCollisionProfile)
+	else if (WaterVolume && MyManager.IsValid() && MyManager->bUseCustomCollisionProfile)
 	{
 		Comp->SetCollisionProfileName(MyManager->CustomCollisionProfile.Name);
 	}

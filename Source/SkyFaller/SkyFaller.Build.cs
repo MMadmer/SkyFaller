@@ -15,10 +15,6 @@ public class SkyFaller : ModuleRules
 			"Engine", 
 			"InputCore",
 			"Niagara",
-			"Kismet",
-			"UnrealEd",
-			"AssetTools",
-			"AssetRegistry",
 			"ExtendedEditorTools"
 		});
 

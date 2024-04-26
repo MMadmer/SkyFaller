@@ -25,29 +25,29 @@ public:
 
 	/** Enable to update light info for the current level.  Just for ease of us in the editor*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UIWS: Update")
-	bool UpdateLightInfo = false;
+	uint8 UpdateLightInfo : 1;
 
 	/** This post process volume is used so that the underwater volumes blend correctly in game.
 	 *  It shouldn't conflict with other volumes, but if you're getting strange results uncheck this uproperty*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UIWS: Simulation", AdvancedDisplay)
-	bool bShouldSpawnGlobalPostProcess = true;
+	uint8 bShouldSpawnGlobalPostProcess : 1;
 
 	/** Enable to allow caustic strength and direction to be updated in real-time in game.
 	 *  Useful if you update your directional light as part of a time of day system*/
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UIWS: Simulation")
-	bool ContinuousLightUpdate = false;
+	uint8 ContinuousLightUpdate : 1;
 
 	/** If true, water sim will center on pawn.  If disabled sim will center on camera.
 	 *  If pawn is invalid (ie dead or not a APawn) sim centers on camera */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "UIWS: Simulation")
-	bool CenterSimOnPawn = true;
+	uint8 CenterSimOnPawn : 1;
 
 	/** Set to true to assign your own collision preset for all water bodies*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UIWS: Simulation")
-	bool bCustomCollisionProfile = false;
+	uint8 bUseCustomCollisionProfile : 1;
 
 	/** Custom collision preset */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "bCustomCollisionProfile"),
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "bUseCustomCollisionProfile"),
 		Category = "UIWS: Simulation")
 	FCollisionProfileName CustomCollisionProfile;
 
