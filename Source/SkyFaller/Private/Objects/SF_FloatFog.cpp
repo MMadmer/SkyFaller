@@ -3,13 +3,11 @@
 
 #include "Objects/SF_FloatFog.h"
 
-#include "SFHealthComponent.h"
+#include "Components/BGCHealthComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Damage/SFPureDamage.h"
+#include "DamageTypes/PureDamage.h"
 #include "Kismet/GameplayStatics.h"
 
-
-DEFINE_LOG_CATEGORY_STATIC(LogFog, All, All)
 
 ASF_FloatFog::ASF_FloatFog()
 {
@@ -31,9 +29,9 @@ void ASF_FloatFog::KillActor(UPrimitiveComponent* OverlappedComponent, AActor* O
                              UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
                              const FHitResult& SweepResult)
 {
-	const USFHealthComponent* HealthComp = Cast<USFHealthComponent>(
-		OtherActor->GetComponentByClass(USFHealthComponent::StaticClass()));
+	const UBGCHealthComponent* HealthComp = Cast<UBGCHealthComponent>(
+		OtherActor->GetComponentByClass(UBGCHealthComponent::StaticClass()));
 	if (!HealthComp) return;
 
-	UGameplayStatics::ApplyDamage(OtherActor, HealthComp->MaxHealth, nullptr, this, USFPureDamage::StaticClass());
+	UGameplayStatics::ApplyDamage(OtherActor, HealthComp->MaxHealth, nullptr, this, UPureDamage::StaticClass());
 }

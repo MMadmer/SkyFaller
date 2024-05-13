@@ -6,15 +6,19 @@
 #include "BPFL/EXEditorFunctions.h"
 #include "Engine/StaticMeshActor.h"
 #include "Kismet/GameplayStatics.h"
+#include "Prefab/UTPrefab.h"
 
 AEXPrefabCreator::AEXPrefabCreator()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
-	Handler = CreateDefaultSubobject<USphereComponent>(TEXT("Handler"));
+	bIsEditorOnlyActor = true;
 
-	ParentClass = AEXPrefab::StaticClass();
+	Handler = CreateDefaultSubobject<USphereComponent>(TEXT("Handler"));
+	SetRootComponent(Handler);
+
+	ParentClass = AUTPrefab::StaticClass();
 }
 
 void AEXPrefabCreator::BeginPlay()
@@ -26,12 +30,12 @@ void AEXPrefabCreator::BeginPlay()
 
 void AEXPrefabCreator::CreatePrefab()
 {
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
 	TArray<AActor*> Actors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), Actors);
 
 	// Platform finding
-	const AEXPrefab* Prefab = FindAndRemovePrefab(Actors);
+	const AUTPrefab* Prefab = FindAndRemovePrefab(Actors);
 	if (!Prefab)
 	{
 		UEXEditorFunctions::NotifyWithLog(TEXT("Prefab not found"), Warning, 3.0f);
@@ -49,7 +53,7 @@ void AEXPrefabCreator::CreatePrefab()
 	}
 
 	// Create actor from parent class to transfer platform params.
-	AEXPrefab* ParentActor = Cast<AEXPrefab>(GetWorld()->SpawnActor(ParentClass));
+	AUTPrefab* ParentActor = Cast<AUTPrefab>(GetWorld()->SpawnActor(ParentClass));
 	if (!ParentActor)
 	{
 		UEXEditorFunctions::NotifyWithLog(TEXT("Parent actor not spawned"), Warning, 3.0f);
@@ -117,12 +121,12 @@ void AEXPrefabCreator::CreatePrefab()
 
 void AEXPrefabCreator::ClearPrefab()
 {
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
 	TArray<AActor*> Actors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), Actors);
 
 	// Platform finding
-	const AEXPrefab* Prefab = FindAndRemovePrefab(Actors);
+	const AUTPrefab* Prefab = FindAndRemovePrefab(Actors);
 	if (!Prefab)
 	{
 		UEXEditorFunctions::NotifyWithLog(TEXT("Prefab not found"), Warning, 3.0f);
@@ -142,18 +146,18 @@ void AEXPrefabCreator::ClearPrefab()
 #endif
 }
 
-AEXPrefab* AEXPrefabCreator::FindAndRemovePrefab(TArray<AActor*>& Actors) const
+AUTPrefab* AEXPrefabCreator::FindAndRemovePrefab(TArray<AActor*>& Actors) const
 {
-	AEXPrefab* Prefab = nullptr;
+	AUTPrefab* Prefab = nullptr;
 
 	for (const auto& Actor : Actors)
 	{
 		if ((Actor->GetActorLocation() - GetActorLocation()).Size() > Handler->GetCollisionShape().GetSphereRadius())
 			continue;
 
-		if (Cast<AEXPrefab>(Actor))
+		if (Cast<AUTPrefab>(Actor))
 		{
-			Prefab = Cast<AEXPrefab>(Actor);
+			Prefab = Cast<AUTPrefab>(Actor);
 			break;
 		}
 	}

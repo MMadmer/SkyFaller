@@ -8,7 +8,7 @@
 
 class USpringArmComponent;
 class UCameraComponent;
-class USFHealthComponent;
+class UBGCHealthComponent;
 class ASFBaseWeapon;
 class USFWeaponComponent;
 class USFProgressComponent;
@@ -34,7 +34,7 @@ protected:
 	USpringArmComponent* SpringArmComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-	USFHealthComponent* HealthComponent;
+	UBGCHealthComponent* HealthComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USFWeaponComponent* WeaponComponent;

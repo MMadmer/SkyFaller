@@ -14,11 +14,14 @@ void UEXGameInstanceSubsystem::Array_RegisterRandom(const TArray<int32>& TargetA
 void UEXGameInstanceSubsystem::GenericArray_RegisterRandom(const UObject* WorldContext, void* TargetArray,
                                                            const FArrayProperty* ArrayProp)
 {
-	if (!TargetArray || !WorldContext) return;
+	UE_LOG(LogTemp, Display, TEXT("Called 1"));
+	if (!TargetArray || !ArrayProp || !WorldContext) return;
 
+	UE_LOG(LogTemp, Display, TEXT("Called 2"));
 	const auto World = WorldContext->GetWorld();
 	if (!World) return;
 
+	UE_LOG(LogTemp, Display, TEXT("Called 3"));
 	const auto ThisSubsystem = UGameInstance::GetSubsystem<UEXGameInstanceSubsystem>(World->GetGameInstance());
 	if (!ThisSubsystem) return;
 

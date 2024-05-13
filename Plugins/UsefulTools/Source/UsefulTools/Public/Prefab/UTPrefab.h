@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ExtendedEditorTools/EXCoreTypes.h"
+#include "UniqueMesh.h"
 #include "GameFramework/Actor.h"
-#include "EXPrefab.generated.h"
+#include "UTPrefab.generated.h"
 
 USTRUCT(BlueprintType)
 struct FPrefabInfo
@@ -46,7 +46,7 @@ struct FPrefabInfo
 };
 
 UCLASS()
-class EXTENDEDEDITORTOOLS_API AEXPrefab : public AActor
+class USEFULTOOLS_API AUTPrefab : public AActor
 {
 	GENERATED_BODY()
 
@@ -59,7 +59,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Spawn Info")
 	TMap<FName, FPrefabInfo> SpawnObjects;
 
-	AEXPrefab();
+	AUTPrefab();
 
 protected:
 	UPROPERTY(EditAnywhere, Category="Spawn Info")
@@ -74,7 +74,7 @@ protected:
 
 	/** Destroy attached actors(not recursive) and HISM components. */
 	UFUNCTION(CallInEditor, BlueprintCallable, Category="Spawn Info", meta=(Keywords="Clear Spawned Objects"))
-	void ClearAttachedObjects();
+	void ClearAttachedObjects() const;
 
 	/** Convert all attached static mesh actors to HISM components. */
 	UFUNCTION(CallInEditor, BlueprintCallable, Category="Spawn Info", meta=(Keywords="Convert Static Mesh To HISM"))

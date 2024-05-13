@@ -10,6 +10,7 @@
 #include "Objects/SFTarget.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/WorldSettings.h"
+#include "UsefulTools/Public/Prefab/UTPrefab.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogPlatform, All, All)
 

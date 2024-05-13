@@ -3,18 +3,20 @@
 
 #include "BPFL/EXEditorFunctions.h"
 
+#if WITH_EDITOR
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Framework/Notifications/NotificationManager.h"
-#include "Kismet2/KismetEditorUtilities.h"
 #include "Logging/MessageLog.h"
+#include "Kismet2/KismetEditorUtilities.h"
 #include "Widgets/Notifications/SNotificationList.h"
+#endif
 
 UBlueprint* UEXEditorFunctions::CreateBlueprintFromActorInstance(AActor* ActorInstance,
                                                                  const FString& Path,
                                                                  const FString& Name)
 {
 	UBlueprint* NewActorBlueprint = nullptr;
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
 
 	// Actor instance is valid
 	if (ActorInstance)
@@ -82,7 +84,7 @@ UBlueprint* UEXEditorFunctions::CreateBlueprintFromActorInstance(AActor* ActorIn
 
 void UEXEditorFunctions::NotifyWithLog(const FString Message, const EEXLogVerbosity LogVerbosity, const float Duration)
 {
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
 	// Log message
 	FMessageLog MessageLog(FName(TEXT("EXEditorTools")));
 

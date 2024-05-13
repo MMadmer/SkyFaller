@@ -15,7 +15,7 @@ class EXTENDEDEDITORTOOLS_API UEXGameInstanceSubsystem : public UGameInstanceSub
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable/*, CustomThunk*/, DisplayName="RegisterRandom", meta=(ArrayParm = "TargetArray"),
+	UFUNCTION(BlueprintCallable, CustomThunk, DisplayName="RegisterRandom", meta=(ArrayParm = "TargetArray"),
 		Category="Random")
 	static void Array_RegisterRandom(const TArray<int32>& TargetArray);
 
@@ -27,8 +27,10 @@ public:
 	static void GenericArray_RegisterRandom(const UObject* WorldContext, void* TargetArray,
 	                                        const FArrayProperty* ArrayProp);
 
-	/*DECLARE_FUNCTION(execArray_RegisterRandom)
+	DECLARE_FUNCTION(execArray_RegisterRandom)
 	{
+		P_GET_OBJECT(UObject, OwnerObject);
+
 		Stack.MostRecentProperty = nullptr;
 		Stack.StepCompiledIn<FArrayProperty>(nullptr);
 		void* ArrayAddr = Stack.MostRecentPropertyAddress;
@@ -41,9 +43,9 @@ public:
 
 		P_FINISH;
 		P_NATIVE_BEGIN;
-			GenericArray_RegisterRandom(Context, ArrayAddr, ArrayProperty);
+			GenericArray_RegisterRandom(OwnerObject, ArrayAddr, ArrayProperty);
 		P_NATIVE_END;
-	}*/
+	}
 
 private:
 	TMap<void*, TBitArray<>> RandomPairs;

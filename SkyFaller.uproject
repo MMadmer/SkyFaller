@@ -10,8 +10,7 @@
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"Engine",
-				"UMG",
-				"ExtendedEditorTools"
+				"UMG"
 			]
 		}
 	],
@@ -39,6 +38,10 @@
 		},
 		{
 			"Name": "ExtendedEditorTools",
+			"Enabled": true
+		},
+		{
+			"Name": "UsefulTools",
 			"Enabled": true
 		},
 		{
@@ -273,6 +276,10 @@
 			"SupportedTargetPlatforms": [
 				"Mac"
 			]
+		},
+		{
+			"Name": "BaseGameComponents",
+			"Enabled": true
 		}
 	]
 }

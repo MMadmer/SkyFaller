@@ -2,9 +2,9 @@
 	"FileVersion": 3,
 	"Version": 1,
 	"VersionName": "1.0",
-	"FriendlyName": "ExtendedEditorTools",
+	"FriendlyName": "Extended Editor Tools",
 	"Description": "Editor tools plugin.",
-	"Category": "Other",
+	"Category": "Programming",
 	"CreatedBy": "Madmer",
 	"CreatedByURL": "",
 	"DocsURL": "",
@@ -17,8 +17,14 @@
 	"Modules": [
 		{
 			"Name": "ExtendedEditorTools",
-			"Type": "EditorAndProgram",
+			"Type": "Editor",
 			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "UsefulTools",
+			"Enabled": true
 		}
 	]
 }

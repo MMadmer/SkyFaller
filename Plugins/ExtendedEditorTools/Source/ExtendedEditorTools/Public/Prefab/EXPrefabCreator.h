@@ -3,10 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Prefab/EXPrefab.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/Actor.h"
 #include "EXPrefabCreator.generated.h"
+
+class AUTPrefab;
 
 UCLASS()
 class EXTENDEDEDITORTOOLS_API AEXPrefabCreator : public AActor
@@ -19,7 +20,7 @@ public:
 protected:
 	/** Template of generated platforms class.*/
 	UPROPERTY(EditAnywhere, Category="Editor Tools")
-	TSubclassOf<AEXPrefab> ParentClass;
+	TSubclassOf<AUTPrefab> ParentClass;
 
 	UPROPERTY(EditAnywhere, Category="Editor Tools")
 	FString NewPrefabBaseName = TEXT("Prefab");
@@ -42,5 +43,5 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	AEXPrefab* FindAndRemovePrefab(TArray<AActor*>& Actors) const;
+	AUTPrefab* FindAndRemovePrefab(TArray<AActor*>& Actors) const;
 };

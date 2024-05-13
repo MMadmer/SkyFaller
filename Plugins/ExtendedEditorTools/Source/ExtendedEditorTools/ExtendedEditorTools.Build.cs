@@ -1,12 +1,17 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
+using System.IO;
 using UnrealBuildTool;
 
 public class ExtendedEditorTools : ModuleRules
 {
 	public ExtendedEditorTools(ReadOnlyTargetRules Target) : base(Target)
 	{
-		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+		bEnforceIWYU = true;
+		
+		PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public"));
+		PrivateIncludePaths.Add("ExtendedEditorTools/Private");
 		
 		PublicIncludePaths.AddRange(
 			new string[] {
@@ -25,8 +30,7 @@ public class ExtendedEditorTools : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core",
-				"Engine",
+				"Core"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -39,10 +43,8 @@ public class ExtendedEditorTools : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-                "Kismet",
-                "AssetRegistry",
 				"UnrealEd",
-				"AssetTools",
+				"UsefulTools"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

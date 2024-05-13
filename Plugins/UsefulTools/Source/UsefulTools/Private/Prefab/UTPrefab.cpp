@@ -1,13 +1,13 @@
 // Sky Faller. All rights reserved.
 
 
-#include "Prefab/EXPrefab.h"
+#include "Prefab/UTPrefab.h"
 
+#include "BPFL/UTGlobalFunctions.h"
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 #include "Engine/StaticMeshActor.h"
-#include "ExtendedEditorTools/EXCoreTypes.h"
 
-AEXPrefab::AEXPrefab()
+AUTPrefab::AUTPrefab()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
@@ -16,19 +16,19 @@ AEXPrefab::AEXPrefab()
 	SetRootComponent(StaticMesh);
 }
 
-void AEXPrefab::BeginPlay()
+void AUTPrefab::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-void AEXPrefab::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void AUTPrefab::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
 	ClearAttachedObjects();
 }
 
-void AEXPrefab::SpawnAllObjects()
+void AUTPrefab::SpawnAllObjects()
 {
 	// Get all scene components
 	TArray<USceneComponent*> SceneComponents;
@@ -84,25 +84,18 @@ void AEXPrefab::SpawnAllObjects()
 				MatIndex++;
 			}
 			MeshComp->SetCollisionProfileName(Info->CollisionPreset);
-			MeshComp->UpdateCollisionProfile();
+			MeshComp->UpdateCollisionFromStaticMesh();
 		}
 	}
 }
 
-void AEXPrefab::ClearAttachedObjects()
+void AUTPrefab::ClearAttachedObjects() const
 {
-	TArray<AActor*> AttachedActors;
-	GetAttachedActors(AttachedActors);
-
-	for (const auto& AttachedActor : AttachedActors)
-	{
-		AttachedActor->Destroy();
-	}
-
+	UUTGlobalFunctions::DestroyAttachedActorsByClass(this, AActor::StaticClass());
 	ClearAllHism();
 }
 
-void AEXPrefab::ConvertMeshToHism()
+void AUTPrefab::ConvertMeshToHism()
 {
 	ClearAllHism();
 
@@ -159,7 +152,7 @@ void AEXPrefab::ConvertMeshToHism()
 		NewHism->RegisterComponent();
 		AddInstanceComponent(NewHism);
 		NewHism->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
-		NewHism->UpdateCollisionProfile();
+		NewHism->UpdateCollisionFromStaticMesh();
 
 		// Update HISM params
 		NewHism->SetStaticMesh(UniqueMesh.Key.StaticMesh.LoadSynchronous());
@@ -188,13 +181,7 @@ void AEXPrefab::ConvertMeshToHism()
 	}
 }
 
-void AEXPrefab::ClearAllHism() const
+void AUTPrefab::ClearAllHism() const
 {
-	TArray<UHierarchicalInstancedStaticMeshComponent*> Components;
-	GetComponents<UHierarchicalInstancedStaticMeshComponent>(Components);
-
-	for (const auto& Component : Components)
-	{
-		Component->DestroyComponent();
-	}
+	UUTGlobalFunctions::DestroyComponentsByClass(this, UHierarchicalInstancedStaticMeshComponent::StaticClass());
 }

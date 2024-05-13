@@ -3,15 +3,13 @@
 
 #include "Player/BaseCharacter.h"
 #include "Camera/CameraComponent.h"
+#include "Components/BGCHealthComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Components/SFHealthComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/SFWeaponComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogBaseCharacter, All, All)
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -25,7 +23,7 @@ ABaseCharacter::ABaseCharacter()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComponent->SetupAttachment(SpringArmComponent);
 
-	HealthComponent = CreateDefaultSubobject<USFHealthComponent>("HealthComponent");
+	HealthComponent = CreateDefaultSubobject<UBGCHealthComponent>("HealthComponent");
 	WeaponComponent = CreateDefaultSubobject<USFWeaponComponent>("WeaponComponent");
 }
 
@@ -33,7 +31,8 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	HealthComponent->OnDeath.AddDynamic(this, &ABaseCharacter::OnDeath);
+	if (HealthComponent) HealthComponent->OnDeath.AddDynamic(this, &ABaseCharacter::OnDeath);
+	else UE_LOG(LogTemp, Warning, TEXT("Health not valid"));
 }
 
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -69,8 +68,6 @@ float ABaseCharacter::GetMovementDirection() const
 
 void ABaseCharacter::OnDeath()
 {
-	// UE_LOG(LogBaseCharacter, Display, TEXT("Player %s is dead"), *GetName());
-
 	GetCharacterMovement()->DisableMovement();
 
 	SetLifeSpan(LifeSpanOnDeath);

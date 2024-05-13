@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Prefab/EXPrefab.h"
 #include "SFPlatform.generated.h"
 
+class AUTPrefab;
 class UStaticMeshComponent;
 class ASFTarget;
 
@@ -23,7 +23,7 @@ public:
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Variation")
-	TSet<TSoftClassPtr<AEXPrefab>> Assets;
+	TSet<TSoftClassPtr<AUTPrefab>> Assets;
 	TSet<int32> AssetsIndexes;
 
 	UPROPERTY(BlueprintReadOnly, Category="Variation")
