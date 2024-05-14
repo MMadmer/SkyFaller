@@ -15,6 +15,8 @@ class SKYFALLER_API USFAudioSubsystem : public UWorldSubsystem
 	GENERATED_BODY()
 
 public:
+	virtual void Deinitialize() override;
+	
 	/** Plays cycled level ambient. Songs will not start repeating until the entire array is played back. */
 	UFUNCTION(BlueprintCallable, meta=(Keywords="Play Level Ambient"))
 	void PlayLevelAmbient(UAudioComponent* WorldAmbient, const TSet<TSoftObjectPtr<USoundBase>> CurrentLevelAmbient,

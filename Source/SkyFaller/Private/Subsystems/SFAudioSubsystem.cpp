@@ -3,8 +3,17 @@
 
 #include "Subsystems/SFAudioSubsystem.h"
 #include "Components/AudioComponent.h"
+#include "Engine/AssetManager.h"
+#include "Engine/StreamableManager.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogAudioSys, All, All);
+
+void USFAudioSubsystem::Deinitialize()
+{
+	Super::Deinitialize();
+
+	if (AudioComponent) AudioComponent->OnAudioFinished.RemoveDynamic(this, &USFAudioSubsystem::CycleAmbient);
+}
 
 void USFAudioSubsystem::PlayLevelAmbient(UAudioComponent* WorldAmbient,
                                          const TSet<TSoftObjectPtr<USoundBase>> CurrentLevelAmbient,
@@ -17,7 +26,7 @@ void USFAudioSubsystem::PlayLevelAmbient(UAudioComponent* WorldAmbient,
 	BaseAudioVolume = AudioComponent->VolumeMultiplier;
 	SetAmbientVolume(VolumeNorm);
 
-	AudioComponent->OnAudioFinished.AddDynamic(this, &USFAudioSubsystem::CycleAmbient);
+	AudioComponent->OnAudioFinished.AddUniqueDynamic(this, &USFAudioSubsystem::CycleAmbient);
 
 	if (LevelAmbient.Num() > 0)
 	{
@@ -39,7 +48,7 @@ void USFAudioSubsystem::SetAmbientVolume(const float VolumeNorm) const
 
 void USFAudioSubsystem::CycleAmbient()
 {
-	if (!GetWorld()) return;
+	if (!AudioComponent) return;
 
 	int32 CurrentIndex;
 
@@ -66,10 +75,36 @@ void USFAudioSubsystem::CycleAmbient()
 		++SoundIt;
 	}
 
-	USoundBase* Song = SoundIt->LoadSynchronous();
-	if (!Song) return;
+	if (SoundIt->IsNull()) return;
 
-	AudioComponent->SetSound(Song);
-	AudioComponent->Play();
-	// UE_LOG(LogAudioSys, Display, TEXT("Ok %s"), *Song->GetName())
+	// Check and use if already loaded
+	USoundBase* Sound = SoundIt->Get();
+	if (Sound)
+	{
+		AudioComponent->SetSound(Sound);
+		AudioComponent->Play();
+	}
+	else
+	{
+		// Async load
+		FStreamableManager& StreamableManager = UAssetManager::Get().GetStreamableManager();
+		StreamableManager.RequestAsyncLoad(SoundIt->ToSoftObjectPath(), [&, SoundIt]
+		{
+			if (!SoundIt) return;
+
+			USoundBase* LoadedSound = Cast<USoundBase>(SoundIt->Get());
+			if (LoadedSound)
+			{
+				if (AudioComponent)
+				{
+					AudioComponent->SetSound(LoadedSound);
+					AudioComponent->Play();
+				}
+			}
+			else
+			{
+				UE_LOG(LogAudioSys, Warning, TEXT("Failed to async load sound."));
+			}
+		});
+	}
 }
