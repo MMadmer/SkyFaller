@@ -5,7 +5,9 @@
 
 #include "BPFL/UTGlobalFunctions.h"
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
+#include "Engine/AssetManager.h"
 #include "Engine/StaticMeshActor.h"
+#include "Engine/StreamableManager.h"
 
 AUTPrefab::AUTPrefab()
 {
@@ -25,6 +27,7 @@ void AUTPrefab::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
+	OnPrefabLoaded.Clear();
 	ClearAttachedObjects();
 }
 
@@ -40,51 +43,22 @@ void AUTPrefab::SpawnAllObjects()
 		const auto& Info = SpawnObjects.Find(SceneComponent->GetFName());
 		if (!Info) continue;
 
-		// Get hard spawn class reference
-		const auto& SpawnClass = Info->SpawnClass.LoadSynchronous();
-		if (!SpawnClass) continue;
+		if (Info->SpawnClass.IsNull()) return;
 
-		// Spawn actor
-		AActor* SpawnedActor = GetWorld()->SpawnActor(SpawnClass, &SceneComponent->GetComponentTransform());
-		if (!SpawnedActor) continue;
-
-		// Get all static mesh components
-		TArray<UActorComponent*> Components;
-		SpawnedActor->GetComponents(USceneComponent::StaticClass(), Components);
-		for (const auto& Component : Components)
+		// Check and use if already loaded
+		const auto& SpawnClass = Info->SpawnClass.Get();
+		if (SpawnClass)
 		{
-			Cast<USceneComponent>(Component)->SetMobility(EComponentMobility::Movable);
+			SpawnLoadedObject(Info, SceneComponent);
 		}
-
-		SpawnedActor->AttachToComponent(SceneComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
-
-		// If static mesh actor
-		if (SpawnedActor->IsA(AStaticMeshActor::StaticClass()))
+		else
 		{
-			const auto& MeshComp = Cast<UStaticMeshComponent>(SpawnedActor->GetRootComponent());
-			if (!MeshComp)
+			// Async load
+			FStreamableManager& StreamableManager = UAssetManager::Get().GetStreamableManager();
+			StreamableManager.RequestAsyncLoad(Info->SpawnClass.ToSoftObjectPath(), [&]
 			{
-				SpawnedActor->Destroy();
-				continue;
-			}
-
-			UStaticMesh* Mesh = Info->ClassMesh.StaticMesh.LoadSynchronous();
-			if (!Mesh)
-			{
-				SpawnedActor->Destroy();
-				continue;
-			}
-
-			// Set saved static mesh and materials
-			MeshComp->SetStaticMesh(Mesh);
-			int32 MatIndex = 0;
-			for (const auto& SoftMaterial : Info->ClassMesh.Materials)
-			{
-				MeshComp->SetMaterial(MatIndex, SoftMaterial.LoadSynchronous());
-				MatIndex++;
-			}
-			MeshComp->SetCollisionProfileName(Info->CollisionPreset);
-			MeshComp->UpdateCollisionFromStaticMesh();
+				SpawnLoadedObject(Info, SceneComponent);
+			});
 		}
 	}
 }
@@ -114,7 +88,7 @@ void AUTPrefab::ConvertMeshToHism()
 		// Check static mesh component and static mesh
 		const UStaticMeshComponent* MeshComp = Cast<UStaticMeshComponent>(
 			Actor->GetComponentByClass(UStaticMeshComponent::StaticClass()));
-		if (!(MeshComp && MeshComp->GetStaticMesh())) continue;
+		if (!MeshComp || !MeshComp->GetStaticMesh()) continue;
 
 		bool IsValidMaterial = true;
 		for (const auto& Material : MeshComp->GetMaterials())
@@ -184,4 +158,93 @@ void AUTPrefab::ConvertMeshToHism()
 void AUTPrefab::ClearAllHism() const
 {
 	UUTGlobalFunctions::DestroyComponentsByClass(this, UHierarchicalInstancedStaticMeshComponent::StaticClass());
+}
+
+void AUTPrefab::SpawnLoadedObject(FPrefabInfo* const& Info, USceneComponent* const& SceneComponent)
+{
+	if (!Info->SpawnClass.Get() || !SceneComponent) return;
+
+	// Spawn actor
+	AActor* SpawnedActor = GetWorld()->SpawnActor(Info->SpawnClass.Get(), &SceneComponent->GetComponentTransform());
+	if (!SpawnedActor) return;
+
+	// Get all static mesh components
+	TArray<UActorComponent*> Components;
+	SpawnedActor->GetComponents(USceneComponent::StaticClass(), Components);
+	for (const auto& Component : Components)
+	{
+		Cast<USceneComponent>(Component)->SetMobility(EComponentMobility::Movable);
+	}
+
+	SpawnedActor->AttachToComponent(SceneComponent, FAttachmentTransformRules::SnapToTargetIncludingScale);
+
+	// If static mesh actor
+	if (SpawnedActor->IsA(AStaticMeshActor::StaticClass()))
+	{
+		const auto& MeshComp = Cast<UStaticMeshComponent>(SpawnedActor->GetRootComponent());
+		if (!Info || !MeshComp || Info->ClassMesh.StaticMesh.IsNull())
+		{
+			SpawnedActor->Destroy();
+			return;
+		}
+
+		const UStaticMesh* Mesh = Info->ClassMesh.StaticMesh.Get();
+		if (Mesh)
+		{
+			SpawnLoadedMesh(Info, MeshComp, SpawnedActor);
+		}
+		else
+		{
+			// Async load
+			FStreamableManager& StreamableManager = UAssetManager::Get().GetStreamableManager();
+			StreamableManager.RequestAsyncLoad(Info->ClassMesh.StaticMesh.ToSoftObjectPath(), [&]
+			{
+				SpawnLoadedMesh(Info, MeshComp, SpawnedActor);
+			});
+		}
+	}
+
+	SpawnedObjectsCount++;
+	if (IsPrefabLoaded()) OnPrefabLoaded.Broadcast();
+}
+
+void AUTPrefab::SpawnLoadedMesh(FPrefabInfo* const& Info, UStaticMeshComponent* const& MeshComp, AActor* SpawnedActor)
+{
+	if (!Info || !Info->ClassMesh.StaticMesh.Get() || !MeshComp)
+	{
+		SpawnedActor->Destroy();
+		return;
+	}
+
+	// Set saved static mesh and materials
+	MeshComp->SetStaticMesh(Info->ClassMesh.StaticMesh.Get());
+	int32 MatIndex = 0;
+	for (const auto& SoftMaterial : Info->ClassMesh.Materials)
+	{
+		if (!SoftMaterial.IsNull())
+		{
+			// Check and use if already loaded
+			if (SoftMaterial.Get())
+			{
+				MeshComp->SetMaterial(MatIndex, SoftMaterial.Get());
+			}
+			else
+			{
+				// Async load
+				FStreamableManager& StreamableManager = UAssetManager::Get().GetStreamableManager();
+				StreamableManager.RequestAsyncLoad(SoftMaterial.ToSoftObjectPath(),
+				                                   [MeshComp, MatIndex, SoftMaterial]
+				                                   {
+					                                   if (MeshComp && SoftMaterial.Get())
+						                                   MeshComp->SetMaterial(
+							                                   MatIndex, SoftMaterial.Get());
+				                                   });
+			}
+		}
+
+		MatIndex++;
+	}
+
+	MeshComp->SetCollisionProfileName(Info->CollisionPreset);
+	MeshComp->UpdateCollisionFromStaticMesh();
 }

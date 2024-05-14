@@ -7,6 +7,8 @@
 #include "GameFramework/Actor.h"
 #include "UTPrefab.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPrefabLoaded);
+
 USTRUCT(BlueprintType)
 struct FPrefabInfo
 {
@@ -51,6 +53,12 @@ class USEFULTOOLS_API AUTPrefab : public AActor
 	GENERATED_BODY()
 
 public:
+	AUTPrefab();
+
+	/** Calls when all prefab's objects finished spawning.*/
+	UPROPERTY(BlueprintAssignable)
+	FOnPrefabLoaded OnPrefabLoaded;
+
 	/** Base static mesh. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Spawn Info")
 	UStaticMeshComponent* StaticMesh;
@@ -59,7 +67,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Spawn Info")
 	TMap<FName, FPrefabInfo> SpawnObjects;
 
-	AUTPrefab();
+	UFUNCTION(BlueprintPure)
+	bool IsPrefabLoaded() const { return SpawnedObjectsCount == SpawnObjects.Num(); };
 
 protected:
 	UPROPERTY(EditAnywhere, Category="Spawn Info")
@@ -80,5 +89,11 @@ protected:
 	UFUNCTION(CallInEditor, BlueprintCallable, Category="Spawn Info", meta=(Keywords="Convert Static Mesh To HISM"))
 	void ConvertMeshToHism();
 
+	uint32 SpawnedObjectsCount = 0;
+
 	void ClearAllHism() const;
+
+private:
+	void SpawnLoadedObject(FPrefabInfo* const& Info, USceneComponent* const& SceneComponent);
+	void SpawnLoadedMesh(FPrefabInfo* const& Info, UStaticMeshComponent* const& MeshComp, AActor* SpawnedActor);
 };
