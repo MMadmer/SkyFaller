@@ -51,35 +51,36 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Fire", IE_Released, WeaponComponent, &USFWeaponComponent::StopFire);
 }
 
-bool ABaseCharacter::IsMoving() const
-{
-	return !GetVelocity().IsZero() && !GetCharacterMovement()->IsFalling();
-}
-
 float ABaseCharacter::GetMovementDirection() const
 {
-	const auto VelocityNormal = GetVelocity().GetSafeNormal();
-	const auto AngleBetween = FMath::Acos(FVector::DotProduct(GetActorForwardVector(), VelocityNormal));
-	const auto CrossProduct = FVector::CrossProduct(GetActorForwardVector(), VelocityNormal);
-	const auto Degrees = FMath::RadiansToDegrees(AngleBetween);
+	const FVector Velocity = GetVelocity();
+	if (Velocity.IsNearlyZero()) return 0.0f;
 
-	return CrossProduct.IsZero() ? Degrees : Degrees * FMath::Sign(CrossProduct.Z);
+	const FVector ActorForward = GetActorForwardVector();
+
+	const FVector VelocityNormal = Velocity.GetSafeNormal();
+	const float AngleBetween = FMath::Acos(FVector::DotProduct(ActorForward, VelocityNormal));
+	const FVector CrossProduct = FVector::CrossProduct(ActorForward, VelocityNormal);
+	const float Degrees = FMath::RadiansToDegrees(AngleBetween);
+
+	return CrossProduct.IsNearlyZero() ? Degrees : Degrees * FMath::Sign(CrossProduct.Z);
 }
 
 void ABaseCharacter::OnDeath()
 {
-	GetCharacterMovement()->DisableMovement();
+	if (const auto MovementComp = GetCharacterMovement()) MovementComp->DisableMovement();
 
 	SetLifeSpan(LifeSpanOnDeath);
 
-	if (Controller)
-	{
-		Controller->ChangeState(NAME_Spectating);
-	}
-	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
+	if (Controller) Controller->ChangeState(NAME_Spectating);
 
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	GetMesh()->SetSimulatePhysics(true);
+	if (const auto CapsuleComp = GetCapsuleComponent()) CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+
+	if (const auto MeshComp = GetMesh())
+	{
+		MeshComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		MeshComp->SetSimulatePhysics(true);
+	}
 }
 
 void ABaseCharacter::MoveForward(float Amount)

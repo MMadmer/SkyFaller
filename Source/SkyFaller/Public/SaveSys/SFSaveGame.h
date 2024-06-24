@@ -6,11 +6,30 @@
 #include "GameFramework/SaveGame.h"
 #include "SFSaveGame.generated.h"
 
+USTRUCT(BlueprintType)
+struct FSaveDataRecord
+{
+	GENERATED_BODY()
+
+	UPROPERTY(SaveGame)
+	UClass* ActorClass;
+
+	UPROPERTY(SaveGame)
+	FString ActorName;
+
+	UPROPERTY(SaveGame)
+	FTransform ActorTransform;
+
+	UPROPERTY(SaveGame)
+	TArray<uint8> BinaryData;
+};
+
 UCLASS()
 class SKYFALLER_API USFSaveGame : public USaveGame
 {
 	GENERATED_BODY()
 
 public:
-	int32 Skills;
+	UPROPERTY()
+	TArray<uint8> ByteData;
 };

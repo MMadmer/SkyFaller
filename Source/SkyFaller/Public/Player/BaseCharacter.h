@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "BaseCharacter.generated.h"
 
 class USpringArmComponent;
@@ -11,9 +12,6 @@ class UCameraComponent;
 class UBGCHealthComponent;
 class ASFBaseWeapon;
 class USFWeaponComponent;
-class USFProgressComponent;
-class USkeletalMesh;
-class UAnimationAsset;
 
 UCLASS()
 class SKYFALLER_API ABaseCharacter : public ACharacter
@@ -48,7 +46,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
-	bool IsMoving() const;
+	FORCEINLINE bool IsMoving() const { return !GetVelocity().IsNearlyZero() && !GetCharacterMovement()->IsFalling(); }
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	float GetMovementDirection() const;
