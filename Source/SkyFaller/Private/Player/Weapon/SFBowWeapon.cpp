@@ -22,7 +22,7 @@ void ASFBowWeapon::BeginPlay()
 	WeaponMesh->SetAnimInstanceClass(AnimationInst);
 }
 
-void ASFBowWeapon::StartFire()
+void ASFBowWeapon::StartFire_Implementation()
 {
 	const auto Player = GetPlayer();
 	if (!Player) return;
@@ -44,7 +44,7 @@ void ASFBowWeapon::StartFire()
 	GetWorld()->GetTimerManager().SetTimer(ChargeTimer, this, &ASFBowWeapon::Charging, ChargeSpeed, true);
 }
 
-void ASFBowWeapon::StopFire()
+void ASFBowWeapon::StopFire_Implementation()
 {
 	if (!GetWorld()) return;
 	GetWorld()->GetTimerManager().ClearTimer(ChargeTimer);

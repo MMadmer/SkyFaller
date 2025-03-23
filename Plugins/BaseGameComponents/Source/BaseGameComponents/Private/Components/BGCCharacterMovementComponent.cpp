@@ -3,10 +3,6 @@
 
 #include "Components/BGCCharacterMovementComponent.h"
 
-UBGCCharacterMovementComponent::UBGCCharacterMovementComponent(): bWantsToRun(false), bWasRunning(false)
-{
-}
-
 void UBGCCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType,
                                                    FActorComponentTickFunction* ThisTickFunction)
 {
@@ -19,6 +15,9 @@ void UBGCCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick T
 		if (IsRunning()) OnStartRunning.Broadcast();
 		else OnStopRunning.Broadcast();
 	}
+
+	if (!IsFalling() && bFallingLastFrame) OnLanded.Broadcast();
+	bFallingLastFrame = IsFalling();
 }
 
 bool UBGCCharacterMovementComponent::IsMoving() const

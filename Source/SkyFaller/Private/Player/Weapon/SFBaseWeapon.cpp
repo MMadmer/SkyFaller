@@ -5,7 +5,6 @@
 #include "GameFramework/Controller.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/PlayerController.h"
-#include "Player/BaseCharacter.h"
 
 ASFBaseWeapon::ASFBaseWeapon()
 {
@@ -14,27 +13,6 @@ ASFBaseWeapon::ASFBaseWeapon()
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("WeaponMesh");
 	SetRootComponent(WeaponMesh);
 	ShotSound = nullptr;
-}
-
-void ASFBaseWeapon::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-void ASFBaseWeapon::StartFire()
-{
-
-}
-
-void ASFBaseWeapon::StopFire()
-{
-
-}
-
-void ASFBaseWeapon::MakeShot()
-{
-
 }
 
 bool ASFBaseWeapon::GetTraceData(FVector& TraceStart, FVector& TraceEnd) const
@@ -66,30 +44,14 @@ bool ASFBaseWeapon::GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRota
 	return true;
 }
 
-FVector ASFBaseWeapon::GetMuzzleWorldLocation() const
+void ASFBaseWeapon::MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd) const
 {
-	return WeaponMesh->GetSocketLocation(MuzzleSocketName);
-}
-
-FRotator ASFBaseWeapon::GetMuzzleWorldRotation() const
-{
-	return WeaponMesh->GetSocketRotation(MuzzleSocketName);
-}
-
-void ASFBaseWeapon::MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd)
-{
-	if (!GetWorld()) return;
+	const UWorld* World = GetWorld();
+	if (!World) return;
 
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(GetOwner());
 	CollisionParams.bReturnPhysicalMaterial = true;
 
-	GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, CollisionParams);
-}
-
-ABaseCharacter* ASFBaseWeapon::GetPlayer() const
-{
-	const auto Player = Cast<ABaseCharacter>(GetOwner());
-
-	return Player;
+	World->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, CollisionParams);
 }

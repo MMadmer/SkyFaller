@@ -25,8 +25,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Animation")
 	float GetCharge() const { return Charge / ChargeTime; };
 
-	virtual void StartFire() override;
-	virtual void StopFire() override;
+	virtual void StartFire_Implementation() override;
+	virtual void StopFire_Implementation() override;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")

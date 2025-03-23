@@ -4,12 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Player/BaseCharacter.h"
 #include "SFBaseWeapon.generated.h"
 
 class USkeletalMeshComponent;
 class USoundCue;
-class ABaseCharacter;
-
 
 UCLASS()
 class SKYFALLER_API ASFBaseWeapon : public AActor
@@ -19,8 +18,13 @@ class SKYFALLER_API ASFBaseWeapon : public AActor
 public:
 	ASFBaseWeapon();
 
-	virtual void StartFire();
-	virtual void StopFire();
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void StartFire();
+	virtual void StartFire_Implementation() { ; }
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void StopFire();
+	virtual void StopFire_Implementation() { ; }
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
@@ -37,14 +41,14 @@ protected:
 
 	TSubclassOf<UAnimInstance> CachedPlayerBP;
 
-	virtual void BeginPlay() override;
-
-	virtual void MakeShot();
+	virtual void MakeShot() { ; }
 	virtual bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const;
+	void MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd) const;
+
+	ABaseCharacter* GetPlayer() const { return Cast<ABaseCharacter>(GetOwner()); }
 	APlayerController* GetPlayerController() const;
 	bool GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRotation) const;
-	FVector GetMuzzleWorldLocation() const;
-	FRotator GetMuzzleWorldRotation() const;
-	void MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd);
-	ABaseCharacter* GetPlayer() const;
+
+	FVector GetMuzzleWorldLocation() const { return WeaponMesh->GetSocketLocation(MuzzleSocketName); }
+	FRotator GetMuzzleWorldRotation() const { return WeaponMesh->GetSocketRotation(MuzzleSocketName); }
 };

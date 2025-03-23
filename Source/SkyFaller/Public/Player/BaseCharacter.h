@@ -19,7 +19,7 @@ class SKYFALLER_API ABaseCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-	ABaseCharacter();
+	ABaseCharacter(const FObjectInitializer& ObjInit);
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	FORCEINLINE bool IsMoving() const { return !GetVelocity().IsNearlyZero() && !GetCharacterMovement()->IsFalling(); }

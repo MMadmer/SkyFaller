@@ -1,15 +1,15 @@
 // Sky Faller. All rights reserved.
 
-
 #include "Player/BaseCharacter.h"
 #include "Camera/CameraComponent.h"
+#include "Components/BGCCharacterMovementComponent.h"
 #include "Components/BGCHealthComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SFWeaponComponent.h"
-#include "Components/SkeletalMeshComponent.h"
 
-ABaseCharacter::ABaseCharacter()
+ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) : Super(
+	ObjInit.SetDefaultSubobjectClass<UBGCCharacterMovementComponent>(CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
