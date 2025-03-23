@@ -5,9 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/BGCHealthComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Components/InputComponent.h"
 #include "Components/SFWeaponComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 
@@ -33,22 +31,6 @@ void ABaseCharacter::BeginPlay()
 
 	if (HealthComponent) HealthComponent->OnDeath.AddDynamic(this, &ABaseCharacter::OnDeath);
 	else UE_LOG(LogTemp, Warning, TEXT("Health not valid"));
-}
-
-void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	// Moving
-	PlayerInputComponent->BindAxis("MoveForward", this, &ABaseCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ABaseCharacter::MoveRight);
-	PlayerInputComponent->BindAxis("LookUp", this, &ABaseCharacter::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("LookAround", this, &ABaseCharacter::AddControllerYawInput);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABaseCharacter::Jump);
-
-	// Shooting
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, WeaponComponent, &USFWeaponComponent::StartFire);
-	PlayerInputComponent->BindAction("Fire", IE_Released, WeaponComponent, &USFWeaponComponent::StopFire);
 }
 
 float ABaseCharacter::GetMovementDirection() const
@@ -81,14 +63,4 @@ void ABaseCharacter::OnDeath()
 		MeshComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		MeshComp->SetSimulatePhysics(true);
 	}
-}
-
-void ABaseCharacter::MoveForward(float Amount)
-{
-	AddMovementInput(GetActorForwardVector(), Amount);
-}
-
-void ABaseCharacter::MoveRight(float Amount)
-{
-	AddMovementInput(GetActorRightVector(), Amount);
 }

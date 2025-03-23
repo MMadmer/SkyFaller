@@ -21,6 +21,12 @@ class SKYFALLER_API ABaseCharacter : public ACharacter
 public:
 	ABaseCharacter();
 
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	FORCEINLINE bool IsMoving() const { return !GetVelocity().IsNearlyZero() && !GetCharacterMovement()->IsFalling(); }
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	float GetMovementDirection() const;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Death", meta = (ClapMin = "0"))
 	float LifeSpanOnDeath = 5.0f;
@@ -38,18 +44,6 @@ protected:
 	USFWeaponComponent* WeaponComponent;
 
 	virtual void BeginPlay() override;
-
-	void MoveForward(float Amount);
-	void MoveRight(float Amount);
-
-public:
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	FORCEINLINE bool IsMoving() const { return !GetVelocity().IsNearlyZero() && !GetCharacterMovement()->IsFalling(); }
-
-	UFUNCTION(BlueprintCallable, Category = "Movement")
-	float GetMovementDirection() const;
 
 private:
 	UFUNCTION()

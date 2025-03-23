@@ -6,7 +6,7 @@
 #include "BPFL/EXEditorFunctions.h"
 #include "Engine/StaticMeshActor.h"
 #include "Kismet/GameplayStatics.h"
-#include "Prefab/UTPrefab.h"
+#include "Actors/UTPrefab.h"
 
 AEXPrefabCreator::AEXPrefabCreator()
 {

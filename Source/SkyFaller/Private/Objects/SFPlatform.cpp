@@ -6,17 +6,22 @@
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "SFListener.h"
-#include "SFPlayerState.h"
+#include "Player/SFPlayerState.h"
 #include "Objects/SFTarget.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/WorldSettings.h"
-#include "UsefulTools/Public/Prefab/UTPrefab.h"
+#include "UsefulTools/Public/Actors/UTPrefab.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogPlatform, All, All)
 
 ASFPlatform::ASFPlatform() : PlatformVariation(nullptr)
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	bTouched = false;
+	bSpawned = true;
+	bDespawned = false;
+	bIsHub = false;
 }
 
 void ASFPlatform::BeginPlay()
@@ -39,7 +44,7 @@ void ASFPlatform::Tick(float DeltaTime)
 
 	if (!bDespawned)
 	{
-		Spawned ? Spawner(DeltaTime) : Mover(DeltaTime);
+		bSpawned ? Spawner(DeltaTime) : Mover(DeltaTime);
 	}
 	else
 	{
@@ -146,7 +151,6 @@ void ASFPlatform::SpawnNext()
 	}
 
 	FRotator SpawnDirection(0.0f, NextAngle, 0.0f);
-	// UE_LOG(LogPlatform, Display, TEXT("Global rotation: %f"), *pGlobalRotation);
 
 	// Set location and rotation of new platform
 	FVector SpawnLocation;
@@ -201,7 +205,7 @@ void ASFPlatform::Spawner(float DeltaTime)
 {
 	if (GetActorLocation().Z >= ParentZ)
 	{
-		Spawned = false;
+		bSpawned = false;
 		return;
 	}
 
@@ -241,7 +245,7 @@ void ASFPlatform::Mover(float DeltaTime)
 	}
 
 	// Horizontal moving
-	Speed = (Offset >= Threshold || Offset <= -Threshold) ? -Speed : Speed;
+	Speed = Offset >= Threshold || Offset <= -Threshold ? -Speed : Speed;
 	const float CurrentSpeed = Speed * (MinSpeed + (1 - MinSpeed) * (1 - FMath::Abs(Offset) / Threshold));
 	// Smooth speed
 	const float CurrentOffset = CurrentSpeed * DeltaTime;

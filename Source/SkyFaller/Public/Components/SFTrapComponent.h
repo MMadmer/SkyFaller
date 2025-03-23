@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SFTrap.h"
+#include "Objects/Traps/SFTrap.h"
 #include "Components/ActorComponent.h"
 #include "SFTrapComponent.generated.h"
 
@@ -24,7 +24,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traps", meta=(EditCondition="bHasLimit"))
 	bool bWhiteList = true;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Traps", meta=(EditCondition="bHasLimit"))
 	TMap<TSubclassOf<ASFTrap>, uint8> Traps;
 

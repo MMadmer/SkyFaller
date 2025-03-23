@@ -2,8 +2,3 @@
 
 
 #include "UI/SFGameHUD.h"
-
-void ASFGameHUD::BeginPlay()
-{
-	Super::BeginPlay();
-}

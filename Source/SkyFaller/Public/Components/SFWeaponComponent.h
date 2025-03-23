@@ -22,9 +22,6 @@ class SKYFALLER_API USFWeaponComponent : public UActorComponent
 public:
 	USFWeaponComponent();
 
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	ASFBaseWeapon* GetCurrentWeapon() const;
-
 	UPROPERTY(BlueprintAssignable)
 	FOnStartFire OnStartFire;
 
@@ -34,8 +31,14 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnWeaponChanged OnWeaponChanged;
 
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void StartFire();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void StopFire();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	ASFBaseWeapon* GetCurrentWeapon() const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")

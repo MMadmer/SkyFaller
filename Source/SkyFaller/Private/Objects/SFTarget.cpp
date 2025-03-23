@@ -3,12 +3,10 @@
 
 #include "Objects/SFTarget.h"
 
-#include "SFPlayerState.h"
+#include "Player/SFPlayerState.h"
 #include "Components/StaticMeshComponent.h"
 #include "Player/Weapon/SFArrow.h"
 #include "Player/BaseCharacter.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogTarget, All, All)
 
 ASFTarget::ASFTarget()
 {

@@ -88,17 +88,17 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	bool bTouched = false;
+	uint8 bTouched : 1;
 	float Offset = 0.0f;
-	bool Spawned = true;
+	uint8 bSpawned : 1;
 	float ParentZ = 0.0f;
 	float LocalTime = 0.0f;
-	bool bDespawned = false;
+	uint8 bDespawned : 1;
 	const float PLATFORM_RADIUS = 742.0f; // Platform "bounds"(not real)
 	float GlobalRotation = 0.0f;
 	float ZeroY = 0.0f;
 	int32 SelfID = 0;
-	bool bIsHub = false;
+	uint8 bIsHub : 1;
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -110,7 +110,7 @@ protected:
 	void Spawner(float DeltaTime);
 	void Despawner(float DeltaTime);
 	void Mover(float DeltaTime);
-	void SpawnTarget() ;
+	void SpawnTarget();
 
 	void ListenerConnecting();
 };

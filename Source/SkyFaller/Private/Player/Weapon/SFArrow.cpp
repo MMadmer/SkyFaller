@@ -2,14 +2,13 @@
 
 
 #include "Player/Weapon/SFArrow.h"
-#include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "CoreTypes.h"
 #include "Sound/SoundCue.h"
 #include "Components/AudioComponent.h"
 #include "NiagaraComponent.h"
 #include "Player/BaseCharacter.h"
-#include "Objects/SFTrap.h"
+#include "Objects/Traps/SFTrap.h"
 
 ASFArrow::ASFArrow()
 {
@@ -32,11 +31,6 @@ void ASFArrow::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	PhysicsFalling();
-}
-
-FVector ASFArrow::GetVelocity() const
-{
-	return MovementComponent->Velocity;
 }
 
 void ASFArrow::BeginPlay()

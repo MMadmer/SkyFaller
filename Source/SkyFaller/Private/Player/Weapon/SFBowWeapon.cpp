@@ -3,7 +3,7 @@
 
 #include "Player/Weapon/SFBowWeapon.h"
 
-#include "SFPlayerState.h"
+#include "Player/SFPlayerState.h"
 #include "Player/Weapon/SFArrow.h"
 #include "Animation/AnimInstance.h"
 #include "Sound/SoundCue.h"
@@ -11,11 +11,8 @@
 #include "Player/BaseCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogBow, All, All)
-
 ASFBowWeapon::ASFBowWeapon(): PlayerAimAnimMontage(nullptr)
 {
-	
 }
 
 void ASFBowWeapon::BeginPlay()
@@ -38,11 +35,10 @@ void ASFBowWeapon::StartFire()
 	Player->GetMesh()->SetAnimInstanceClass(PlayerAimBP);
 
 	if (!PlayerAimAnimMontage) return;
-	
+
 	const float MontageTime = ChargeTime / PlayerAimAnimMontage->SequenceLength;
-	// UE_LOG(LogBow, Display, TEXT("Speed modifier %f"), MontageTime);
-	// UE_LOG(LogBow, Display, TEXT("Anim length %f"), PlayerAimAnimMontage->SequenceLength);
 	Player->PlayAnimMontage(PlayerAimAnimMontage, MontageTime);
+
 	// Start weapon charging
 	if (!GetWorld()) return;
 	GetWorld()->GetTimerManager().SetTimer(ChargeTimer, this, &ASFBowWeapon::Charging, ChargeSpeed, true);
@@ -104,7 +100,6 @@ bool ASFBowWeapon::CanFire() const
 
 void ASFBowWeapon::Charging()
 {
-	// UE_LOG(LogBow, Display, TEXT("Charging: %f %%"), GetCharge());
 	if (Charge >= ChargeTime)
 	{
 		if (!GetWorld()) return;

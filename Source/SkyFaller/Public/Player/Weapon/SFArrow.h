@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "SFArrow.generated.h"
 
 class USkeletalMeshComponent;
-class UProjectileMovementComponent;
 class USoundCue;
 
 UCLASS()
@@ -24,7 +24,7 @@ public:
 	float ImpactForceMultiplier = 1.0f;
 
 	void SetShotDirection(const FVector& Direction) { ShotDirection = Direction; }
-	FVector GetVelocity() const;
+	virtual FVector GetVelocity() const override { return MovementComponent->Velocity; }
 	USkeletalMeshComponent* GetMesh() const { return ArrowMesh; };
 
 protected:

@@ -10,7 +10,4 @@ UCLASS()
 class SKYFALLER_API ASFGameHUD : public AHUD
 {
 	GENERATED_BODY()
-
-protected:
-	virtual void BeginPlay() override;
 };
