@@ -4,11 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "BaseCharacter.generated.h"
 
-class USpringArmComponent;
-class UCameraComponent;
 class UBGCHealthComponent;
 class ASFBaseWeapon;
 class USFWeaponComponent;
@@ -22,7 +19,7 @@ public:
 	ABaseCharacter(const FObjectInitializer& ObjInit);
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
-	FORCEINLINE bool IsMoving() const { return !GetVelocity().IsNearlyZero() && !GetCharacterMovement()->IsFalling(); }
+	bool IsMoving() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	float GetMovementDirection() const;
@@ -30,12 +27,6 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Death", meta = (ClapMin = "0"))
 	float LifeSpanOnDeath = 5.0f;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-	UCameraComponent* CameraComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-	USpringArmComponent* SpringArmComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	UBGCHealthComponent* HealthComponent;

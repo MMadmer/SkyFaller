@@ -1,10 +1,8 @@
 // Sky Faller. All rights reserved.
 
 #include "Player/BaseCharacter.h"
-#include "Camera/CameraComponent.h"
 #include "Components/BGCCharacterMovementComponent.h"
 #include "Components/BGCHealthComponent.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SFWeaponComponent.h"
 
@@ -13,13 +11,6 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjInit) : Super(
 {
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
-
-	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
-	SpringArmComponent->SetupAttachment(GetMesh());
-	SpringArmComponent->bUsePawnControlRotation = true;
-
-	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
-	CameraComponent->SetupAttachment(SpringArmComponent);
 
 	HealthComponent = CreateDefaultSubobject<UBGCHealthComponent>("HealthComponent");
 	WeaponComponent = CreateDefaultSubobject<USFWeaponComponent>("WeaponComponent");
@@ -31,6 +22,12 @@ void ABaseCharacter::BeginPlay()
 
 	if (HealthComponent) HealthComponent->OnDeath.AddDynamic(this, &ABaseCharacter::OnDeath);
 	else UE_LOG(LogTemp, Warning, TEXT("Health not valid"));
+}
+
+bool ABaseCharacter::IsMoving() const
+{
+	const auto MovementComp = Cast<UBGCCharacterMovementComponent>(GetMovementComponent());
+	return IsValid(MovementComp) && MovementComp->IsMoving();
 }
 
 float ABaseCharacter::GetMovementDirection() const
@@ -54,7 +51,7 @@ void ABaseCharacter::OnDeath()
 
 	SetLifeSpan(LifeSpanOnDeath);
 
-	if (Controller) Controller->ChangeState(NAME_Spectating);
+	if (IsValid(Controller)) Controller->ChangeState(NAME_Spectating);
 
 	if (const auto CapsuleComp = GetCapsuleComponent()) CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 

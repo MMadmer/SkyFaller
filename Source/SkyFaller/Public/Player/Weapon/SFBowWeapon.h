@@ -9,7 +9,6 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChargeChanged, float, ChargeNorm);
 
 class ASFArrow;
-class ABaseCharacter;
 
 UCLASS()
 class SKYFALLER_API ASFBowWeapon : public ASFBaseWeapon
@@ -19,8 +18,6 @@ class SKYFALLER_API ASFBowWeapon : public ASFBaseWeapon
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnChargeChanged OnChargeChanged;
-
-	ASFBowWeapon();
 
 	UFUNCTION(BlueprintCallable, Category = "Animation")
 	float GetCharge() const { return Charge / ChargeTime; };
@@ -35,30 +32,20 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	UAnimMontage* PlayerAimAnimMontage;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	TSubclassOf<UAnimInstance> PlayerAimBP;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	TSubclassOf<UAnimInstance> AnimationInst;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation", meta = (ClampMin = "0"))
 	float ChargeTime = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation", meta = (ClampMin = "0.01"))
 	float ChargeSpeed = 0.17f;
 
-	virtual void MakeShot() override;
-
-	virtual void BeginPlay() override;
+	virtual bool MakeShot_Implementation() override;
 
 private:
-	FName BoneBowstring = "DummyMiddle";
-	bool bCharged = false;
+	uint8 bCharged : 1;
 	FTimerHandle ChargeTimer;
 	float Charge = 0.0f;
 
-	bool CanFire() const;
+	bool CanFire() const { return bCharged; }
 	void Charging();
-	void BowstringOffset(float Offset) const;
 	void SeriesCalc() const;
 };

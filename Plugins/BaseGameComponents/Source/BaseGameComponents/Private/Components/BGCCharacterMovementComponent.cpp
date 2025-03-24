@@ -8,35 +8,28 @@ void UBGCCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick T
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (bWasRunning != IsRunning())
+	// Run logic
+	const bool CachedRunning = IsRunning();
+	if (bRunningLastFrame != CachedRunning)
 	{
-		bWasRunning = IsRunning();
+		bRunningLastFrame = CachedRunning;
 
-		if (IsRunning()) OnStartRunning.Broadcast();
+		if (CachedRunning) OnStartRunning.Broadcast();
 		else OnStopRunning.Broadcast();
 	}
 
-	if (!IsFalling() && bFallingLastFrame) OnLanded.Broadcast();
-	bFallingLastFrame = IsFalling();
-}
-
-bool UBGCCharacterMovementComponent::IsMoving() const
-{
-	const AActor* Owner = GetOwner();
-
-	return Owner->GetVelocity().IsZero() && !IsFalling();
-}
-
-bool UBGCCharacterMovementComponent::IsRunning() const
-{
-	const AActor* Owner = GetOwner();
-
-	return bWantsToRun && Owner && !Owner->GetVelocity().IsZero();
+	// Falling logic
+	const bool CachedFalling = IsFalling();
+	if (bFallingLastFrame != CachedFalling)
+	{
+		bFallingLastFrame = CachedFalling;
+		if (!CachedFalling) OnLanded.Broadcast();
+	}
 }
 
 float UBGCCharacterMovementComponent::GetMaxSpeed() const
 {
 	const float MaxSpeed = Super::GetMaxSpeed();
 
-	return IsRunning() && !IsFalling() ? MaxSpeed * RunModifier : MaxSpeed;
+	return IsRunning() ? MaxSpeed * RunMultiplier : MaxSpeed;
 }

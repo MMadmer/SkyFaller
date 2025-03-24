@@ -6,38 +6,22 @@
 #include "Player/SFPlayerState.h"
 #include "Player/Weapon/SFArrow.h"
 #include "Animation/AnimInstance.h"
-#include "Sound/SoundCue.h"
-#include "Components/AudioComponent.h"
 #include "Player/BaseCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
-ASFBowWeapon::ASFBowWeapon(): PlayerAimAnimMontage(nullptr)
-{
-}
-
-void ASFBowWeapon::BeginPlay()
-{
-	Super::BeginPlay();
-
-	WeaponMesh->SetAnimInstanceClass(AnimationInst);
-}
 
 void ASFBowWeapon::StartFire_Implementation()
 {
 	const auto Player = GetPlayer();
 	if (!Player) return;
 
-	CachedPlayerBP = Player->GetMesh()->AnimClass; // Caching original(last) player anim BP
+	const UPawnMovementComponent* MovementComp = Player->GetMovementComponent();
+	if (MovementComp->IsFalling()) return; // Don't start if falling
 
-	if (Player->GetMovementComponent()->IsFalling()) return; // Don't start if falling
-
-	// Set weapon aiming BP to player
-	Player->GetMesh()->SetAnimInstanceClass(PlayerAimBP);
-
-	if (!PlayerAimAnimMontage) return;
-
-	const float MontageTime = ChargeTime / PlayerAimAnimMontage->SequenceLength;
-	Player->PlayAnimMontage(PlayerAimAnimMontage, MontageTime);
+	if (IsValid(PlayerAimAnimMontage))
+	{
+		const float MontageTime = ChargeTime / PlayerAimAnimMontage->SequenceLength;
+		Player->PlayAnimMontage(PlayerAimAnimMontage, MontageTime);
+	}
 
 	// Start weapon charging
 	if (!GetWorld()) return;
@@ -50,8 +34,6 @@ void ASFBowWeapon::StopFire_Implementation()
 	GetWorld()->GetTimerManager().ClearTimer(ChargeTimer);
 
 	Charge = 0.0f;
-	const auto Player = GetPlayer();
-	Player->GetMesh()->SetAnimInstanceClass(CachedPlayerBP); // Returning back player cached anim BP
 
 	if (!CanFire()) return;
 	bCharged = false;
@@ -60,12 +42,14 @@ void ASFBowWeapon::StopFire_Implementation()
 	SeriesCalc();
 }
 
-void ASFBowWeapon::MakeShot()
+bool ASFBowWeapon::MakeShot_Implementation()
 {
+	UWorld* World = GetWorld();
+	if (!World) return false;
+
 	// Get shot direction
-	if (!GetWorld()) return;
 	FVector TraceStart, TraceEnd;
-	if (!GetTraceData(TraceStart, TraceEnd)) return;
+	if (!GetTraceData(TraceStart, TraceEnd)) return false;
 
 	FHitResult HitResult;
 	MakeHit(HitResult, TraceStart, TraceEnd);
@@ -79,60 +63,47 @@ void ASFBowWeapon::MakeShot()
 	FTransform SpawnTransform(NewRotation, GetMuzzleWorldLocation());
 	SpawnTransform.SetScale3D(FVector(0.002f, 0.002f, 0.0015f));
 
-	ASFArrow* Arrow = GetWorld()->SpawnActorDeferred<ASFArrow>(ProjectileClass, SpawnTransform);
-	if (!Arrow) return;
+	ASFArrow* Arrow = World->SpawnActorDeferred<ASFArrow>(ProjectileClass, SpawnTransform);
+	if (!Arrow) return false;
 
 	Arrow->SetShotDirection(Direction);
 	Arrow->SetOwner(GetOwner());
 	Arrow->FinishSpawning(SpawnTransform);
 
-	// Shot sound
-	UAudioComponent* AudioComponent = NewObject<UAudioComponent>(this);
-	if (!(AudioComponent && ShotSound)) return;
-	AudioComponent->SetSound(ShotSound);
-	AudioComponent->Play();
-}
-
-bool ASFBowWeapon::CanFire() const
-{
-	return bCharged;
+	return true;
 }
 
 void ASFBowWeapon::Charging()
 {
 	if (Charge >= ChargeTime)
 	{
-		if (!GetWorld()) return;
-		GetWorld()->GetTimerManager().ClearTimer(ChargeTimer);
+		const UWorld* World = GetWorld();
+		if (!World) return;
+
+		World->GetTimerManager().ClearTimer(ChargeTimer);
 		bCharged = true;
 		GetPlayer()->StopAnimMontage(PlayerAimAnimMontage);
 	}
 	else
 	{
 		// Stop charging if falling
-		if (GetPlayer()->GetCharacterMovement()->IsFalling())
-		{
-			StopFire();
-		}
+		if (GetPlayer()->GetCharacterMovement()->IsFalling()) StopFire();
+
 		Charge += ChargeSpeed;
 		OnChargeChanged.Broadcast(
 			FMath::GetMappedRangeValueClamped(FVector2D(0.0f, ChargeTime), FVector2D(0.0f, 1.0f), Charge));
 	}
 }
 
-void ASFBowWeapon::BowstringOffset(float Offset) const
-{
-	WeaponMesh->GlobalAnimRateScale = 1.0f;
-}
-
 void ASFBowWeapon::SeriesCalc() const
 {
 	const auto Player = GetPlayer();
 	if (!Player) return;
+
 	ASFPlayerState* PlayerState = Cast<ASFPlayerState>(GetPlayer()->GetPlayerState());
 	if (!PlayerState) return;
 
-	if (!PlayerState->GetSeries()) return;
+	if (PlayerState->GetSeries() == 0) return;
 
 	if (PlayerState->bInSeries)
 	{

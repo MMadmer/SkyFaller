@@ -8,7 +8,6 @@
 #include "SFBaseWeapon.generated.h"
 
 class USkeletalMeshComponent;
-class USoundCue;
 
 UCLASS()
 class SKYFALLER_API ASFBaseWeapon : public AActor
@@ -26,12 +25,26 @@ public:
 	void StopFire();
 	virtual void StopFire_Implementation() { ; }
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void OnWeaponSet();
+	virtual void OnWeaponSet_Implementation();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void OnWeaponDrop();
+	virtual void OnWeaponDrop_Implementation();
+
+	UFUNCTION(BlueprintPure)
+	FName GetEquipSocketName() const { return WeaponEquipSocketName; }
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USkeletalMeshComponent* WeaponMesh;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
-	USoundCue* ShotSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	TSubclassOf<UAnimInstance> PlayerAnimBP;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	FName WeaponEquipSocketName = "WeaponSocket";
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	FName MuzzleSocketName = "MuzzleSocket";
@@ -39,10 +52,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon", meta = (ClapMin = "0.0"))
 	float TraceMaxDistance = 1500.0f;
 
-	TSubclassOf<UAnimInstance> CachedPlayerBP;
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	bool MakeShot();
+	virtual bool MakeShot_Implementation() { return true; }
 
-	virtual void MakeShot() { ; }
+	UFUNCTION(BlueprintCallable)
 	virtual bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const;
+
+	UFUNCTION(BlueprintCallable)
 	void MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd) const;
 
 	ABaseCharacter* GetPlayer() const { return Cast<ABaseCharacter>(GetOwner()); }
@@ -51,4 +68,6 @@ protected:
 
 	FVector GetMuzzleWorldLocation() const { return WeaponMesh->GetSocketLocation(MuzzleSocketName); }
 	FRotator GetMuzzleWorldRotation() const { return WeaponMesh->GetSocketRotation(MuzzleSocketName); }
+
+	UClass* CachedPlayerBP;
 };

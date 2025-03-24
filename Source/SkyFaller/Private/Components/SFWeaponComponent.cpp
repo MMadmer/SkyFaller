@@ -1,20 +1,25 @@
 // Sky Faller. All rights reserved.
 
-
 #include "Components/SFWeaponComponent.h"
-#include "Player/Weapon/SFBaseWeapon.h"
-#include "Player/BaseCharacter.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogWeaponComponent, All, All)
 
 USFWeaponComponent::USFWeaponComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bStartWithTickEnabled = false;
 }
 
-ASFBaseWeapon* USFWeaponComponent::GetCurrentWeapon() const
+void USFWeaponComponent::BeginPlay()
 {
-	return CurrentWeapon;
+	Super::BeginPlay();
+
+	SpawnWeapon();
+}
+
+void USFWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	SetCurrentWeapon(nullptr);
+
+	Super::EndPlay(EndPlayReason);
 }
 
 void USFWeaponComponent::StartFire()
@@ -27,41 +32,47 @@ void USFWeaponComponent::StartFire()
 
 void USFWeaponComponent::StopFire()
 {
+	if (IsValid(CurrentWeapon)) CurrentWeapon->StopFire();
 	OnStopFire.Broadcast();
-	CurrentWeapon->StopFire();
 }
 
-void USFWeaponComponent::BeginPlay()
+void USFWeaponComponent::SetCurrentWeapon(ASFBaseWeapon* Weapon)
 {
-	Super::BeginPlay();
+	if (GetCurrentWeapon() == Weapon) return;
 
-	SpawnWeapon();
-}
+	// Drop current weapon
+	if (IsValid(CurrentWeapon))
+	{
+		CurrentWeapon->OnWeaponDrop();
+		CurrentWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		CurrentWeapon->Destroy();
+	}
 
-void USFWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	CurrentWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	CurrentWeapon->Destroy();
+	// Set new weapon
+	CurrentWeapon = Weapon;
+	if (IsValid(CurrentWeapon))
+	{
+		CurrentWeapon->SetOwner(GetOwner());
+		const auto Player = Cast<ACharacter>(GetOwner());
+		if (IsValid(Player))
+		{
+			AttachWeaponToSocket(CurrentWeapon, Player->GetMesh(), CurrentWeapon->GetEquipSocketName());
+		}
+		CurrentWeapon->OnWeaponSet();
+	}
 
-	Super::EndPlay(EndPlayReason);
+	OnWeaponChanged.Broadcast(CurrentWeapon);
 }
 
 void USFWeaponComponent::SpawnWeapon()
 {
 	const auto World = GetWorld();
-	if (!World) return;
-	const auto Player = Cast<ACharacter>(GetOwner());
-	if (!Player) return;
+	if (!World || !WeaponClass) return;
 
 	const auto Weapon = World->SpawnActor<ASFBaseWeapon>(WeaponClass);
-	if (!Weapon) return;
+	if (!IsValid(Weapon)) return;
 
-	// All checks done. Set weapon to current
-	Weapon->SetOwner(Player);
-	CurrentWeapon = Weapon;
-	OnWeaponChanged.Broadcast(CurrentWeapon);
-
-	AttachWeaponToSocket(CurrentWeapon, Player->GetMesh(), WeaponEquipSocketName);
+	SetCurrentWeapon(Weapon);
 }
 
 void USFWeaponComponent::AttachWeaponToSocket(ASFBaseWeapon* Weapon, USceneComponent* SceneComponent,
@@ -71,9 +82,4 @@ void USFWeaponComponent::AttachWeaponToSocket(ASFBaseWeapon* Weapon, USceneCompo
 
 	const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, false);
 	Weapon->AttachToComponent(SceneComponent, AttachmentRules, SocketName);
-}
-
-bool USFWeaponComponent::CanFire() const
-{
-	return !CurrentWeapon ? false : true;
 }

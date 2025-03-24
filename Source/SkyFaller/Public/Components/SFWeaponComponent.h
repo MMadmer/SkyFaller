@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Player/Weapon/SFBaseWeapon.h"
 #include "SFWeaponComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStartFire);
@@ -11,8 +12,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStartFire);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStopFire);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponChanged, ASFBaseWeapon*, CurrentWeapon);
-
-class ASFBaseWeapon;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SKYFALLER_API USFWeaponComponent : public UActorComponent
@@ -38,14 +37,14 @@ public:
 	void StopFire();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	ASFBaseWeapon* GetCurrentWeapon() const;
+	void SetCurrentWeapon(ASFBaseWeapon* Weapon);
+
+	UFUNCTION(BlueprintPure, Category = "Weapon")
+	ASFBaseWeapon* GetCurrentWeapon() const { return CurrentWeapon; }
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<ASFBaseWeapon> WeaponClass;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	FName WeaponEquipSocketName = "WeaponSocket";
 
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -56,5 +55,5 @@ private:
 
 	void SpawnWeapon();
 	static void AttachWeaponToSocket(ASFBaseWeapon* Weapon, USceneComponent* SceneComponent, const FName& SocketName);
-	bool CanFire() const;
+	bool CanFire() const { return IsValid(GetCurrentWeapon()); }
 };
