@@ -21,7 +21,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnScoreChangedSignature OnScoreChanged;
 
-	bool bInSeries = false;
+	uint8 bInSeries : 1;
 	int32 GetScore() const { return Score; };
 	void AddScore(const int32 Value);
 	int32 GetSeries() const { return Series; };

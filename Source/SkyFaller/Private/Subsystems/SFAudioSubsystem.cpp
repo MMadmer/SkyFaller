@@ -86,24 +86,27 @@ void USFAudioSubsystem::CycleAmbient()
 	}
 	else
 	{
-		// Async load
 		FStreamableManager& StreamableManager = UAssetManager::Get().GetStreamableManager();
-		StreamableManager.RequestAsyncLoad(SoundIt->ToSoftObjectPath(), [&, SoundIt]
-		{
-			if (!SoundIt) return;
 
-			USoundBase* LoadedSound = Cast<USoundBase>(SoundIt->Get());
-			if (LoadedSound)
-			{
-				if (AudioComponent)
-				{
-					AudioComponent->SetSound(LoadedSound);
-					AudioComponent->Play();
-				}
-			}
-			else
+		TWeakObjectPtr<USFAudioSubsystem> WeakThis(this);
+		TSoftObjectPtr<USoundBase> SoftSound = *SoundIt;
+
+		StreamableManager.RequestAsyncLoad(SoftSound.ToSoftObjectPath(), [WeakThis, SoftSound]()
+		{
+			if (!WeakThis.IsValid()) return;
+
+			USoundBase* LoadedSound = SoftSound.Get();
+			if (!LoadedSound)
 			{
 				UE_LOG(LogAudioSys, Warning, TEXT("Failed to async load sound."));
+				return;
+			}
+
+			const USFAudioSubsystem* Subsystem = WeakThis.Get();
+			if (IsValid(Subsystem->AudioComponent))
+			{
+				Subsystem->AudioComponent->SetSound(LoadedSound);
+				Subsystem->AudioComponent->Play();
 			}
 		});
 	}

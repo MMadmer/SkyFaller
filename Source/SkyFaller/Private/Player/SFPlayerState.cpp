@@ -7,6 +7,8 @@ ASFPlayerState::ASFPlayerState()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
+
+	bInSeries = false;
 }
 
 void ASFPlayerState::AddScore(const int32 Value)

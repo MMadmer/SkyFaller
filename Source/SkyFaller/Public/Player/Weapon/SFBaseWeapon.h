@@ -57,12 +57,11 @@ protected:
 	virtual bool MakeShot_Implementation() { return true; }
 
 	UFUNCTION(BlueprintCallable)
-	virtual bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const;
+	virtual bool GetTraceData(FVector& TraceStart, FVector& TraceEnd);
 
 	UFUNCTION(BlueprintCallable)
-	void MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd) const;
+	void MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd);
 
-	ABaseCharacter* GetPlayer() const { return Cast<ABaseCharacter>(GetOwner()); }
 	APlayerController* GetPlayerController() const;
 	bool GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRotation) const;
 

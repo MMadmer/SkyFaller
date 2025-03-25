@@ -4,14 +4,12 @@
 #include "Player/Weapon/SFBowWeapon.h"
 
 #include "Player/SFPlayerState.h"
-#include "Player/Weapon/SFArrow.h"
-#include "Animation/AnimInstance.h"
-#include "Player/BaseCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 void ASFBowWeapon::StartFire_Implementation()
 {
-	const auto Player = GetPlayer();
+	const auto Player = Cast<ACharacter>(GetOwner());
 	if (!Player) return;
 
 	const UPawnMovementComponent* MovementComp = Player->GetMovementComponent();
@@ -19,7 +17,7 @@ void ASFBowWeapon::StartFire_Implementation()
 
 	if (IsValid(PlayerAimAnimMontage))
 	{
-		const float MontageTime = ChargeTime / PlayerAimAnimMontage->SequenceLength;
+		const float MontageTime = PlayerAimAnimMontage->SequenceLength / ChargeTime;
 		Player->PlayAnimMontage(PlayerAimAnimMontage, MontageTime);
 	}
 
@@ -33,19 +31,13 @@ void ASFBowWeapon::StopFire_Implementation()
 	if (!GetWorld()) return;
 	GetWorld()->GetTimerManager().ClearTimer(ChargeTimer);
 
-	Charge = 0.0f;
-
-	if (!CanFire()) return;
-	bCharged = false;
-
-	MakeShot();
-	SeriesCalc();
+	ResetCharge();
 }
 
 bool ASFBowWeapon::MakeShot_Implementation()
 {
 	UWorld* World = GetWorld();
-	if (!World) return false;
+	if (!World || !bCharged) return false;
 
 	// Get shot direction
 	FVector TraceStart, TraceEnd;
@@ -59,22 +51,33 @@ bool ASFBowWeapon::MakeShot_Implementation()
 
 	// Set new arrow transform(size, location, rotation)
 	FRotator NewRotation = Direction.Rotation();
-	NewRotation.Pitch -= 90.0f;
 	FTransform SpawnTransform(NewRotation, GetMuzzleWorldLocation());
-	SpawnTransform.SetScale3D(FVector(0.002f, 0.002f, 0.0015f));
 
-	ASFArrow* Arrow = World->SpawnActorDeferred<ASFArrow>(ProjectileClass, SpawnTransform);
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Instigator = GetInstigator();
+	SpawnParams.Owner = this;
+	AActor* Arrow = World->SpawnActor<AActor>(ProjectileClass, SpawnTransform, SpawnParams);
 	if (!Arrow) return false;
 
-	Arrow->SetShotDirection(Direction);
-	Arrow->SetOwner(GetOwner());
-	Arrow->FinishSpawning(SpawnTransform);
+	const auto ProjComp = Cast<UProjectileMovementComponent>(
+		Arrow->GetComponentByClass(UProjectileMovementComponent::StaticClass()));
+	if (IsValid(ProjComp)) ProjComp->Velocity = Direction * ShotStrength + GetVelocity();
+
+	SeriesCalc();
+	ResetCharge();
 
 	return true;
 }
 
+void ASFBowWeapon::ResetCharge()
+{
+	Charge = 0.0f;
+	bCharged = false;
+}
+
 void ASFBowWeapon::Charging()
 {
+	const auto Player = Cast<ACharacter>(GetOwner());
 	if (Charge >= ChargeTime)
 	{
 		const UWorld* World = GetWorld();
@@ -82,12 +85,16 @@ void ASFBowWeapon::Charging()
 
 		World->GetTimerManager().ClearTimer(ChargeTimer);
 		bCharged = true;
-		GetPlayer()->StopAnimMontage(PlayerAimAnimMontage);
+		if (IsValid(Player)) Player->StopAnimMontage(PlayerAimAnimMontage);
 	}
 	else
 	{
 		// Stop charging if falling
-		if (GetPlayer()->GetCharacterMovement()->IsFalling()) StopFire();
+		if (IsValid(Player))
+		{
+			const UPawnMovementComponent* MovementComp = Player->GetMovementComponent();
+			if (!IsValid(MovementComp) || MovementComp->IsFalling()) StopFire();
+		}
 
 		Charge += ChargeSpeed;
 		OnChargeChanged.Broadcast(
@@ -97,11 +104,11 @@ void ASFBowWeapon::Charging()
 
 void ASFBowWeapon::SeriesCalc() const
 {
-	const auto Player = GetPlayer();
-	if (!Player) return;
+	const auto Player = Cast<ACharacter>(GetOwner());
+	if (!IsValid(Player)) return;
 
-	ASFPlayerState* PlayerState = Cast<ASFPlayerState>(GetPlayer()->GetPlayerState());
-	if (!PlayerState) return;
+	ASFPlayerState* PlayerState = Cast<ASFPlayerState>(Player->GetPlayerState());
+	if (!IsValid(PlayerState)) return;
 
 	if (PlayerState->GetSeries() == 0) return;
 

@@ -8,8 +8,6 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChargeChanged, float, ChargeNorm);
 
-class ASFArrow;
-
 UCLASS()
 class SKYFALLER_API ASFBowWeapon : public ASFBaseWeapon
 {
@@ -19,24 +17,36 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnChargeChanged OnChargeChanged;
 
-	UFUNCTION(BlueprintCallable, Category = "Animation")
-	float GetCharge() const { return Charge / ChargeTime; };
+	UFUNCTION(BlueprintCallable)
+	float GetChargeNorm() const { return Charge / ChargeTime; }
+
+	UFUNCTION(BlueprintPure)
+	bool IsCharged() const { return bCharged; }
+
+	UFUNCTION(BlueprintPure)
+	bool IsDrawHold() const { return GetChargeNorm() > 0.0f; }
 
 	virtual void StartFire_Implementation() override;
 	virtual void StopFire_Implementation() override;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-	TSubclassOf<ASFArrow> ProjectileClass;
+	TSubclassOf<AActor> ProjectileClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	float ShotStrength = 5000.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	UAnimMontage* PlayerAimAnimMontage;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation", meta = (ClampMin = "0"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation", meta = (ClampMin = "0.01"))
 	float ChargeTime = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation", meta = (ClampMin = "0.01"))
 	float ChargeSpeed = 0.17f;
+
+	UFUNCTION(BlueprintCallable)
+	void ResetCharge();
 
 	virtual bool MakeShot_Implementation() override;
 
@@ -45,7 +55,6 @@ private:
 	FTimerHandle ChargeTimer;
 	float Charge = 0.0f;
 
-	bool CanFire() const { return bCharged; }
 	void Charging();
 	void SeriesCalc() const;
 };

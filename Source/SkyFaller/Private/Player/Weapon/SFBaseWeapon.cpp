@@ -18,7 +18,7 @@ ASFBaseWeapon::ASFBaseWeapon()
 
 void ASFBaseWeapon::OnWeaponSet_Implementation()
 {
-	const auto Player = GetPlayer();
+	const auto Player = Cast<ACharacter>(GetOwner());
 	if (!IsValid(Player)) return;
 
 	if (IsValid(PlayerAnimBP))
@@ -35,7 +35,7 @@ void ASFBaseWeapon::OnWeaponSet_Implementation()
 
 void ASFBaseWeapon::OnWeaponDrop_Implementation()
 {
-	const auto Player = GetPlayer();
+	const auto Player = Cast<ACharacter>(GetOwner());
 	if (IsValid(Player))
 	{
 		USkeletalMeshComponent* PlayerMesh = Player->GetMesh();
@@ -48,7 +48,7 @@ void ASFBaseWeapon::OnWeaponDrop_Implementation()
 	CachedPlayerBP = nullptr;
 }
 
-bool ASFBaseWeapon::GetTraceData(FVector& TraceStart, FVector& TraceEnd) const
+bool ASFBaseWeapon::GetTraceData(FVector& TraceStart, FVector& TraceEnd)
 {
 	FVector ViewLocation;
 	FRotator ViewRotation;
@@ -64,7 +64,7 @@ bool ASFBaseWeapon::GetTraceData(FVector& TraceStart, FVector& TraceEnd) const
 APlayerController* ASFBaseWeapon::GetPlayerController() const
 {
 	const auto Player = Cast<ACharacter>(GetOwner());
-	if (!Player) return nullptr;
+	if (!IsValid(Player)) return nullptr;
 
 	return Player->GetController<APlayerController>();
 }
@@ -78,7 +78,7 @@ bool ASFBaseWeapon::GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRota
 	return true;
 }
 
-void ASFBaseWeapon::MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd) const
+void ASFBaseWeapon::MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd)
 {
 	const UWorld* World = GetWorld();
 	if (!World) return;

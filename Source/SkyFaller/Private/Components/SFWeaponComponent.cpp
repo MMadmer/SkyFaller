@@ -69,7 +69,10 @@ void USFWeaponComponent::SpawnWeapon()
 	const auto World = GetWorld();
 	if (!World || !WeaponClass) return;
 
-	const auto Weapon = World->SpawnActor<ASFBaseWeapon>(WeaponClass);
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Instigator = Cast<APawn>(GetOwner());
+	SpawnParams.Owner = GetOwner();
+	const auto Weapon = World->SpawnActor<ASFBaseWeapon>(WeaponClass, SpawnParams);
 	if (!IsValid(Weapon)) return;
 
 	SetCurrentWeapon(Weapon);
