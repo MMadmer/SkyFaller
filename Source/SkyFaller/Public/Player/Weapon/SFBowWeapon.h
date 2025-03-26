@@ -36,9 +36,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	float ShotStrength = 5000.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	UAnimMontage* PlayerAimAnimMontage;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation", meta = (ClampMin = "0.01"))
 	float ChargeTime = 1.0f;
 

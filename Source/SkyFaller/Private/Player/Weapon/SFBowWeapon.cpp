@@ -15,12 +15,6 @@ void ASFBowWeapon::StartFire_Implementation()
 	const UPawnMovementComponent* MovementComp = Player->GetMovementComponent();
 	if (MovementComp->IsFalling()) return; // Don't start if falling
 
-	if (IsValid(PlayerAimAnimMontage))
-	{
-		const float MontageTime = PlayerAimAnimMontage->SequenceLength / ChargeTime;
-		Player->PlayAnimMontage(PlayerAimAnimMontage, MontageTime);
-	}
-
 	// Start weapon charging
 	if (!GetWorld()) return;
 	GetWorld()->GetTimerManager().SetTimer(ChargeTimer, this, &ASFBowWeapon::Charging, ChargeSpeed, true);
@@ -77,7 +71,6 @@ void ASFBowWeapon::ResetCharge()
 
 void ASFBowWeapon::Charging()
 {
-	const auto Player = Cast<ACharacter>(GetOwner());
 	if (Charge >= ChargeTime)
 	{
 		const UWorld* World = GetWorld();
@@ -85,11 +78,11 @@ void ASFBowWeapon::Charging()
 
 		World->GetTimerManager().ClearTimer(ChargeTimer);
 		bCharged = true;
-		if (IsValid(Player)) Player->StopAnimMontage(PlayerAimAnimMontage);
 	}
 	else
 	{
 		// Stop charging if falling
+		const auto Player = Cast<ACharacter>(GetOwner());
 		if (IsValid(Player))
 		{
 			const UPawnMovementComponent* MovementComp = Player->GetMovementComponent();
