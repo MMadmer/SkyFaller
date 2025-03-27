@@ -15,7 +15,7 @@ class USEFULTOOLS_API UUTExtendedObject : public UObject, public FTickableGameOb
 	GENERATED_BODY()
 
 public:
-	explicit UUTExtendedObject(const FObjectInitializer& ObjectInitializer);
+	UUTExtendedObject();
 
 	virtual void PostInitProperties() override;
 

@@ -5,7 +5,7 @@
 
 bool UUTExtendedObject::WaitingDeferred = false;
 
-UUTExtendedObject::UUTExtendedObject(const FObjectInitializer& ObjectInitializer)
+UUTExtendedObject::UUTExtendedObject()
 {
 	bCanTick = false;
 	bTickWhenPaused = false;
@@ -17,7 +17,7 @@ void UUTExtendedObject::PostInitProperties()
 {
 	Super::PostInitProperties();
 
-	if (HasAnyFlags(RF_ClassDefaultObject) || (IsInGameThread() && WaitingDeferred)) return;
+	if (HasAnyFlags(RF_ClassDefaultObject | RF_ArchetypeObject) || (IsInGameThread() && WaitingDeferred)) return;
 
 	FinishCreate();
 }

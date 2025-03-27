@@ -7,6 +7,7 @@
 #include "Engine/StaticMeshActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "Actors/UTPrefab.h"
+#include "Foliage/Public/InstancedFoliageActor.h"
 
 AEXPrefabCreator::AEXPrefabCreator()
 {
@@ -31,6 +32,8 @@ void AEXPrefabCreator::BeginPlay()
 void AEXPrefabCreator::CreatePrefab()
 {
 #if WITH_EDITOR
+	if (!IsValid(Handler)) return;
+
 	TArray<AActor*> Actors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), Actors);
 
@@ -65,8 +68,11 @@ void AEXPrefabCreator::CreatePrefab()
 	for (const auto& Actor : Actors)
 	{
 		if ((Actor->GetActorLocation() - GetActorLocation()).Size() > Handler->GetCollisionShape().GetSphereRadius())
+		{
 			continue;
+		}
 
+		// Make new scene component
 		USceneComponent* NewSceneComponent = NewObject<USceneComponent>(ParentActor, Actor->GetFName());
 		if (!NewSceneComponent) continue;
 		NewSceneComponent->SetRelativeTransform(
@@ -76,10 +82,11 @@ void AEXPrefabCreator::CreatePrefab()
 		NewSceneComponent->RegisterComponent();
 		ParentActor->AddInstanceComponent(NewSceneComponent);
 
+		// Add actor into prefab info
 		if (Cast<AStaticMeshActor>(Actor))
 		{
 			const auto& MeshComp = Cast<UStaticMeshComponent>(Actor->GetRootComponent());
-			if (!(MeshComp && MeshComp->GetStaticMesh())) continue;
+			if (!MeshComp || !MeshComp->GetStaticMesh()) continue;
 
 			// Save unique materials for prefab's static mesh
 			TArray<TSoftObjectPtr<UMaterialInterface>> SoftMaterials;
@@ -97,6 +104,58 @@ void AEXPrefabCreator::CreatePrefab()
 		else
 		{
 			ParentActor->SpawnObjects.Add(Actor->GetFName(), FPrefabInfo(Actor->GetClass()));
+		}
+	}
+
+	// Save foliage
+	AInstancedFoliageActor* Foliage = AInstancedFoliageActor::GetInstancedFoliageActorForCurrentLevel(GetWorld());
+	if (IsValid(Foliage))
+	{
+		// Get all foliage instances with all meshes
+		for (const auto& Pair : Foliage->GetAllInstancesFoliageType())
+		{
+			if (!Pair.Value) continue;
+
+			// Get mesh component
+			const UHierarchicalInstancedStaticMeshComponent* HISM = Pair.Value->GetComponent();
+			if (!IsValid(HISM)) continue;
+
+			// Save unique materials for prefab's static mesh
+			TArray<TSoftObjectPtr<UMaterialInterface>> SoftMaterials;
+			for (const auto& Material : HISM->GetMaterials())
+			{
+				SoftMaterials.Add(Material);
+			}
+
+			// Find foliage mesh instances inside creator
+			const FSphere Sphere{Handler->GetComponentLocation(), Handler->GetCollisionShape().GetSphereRadius()};
+			TArray<int32> Instances{};
+			Pair.Value->GetInstancesInsideSphere(Sphere, Instances);
+
+			// Make scene components
+			for (const auto& Instance : Instances)
+			{
+				const FName SceneName{FGuid::NewGuid().ToString()};
+
+				// Make new scene component
+				USceneComponent* NewSceneComponent = NewObject<USceneComponent>(ParentActor, SceneName);
+				if (!NewSceneComponent) continue;
+
+				FTransform InstanceTransform{};
+				HISM->GetInstanceTransform(Instance, InstanceTransform, true);
+				NewSceneComponent->SetRelativeTransform(
+					InstanceTransform.GetRelativeTransform(Prefab->GetActorTransform()));
+
+				NewSceneComponent->AttachToComponent(ParentActor->GetRootComponent(),
+				                                     FAttachmentTransformRules::KeepRelativeTransform);
+				NewSceneComponent->RegisterComponent();
+				ParentActor->AddInstanceComponent(NewSceneComponent);
+
+				ParentActor->SpawnObjects.Add(SceneName,
+				                              FPrefabInfo(AStaticMeshActor::StaticClass(),
+				                                          {HISM->GetStaticMesh(), SoftMaterials},
+				                                          HISM->GetCollisionProfileName()));
+			}
 		}
 	}
 
@@ -143,6 +202,26 @@ void AEXPrefabCreator::ClearPrefab()
 
 		Actor->Destroy();
 	}
+
+	// Remove foliage
+	AInstancedFoliageActor* Foliage = AInstancedFoliageActor::GetInstancedFoliageActorForCurrentLevel(GetWorld());
+	if (IsValid(Foliage))
+	{
+		for (const auto& Pair : Foliage->GetAllInstancesFoliageType())
+		{
+			if (!Pair.Value) continue;
+
+			FFoliageInfo* Info = Foliage->FindInfo(Pair.Key);
+			if (!Info) continue;
+
+			const FSphere Sphere{Handler->GetComponentLocation(), Handler->GetCollisionShape().GetSphereRadius()};
+			TArray<int32> Instances;
+			Pair.Value->GetInstancesInsideSphere(Sphere, Instances);
+
+			Info->RemoveInstances(Foliage, Instances, true);
+		}
+	}
+
 #endif
 }
 
