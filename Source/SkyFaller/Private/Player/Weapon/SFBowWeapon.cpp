@@ -3,115 +3,42 @@
 
 #include "Player/Weapon/SFBowWeapon.h"
 
-#include "Player/SFPlayerState.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/ProjectileMovementComponent.h"
-
-void ASFBowWeapon::StartFire_Implementation()
+void ASFBowWeapon::SetCharge(const float NewCharge)
 {
-	const auto Player = Cast<ACharacter>(GetOwner());
-	if (!Player) return;
-
-	const UPawnMovementComponent* MovementComp = Player->GetMovementComponent();
-	if (MovementComp->IsFalling()) return; // Don't start if falling
-
-	// Start weapon charging
-	if (!GetWorld()) return;
-	GetWorld()->GetTimerManager().SetTimer(ChargeTimer, this, &ASFBowWeapon::Charging, ChargeSpeed, true);
+	Charge = FMath::Clamp(NewCharge, 0.0f, ChargeTime);
+	OnChargeChanged.Broadcast(GetChargeNorm());
 }
 
-void ASFBowWeapon::StopFire_Implementation()
+void ASFBowWeapon::StartCharging()
 {
-	if (!GetWorld()) return;
-	GetWorld()->GetTimerManager().ClearTimer(ChargeTimer);
+	if (IsCharged()) return;
 
-	ResetCharge();
+	const UWorld* World = GetWorld();
+	if (World)
+	{
+		GetWorld()->GetTimerManager().SetTimer(ChargeTimer, this, &ASFBowWeapon::Charging,
+		                                       ChargeTime / static_cast<float>(ChargeFramerate), true);
+	}
 }
 
-bool ASFBowWeapon::MakeShot_Implementation()
+void ASFBowWeapon::StopCharging()
 {
-	UWorld* World = GetWorld();
-	if (!World || !bCharged) return false;
-
-	// Get shot direction
-	FVector TraceStart, TraceEnd;
-	if (!GetTraceData(TraceStart, TraceEnd)) return false;
-
-	FHitResult HitResult;
-	MakeHit(HitResult, TraceStart, TraceEnd);
-
-	const FVector EndPoint = HitResult.bBlockingHit ? HitResult.ImpactPoint : TraceEnd;
-	const FVector Direction = (EndPoint - GetMuzzleWorldLocation()).GetSafeNormal();
-
-	// Set new arrow transform(size, location, rotation)
-	FRotator NewRotation = Direction.Rotation();
-	FTransform SpawnTransform(NewRotation, GetMuzzleWorldLocation());
-
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Instigator = GetInstigator();
-	SpawnParams.Owner = this;
-	AActor* Arrow = World->SpawnActor<AActor>(ProjectileClass, SpawnTransform, SpawnParams);
-	if (!Arrow) return false;
-
-	const auto ProjComp = Cast<UProjectileMovementComponent>(
-		Arrow->GetComponentByClass(UProjectileMovementComponent::StaticClass()));
-	if (IsValid(ProjComp)) ProjComp->Velocity = Direction * ShotStrength + GetVelocity();
-
-	SeriesCalc();
-	ResetCharge();
-
-	return true;
-}
-
-void ASFBowWeapon::ResetCharge()
-{
-	Charge = 0.0f;
-	bCharged = false;
+	const UWorld* World = GetWorld();
+	if (World) GetWorld()->GetTimerManager().ClearTimer(ChargeTimer);
 }
 
 void ASFBowWeapon::Charging()
 {
-	if (Charge >= ChargeTime)
+	if (IsCharged())
 	{
 		const UWorld* World = GetWorld();
 		if (!World) return;
 
 		World->GetTimerManager().ClearTimer(ChargeTimer);
-		bCharged = true;
 	}
 	else
 	{
-		// Stop charging if falling
-		const auto Player = Cast<ACharacter>(GetOwner());
-		if (IsValid(Player))
-		{
-			const UPawnMovementComponent* MovementComp = Player->GetMovementComponent();
-			if (!IsValid(MovementComp) || MovementComp->IsFalling()) StopFire();
-		}
-
-		Charge += ChargeSpeed;
-		OnChargeChanged.Broadcast(
-			FMath::GetMappedRangeValueClamped(FVector2D(0.0f, ChargeTime), FVector2D(0.0f, 1.0f), Charge));
-	}
-}
-
-void ASFBowWeapon::SeriesCalc() const
-{
-	const auto Player = Cast<ACharacter>(GetOwner());
-	if (!IsValid(Player)) return;
-
-	ASFPlayerState* PlayerState = Cast<ASFPlayerState>(Player->GetPlayerState());
-	if (!IsValid(PlayerState)) return;
-
-	if (PlayerState->GetSeries() == 0) return;
-
-	if (PlayerState->bInSeries)
-	{
-		PlayerState->SetSeries(0);
-		PlayerState->bInSeries = false;
-	}
-	else
-	{
-		PlayerState->bInSeries = true;
+		SetCharge(Charge + ChargeTime / static_cast<float>(ChargeFramerate));
+		OnChargeChanged.Broadcast(GetChargeNorm());
 	}
 }

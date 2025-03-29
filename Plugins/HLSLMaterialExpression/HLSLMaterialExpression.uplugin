@@ -1,0 +1,30 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0",
+  "FriendlyName": "HLSLMaterialExpression",
+  "Description": "HLSL Material Expression is the premium edition of ”Custom“ Material Expression !",
+  "Category": "Editor",
+  "CreatedBy": "Zsttt",
+  "CreatedByURL": "https://forums.unrealengine.com/t/hlsl-material-expression/1205415",
+  "DocsURL": "https://forums.unrealengine.com/t/hlsl-material-expression/1205415",
+  "MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/5bd42f6f8ca44370b51decdfeced79be",
+  "SupportURL": "https://forums.unrealengine.com/t/hlsl-material-expression/1205415",
+  "EngineVersion": "4.27.0",
+  "CanContainContent": false,
+  "Installed": true,
+  "Modules": [
+    {
+      "Name": "HLSLMaterialExpression",
+      "Type": "Editor",
+      "LoadingPhase": "PostEngineInit",
+      "PlatformAllowList": [
+        "Android",
+        "IOS",
+        "Mac",
+        "Win64",
+        "Linux"
+      ]
+    }
+  ]
+}

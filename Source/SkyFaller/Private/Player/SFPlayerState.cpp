@@ -13,6 +13,6 @@ ASFPlayerState::ASFPlayerState()
 
 void ASFPlayerState::AddScore(const int32 Value)
 {
-	Score += Value;
+	Score = FMath::Max(Score + Value, 0);
 	OnScoreChanged.Broadcast(Value);
 }

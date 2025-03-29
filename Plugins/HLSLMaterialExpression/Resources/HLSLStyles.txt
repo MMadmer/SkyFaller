@@ -1,0 +1,15 @@
+﻿{
+	"ShowColors": true,
+	"ViewerSize": [ 600, 500 ],
+	"IsMaximize": false,
+	"NormalColor": "FFFF80FF",
+	"NumberColor": "B5CEA8FF",
+	"CommentColor": "57A64AFF",
+	"PreProcessorsColor": "9B9B9BFF",
+	"OperatorsColor": "A4B1B1FF",
+	"KeywordsColor": "569CD6FF",
+	"StringsColor": "D69D85FF",
+	"FunctionsColor": "FF8000FF",
+	"StructsColor": "80FF80FF",
+	"DefinesColor": "F200FCFF"
+}

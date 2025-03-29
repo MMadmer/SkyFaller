@@ -21,11 +21,20 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnScoreChangedSignature OnScoreChanged;
 
+	UPROPERTY(BlueprintReadWrite)
 	uint8 bInSeries : 1;
-	int32 GetScore() const { return Score; };
+
+	UFUNCTION(BlueprintPure)
+	int32 GetPlayerScore() const { return Score; }
+
+	UFUNCTION(BlueprintCallable)
 	void AddScore(const int32 Value);
-	int32 GetSeries() const { return Series; };
-	void SetSeries(const int32 Value) { Series = Value; };
+
+	UFUNCTION(BlueprintPure)
+	int32 GetSeries() const { return Series; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetSeries(const int32 Value) { Series = FMath::Max(Value, 0); }
 
 protected:
 	int32 Score = 0;

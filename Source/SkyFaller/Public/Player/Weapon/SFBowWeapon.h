@@ -17,17 +17,20 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnChargeChanged OnChargeChanged;
 
-	UFUNCTION(BlueprintCallable)
-	float GetChargeNorm() const { return Charge / ChargeTime; }
+	UFUNCTION(BlueprintPure)
+	float GetCharge() const { return Charge; }
 
 	UFUNCTION(BlueprintPure)
-	bool IsCharged() const { return bCharged; }
+	float GetChargeNorm() const
+	{
+		return FMath::GetMappedRangeValueClamped(FVector2D(0.0f, ChargeTime), FVector2D(0.0f, 1.0f), GetCharge());
+	}
+
+	UFUNCTION(BlueprintPure)
+	bool IsCharged() const { return GetCharge() >= ChargeTime; }
 
 	UFUNCTION(BlueprintPure)
 	bool IsDrawHold() const { return GetChargeNorm() > 0.0f; }
-
-	virtual void StartFire_Implementation() override;
-	virtual void StopFire_Implementation() override;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
@@ -36,22 +39,27 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	float ShotStrength = 5000.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation", meta = (ClampMin = "0.01"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon", meta = (ClampMin = "0.01"))
 	float ChargeTime = 1.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation", meta = (ClampMin = "0.01"))
-	float ChargeSpeed = 0.17f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon", meta = (ClampMin = "30", UIMin = "30"))
+	uint8 ChargeFramerate = 60;
 
 	UFUNCTION(BlueprintCallable)
-	void ResetCharge();
+	void SetCharge(const float NewCharge);
 
-	virtual bool MakeShot_Implementation() override;
+	UFUNCTION(BlueprintCallable)
+	void ResetCharge() { SetCharge(0.0f); }
+
+	UFUNCTION(BlueprintCallable)
+	void StartCharging();
+
+	UFUNCTION(BlueprintCallable)
+	void StopCharging();
 
 private:
-	uint8 bCharged : 1;
-	FTimerHandle ChargeTimer;
 	float Charge = 0.0f;
+	FTimerHandle ChargeTimer;
 
 	void Charging();
-	void SeriesCalc() const;
 };
